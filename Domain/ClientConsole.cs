@@ -6,12 +6,21 @@ namespace Domain
 {
     class ClientConsole
     {
-        void Response(string id) //del cliente
+        public void GetConsole(ClientThread ct, string id)
         {
-            string ret = "";
+            string[] response = Response(id);
+            ct.currentConsoleLocation = response[0];
+            ct.locationRequest = "";
+            ct.optionsResponse = response[1];
+        }
+
+        private string[] Response(string id) //del cliente
+        {
+            string options = "";
+            string currentLocation = "";
             if (id.Equals("1.")) //publicar juego
             {
-                ret += "1 Titulo/r/n" +
+                options += "1 Titulo/r/n" +
                     "2 Genero/r/n" +
                     "3 Calificacion de publico/r/n" +
                     "4 Descripcion/r/n" +
@@ -21,6 +30,8 @@ namespace Domain
             {
                 //TODO
             }
+            string[] ret = { currentLocation, options };
+            return ret;
         }
     }
 }
@@ -55,3 +66,21 @@ Juego:
     5.6. Ver reviews
 
  */
+
+//Opcion 1: una consola en el servidor, que atiende clientes de a uno. La consola tendrá que ser mutex.
+//Pros: no afectaría la memoria (RAM) del lado del servidor
+//Contras: Si hubiera muchos clientes cada uno tendría que esperar a los anteriores a que terminen de usar la consola.
+
+//Opcion 2: una consola en cada thread de clientes.
+//Pros: Los clientes no tendrían que esperar su turno en la consola. 
+//Contras: se podría acabar la memoria con muchos clientes.
+
+//Opcion 3: cada cliente se "descarga" una consola que habla con el servidor (significaría poner la consola en el lado del cliente, y que use la memoria de su máquina)
+//Pros: sin espera de turno y el servidor no se sobrecarga con n consolas
+//Contras: el cliente debe descargar la consola, tener la RAM necesaria. Pierde la gracia el obligatorio, en el que suponemos que hay que demostrar lo que entendimos de comunicación de redes 
+
+//Si suponemos que los clientes pasarán más tiempo leyendo el texto que devolvió la consola que el tiempo que gasta el servidor en procesar los requests de páginas, entonces la mejor opción es la 1. 
+//No vale la pena llenar la RAM del servidor con n hilos con consolas si los clientes hacen pocos requests por unidad de tiempo (en 1 unidad de tiempo, si menos del 50% se usa en requests (o responses?), conviene opcion 1 (calcular??))
+
+
+//El while(true) de client hay que cambiarlo por algo que salga si no encuentra conexión al servidor. Eso ocurre cuando el servidor se desconecta.

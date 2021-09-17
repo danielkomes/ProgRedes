@@ -16,6 +16,7 @@ namespace SocketSimpleClient
 
         static void Main(string[] args)
         {
+            #region Connection
             Socket clientSocket = new Socket(
                 AddressFamily.InterNetwork,
                 SocketType.Stream,
@@ -34,6 +35,7 @@ namespace SocketSimpleClient
             // esto es un ejemplo para mostrar el pasaje de datos
             // por ende es válido un while (true) para hacer más sencilla la tarea
             // el while (true) nunca sería válido en un trabajo que requiera corrección
+            #endregion
             while (true)
             {
                 // 1 Leo el mensaje
