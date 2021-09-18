@@ -16,6 +16,9 @@ namespace Domain
         public ClientThread(Socket socket)
         {
             this.socket = socket;
+            currentConsoleLocation = "0";
+            locationRequest = "";
+            optionsResponse = "";
         }
     }
 }

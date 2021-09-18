@@ -4,33 +4,86 @@ using System.Text;
 
 namespace Domain
 {
-    class ClientConsole
+    public class ClientConsole
     {
-        public void GetConsole(ClientThread ct, string id)
+        private const string error = "Comando incorrecto\r\n";
+        public void Response(ClientThread ct)
         {
-            string[] response = Response(id);
-            ct.currentConsoleLocation = response[0];
-            ct.locationRequest = "";
-            ct.optionsResponse = response[1];
+            string id = ct.locationRequest; //lo que el cliente ingresó
+            string request = ct.currentConsoleLocation + "." + id; //string completo para analizar. Ej "0.1.1"
+            ct.optionsResponse = GetConsole(request); //respuesta de GetConsole con las opciones a mostrar o un mensaje de error
+            if (!ct.optionsResponse.Equals(error)) //si no hubo error
+            {
+                ct.currentConsoleLocation = request; //actualizar la ubicacion del cliente en la consola
+            }
+            else
+            {
+                ct.optionsResponse += GetConsole(ct.currentConsoleLocation); //si hubo error, mostrar el mensaje y las mismas opciones que tenía antes de ingresar el string
+            }
+            ct.optionsResponse += "\r\n" + request + "\r\n";
+            ct.locationRequest = ""; //borrar el request para que no se envíe a la consola de nuevo
         }
 
-        private string[] Response(string id) //del cliente
+        private string GetConsole(string request)
         {
             string options = "";
-            string currentLocation = "";
-            if (id.Equals("1.")) //publicar juego
+            if (request.Equals("0")) //menu
             {
-                options += "1 Titulo/r/n" +
-                    "2 Genero/r/n" +
-                    "3 Calificacion de publico/r/n" +
-                    "4 Descripcion/r/n" +
-                    "5 Caratula";
+                options += "1 Publicar juego\r\n" +
+                    "2 Buscar juego\r\n";
             }
-            if (id.Equals("1.1."))
+            else if (request.Equals("0.1")) //publicar juego
             {
-                //TODO
+                options += "1 Titulo\r\n" +
+                    "2 Genero\r\n" +
+                    "3 Calificacion de publico\r\n" +
+                    "4 Descripcion\r\n" +
+                    "5 Caratula\r\n" +
+                    "6 Atras\r\n";
             }
-            string[] ret = { currentLocation, options };
+            else if (request.Equals("0.1.1"))
+            {
+                options += "Ingresar titulo: \r\n";
+            }
+            else if (request.Equals("0.1.2"))
+            {
+                options += "Ingresar genero: \r\n";
+            }
+            else if (request.Equals("0.1.3"))
+            {
+                options += "Ingresar calificacion de publico: \r\n";
+            }
+            else if (request.Equals("0.1.4"))
+            {
+                options += "Ingresar descripcion: \r\n";
+            }
+            else if (request.Equals("0.1.5"))
+            {
+                options += "Ingresar caratula: \r\n";//???
+            }
+            else if (request.Equals("0.1.6"))//atras
+            {
+                options += GetConsole(previousMenu(request));
+            }
+
+
+
+
+
+            else if (options.Equals(""))
+            {
+                //error
+                options += error;
+            }
+            else
+            {
+            }
+            return options;
+        }
+
+        private string previousMenu(string request)
+        {
+            string ret = request.Substring(0, request.LastIndexOf('.'));
             return ret;
         }
     }
@@ -44,10 +97,12 @@ menu principal
     1.3. Calificacion de publico
     1.4. Descripcion
     1.5. Caratula
+    1.6. Atras
 3. Buscar juegos
     3.1. Categoria
     3.2. Titulo
     3.3. Rating
+    3.4. Atras
 
 Juego:
 2. Modificar o borrar juego

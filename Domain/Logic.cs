@@ -4,7 +4,11 @@ using System.Text;
 
 namespace Domain
 {
-    class Logic
+    public class Logic
     {
+        static void Main(string[] args)
+        {
+            //Console.WriteLine("h");
+        }
     }
 }

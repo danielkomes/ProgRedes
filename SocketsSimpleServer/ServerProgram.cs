@@ -17,6 +17,7 @@ namespace SocketsSimpleServer
         private const int FixedSize = 4;
 
         private static List<ClientThread> clientThreads;
+        private static ClientConsole console;
 
         static void Main(string[] args)
         {
@@ -36,33 +37,50 @@ namespace SocketsSimpleServer
             serverSocket.Listen(Backlog);
             Console.WriteLine("Start listening for client");
             // Capturo al primer cliente que se quiera conectar
+            clientThreads = new List<ClientThread>();
+            console = new ClientConsole();
             Thread AcceptClientsThread = new Thread(() => AcceptClients());
             AcceptClientsThread.Start();
-            serverSocket.Close();
+            //serverSocket.Close();
             // De momento seguimos dejando un while true sin condición de parada
             // a efectos de hacer una demo
             #endregion
 
-            clientThreads = new List<ClientThread>();
         }
         static void AcceptClients()
         {
-            Socket clientSocket = serverSocket.Accept();
-            clientThreads.Add(new ClientThread(clientSocket));
-
-            new Thread(() => Listen(clientSocket)).Start();
             while (true)
             {
-                // 1 Leo el mensaje
-                string message = Console.ReadLine();
-                // 2 Codifico el mensaje a bytes
-                byte[] data = Encoding.UTF8.GetBytes(message);
-                // 3 Leo el largo de los datos codificados a bytes
-                int length = data.Length;
-                // 4 Codifico el largo de los datos variables a bytes
-                byte[] dataLength = BitConverter.GetBytes(length);
-                SendMessage(clientSocket, dataLength);
-                SendMessage(clientSocket, data);
+                Socket clientSocket = serverSocket.Accept();
+                clientThreads.Add(new ClientThread(clientSocket));
+                Console.WriteLine("new client connected");
+                new Thread(() => Listen(clientSocket)).Start();
+                new Thread(() => ResponseToClient(clientSocket)).Start();
+            }
+        }
+        static void ResponseToClient(Socket clientSocket)
+        {
+            ClientThread ct = clientThreads.Find(t => t.socket.Equals(clientSocket));
+            ct.locationRequest = "0";
+            while (true)
+            {
+                if (!ct.locationRequest.Equals(""))
+                {
+                    console.Response(ct);
+                    string message = ct.optionsResponse;
+                    if (!message.Equals(""))
+                    {
+                        // 1 Leo el mensaje
+                        // 2 Codifico el mensaje a bytes
+                        byte[] data = Encoding.UTF8.GetBytes(message);
+                        // 3 Leo el largo de los datos codificados a bytes
+                        int length = data.Length;
+                        // 4 Codifico el largo de los datos variables a bytes
+                        byte[] dataLength = BitConverter.GetBytes(length);
+                        SendMessage(clientSocket, dataLength);
+                        SendMessage(clientSocket, data);
+                    }
+                }
             }
         }
         static void SendMessage(Socket clientSocket, byte[] data)
@@ -124,8 +142,11 @@ namespace SocketsSimpleServer
                 byte[] data = ReceiveMessage(clientSocket, length);
                 // 6 Convierto (decodifico) esos datos a un string
                 string message = Encoding.UTF8.GetString(data);
+                ClientThread ct = clientThreads.Find(t => t.socket.Equals(clientSocket));
+                ct.locationRequest = message;
                 // 7 Muestro los datos
-                Console.WriteLine(message);
+                //Console.WriteLine(message); ahora hay que responder con las opciones de consola. ResponseToClients() lo hará automáticamente si corresponde
+
             }
         }
     }
