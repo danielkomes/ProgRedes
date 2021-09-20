@@ -19,7 +19,7 @@ namespace Domain
                 Genre = EGenre.Action,
                 AgeRating = 18,
                 Description = "mentally unstable man dresses up at nights, beats up people into near comma state, lets other people die in his quest to never kill anyone",
-                Caratula = "batman caratula"
+                Poster = "batman poster"
             };
             Sys.AddGame(batman);
             Game warframe = new Game
@@ -28,7 +28,7 @@ namespace Domain
                 Genre = EGenre.Action,
                 AgeRating = 18,
                 Description = "children with ninja complex with dysfunctional family find another dysfunctional family, fix it and get adopted by them, and then try to kill their original family",
-                Caratula = "warframe caratula"
+                Poster = "warframe poster"
             };
             Sys.AddGame(warframe);
 
@@ -38,7 +38,7 @@ namespace Domain
                 Genre = EGenre.Adventure,
                 AgeRating = 7,
                 Description = "plumber with dead carreer almost gets killed, is saved by alien who then helps him overtake the mind of creatures against their will, all to get a girl",
-                Caratula = "mario caratula"
+                Poster = "mario poster"
             };
             Sys.AddGame(mario);
             Game kirby = new Game
@@ -47,7 +47,7 @@ namespace Domain
                 Genre = EGenre.Adventure,
                 AgeRating = 7,
                 Description = "amorphous god lands on planet and then eats its inhabitants whole",
-                Caratula = "kirby caratula"
+                Poster = "kirby poster"
             };
             Sys.AddGame(kirby);
 
@@ -57,7 +57,7 @@ namespace Domain
                 Genre = EGenre.Horror,
                 AgeRating = 3,
                 Description = "mutant feline-flying squirrel trying too hard to be funny gets teleported to different universes (i guess?) where almost every mundane thing is deadly",
-                Caratula = "bubsy caratula"
+                Poster = "bubsy poster"
             };
             Sys.AddGame(bubsy);
             Game amnesia = new Game
@@ -66,7 +66,7 @@ namespace Domain
                 Genre = EGenre.Horror,
                 AgeRating = 18,
                 Description = "i can't remember",
-                Caratula = "amnesia caratula"
+                Poster = "amnesia poster"
             };
             Sys.AddGame(amnesia);
 
@@ -76,7 +76,7 @@ namespace Domain
                 Genre = EGenre.Survival,
                 AgeRating = 7,
                 Description = "alien humanoids appear in a world and proceed to exhaust natural resources and ravage the land, and then kill the last member of a protected species",
-                Caratula = "minecraft caratula"
+                Poster = "minecraft poster"
             };
             Sys.AddGame(minecraft);
             Game terraria = new Game
@@ -85,7 +85,7 @@ namespace Domain
                 Genre = EGenre.Survival,
                 AgeRating = 12,
                 Description = "minecraft but 2d and more fun and less feelings of regret",
-                Caratula = "terraria caratula"
+                Poster = "terraria poster"
             };
             Sys.AddGame(terraria);
 
@@ -95,7 +95,7 @@ namespace Domain
                 Genre = EGenre.RPG,
                 AgeRating = 18,
                 Description = "2 psychopaths with plot armor ruin even more a young black man's future",
-                Caratula = "gta caratula"
+                Poster = "gta poster"
             };
             Sys.AddGame(gta);
             Game tera = new Game
@@ -104,7 +104,7 @@ namespace Domain
                 Genre = EGenre.RPG,
                 AgeRating = 12,
                 Description = "experience getting catfished by men playing as girls in unnecesarily revealing outfits at 20fps because your gpu is busy calculating all the 'jiggle' physics",
-                Caratula = "tera caratula"
+                Poster = "tera poster"
             };
             Sys.AddGame(tera);
         }

@@ -7,7 +7,7 @@ namespace Domain
 {
     public class ClientConsole
     {
-        private const string error = "\r\nComando incorrecto\r\n";
+        private const string error = "\r\nIncorrect input\r\n";
         private const string publishGame = "PUBLISH_GAME";
         private const string separator = "________________________________________________________";
         public void Response(ClientThread ct)
@@ -35,8 +35,8 @@ namespace Domain
             string options = "";
             if (request.Equals("0.0")) //menu
             {
-                options += "1 Publicar juego\r\n" +
-                    "2 Buscar juego\r\n";
+                options += "1 Publish game\r\n" +
+                    "2 Find game\r\n";
                 ct.CurrentConsoleLocation = "0";
             }
             else if (request.Equals("0.1")) //publicar juego
@@ -45,18 +45,20 @@ namespace Domain
                 {
                     ct.GameToPublish = new Game();
                 }
-                options += "1 Titulo: " + ct.GameToPublish.Title + "\r\n" +
-                    "2 Genero: " + ct.GameToPublish.Genre + "\r\n" +
-                    "3 Calificacion de publico: " + ct.GameToPublish.AgeRating + "\r\n" +
-                    "4 Descripcion: " + ct.GameToPublish.Description + "\r\n" +
-                    "5 Caratula: " + ct.GameToPublish.Caratula + "\r\n" +
-                    "6 Aceptar\r\n" +
-                    "7 Atras\r\n";
+                options += "1 Title: " + ct.GameToPublish.Title + "\r\n" +
+                    "2 Genre: " + ct.GameToPublish.Genre + "\r\n" +
+                    "3 Age rating: " + ct.GameToPublish.AgeRating + "\r\n" +
+                    "4 Description: " + ct.GameToPublish.Description + "\r\n" +
+                    "5 Poster: " + ct.GameToPublish.Poster + "\r\n" +
+                    "\r\n" +
+                    "6 Accept\r\n" +
+                    "7 Back\r\n" +
+                    "8-------------- TEST FILL\r\n";
                 ct.CurrentConsoleLocation = "0.1";
             }
             else if (request.Equals("0.1.1"))
             {
-                options += "Ingresar titulo: \r\n";
+                options += "Input title: \r\n";
                 ct.CurrentConsoleLocation = "0.1.1";
             }
             #region Genre
@@ -98,17 +100,17 @@ namespace Domain
             #endregion
             else if (request.Equals("0.1.3"))
             {
-                options += "Ingresar calificacion de publico: \r\n";
+                options += "Input age rating: \r\n";
                 ct.CurrentConsoleLocation = "0.1.3";
             }
             else if (request.Equals("0.1.4"))
             {
-                options += "Ingresar descripcion: \r\n";
+                options += "Input description: \r\n";
                 ct.CurrentConsoleLocation = "0.1.4";
             }
             else if (request.Equals("0.1.5"))
             {
-                options += "Ingresar caratula: \r\n";//???
+                options += "Input poster: \r\n";//???
                 ct.CurrentConsoleLocation = "0.1.5";
             }
             else if (request.Equals("0.1.6"))//aceptar
@@ -117,13 +119,13 @@ namespace Domain
                 {
                     Sys.AddGame(ct.GameToPublish);
                     ct.GameToPublish = null;
-                    options += "\r\nGame published\r\n";
+                    options += "\r\nGAME PUBLISHED\r\n";
                 }
                 else
                 {
                     options += "\r\nSome fields are missing info\r\n";
                 }
-                options += GoTo(ct, "0.1");
+                options = GoTo(ct, "0.1") + options;
             }
             else if (request.Equals("0.1.7"))//atras
             {
@@ -131,14 +133,25 @@ namespace Domain
                 options += GoTo(ct, "0.0");
                 options += "\r\nPublishing aborted\r\n";
             }
+            else if (request.Equals("0.1.8"))//test fill
+            {
+                ct.GameToPublish.Title = "TEST TITLE";
+                ct.GameToPublish.Genre = EGenre.Action;
+                ct.GameToPublish.AgeRating = -1;
+                ct.GameToPublish.Description = "TEST DESCRIPTION";
+                ct.GameToPublish.Poster = "TEST CARATULA";
+                options += GoTo(ct, "0.1");
+            }
 
             else if (request.Equals("0.2")) //buscar juego
             {
                 options += "1 Back\r\n";
+                options += "--------\r\n";
+                options += "Games: \r\n";
                 options += "\r\n" + Logic.ListGames();
                 ct.CurrentConsoleLocation = "0.2";
             }
-            else if (request.Equals("0.2.1"))
+            else if (request.Equals("0.2.1")) //atras
             {
                 options += GoTo(ct, "0.0");
             }
@@ -158,7 +171,7 @@ namespace Domain
                     }
                     catch (FormatException)
                     {
-                        options += "Debe ser un numero\r\n";
+                        options += "Input must be a number\r\n";
                         options += GoTo(ct, "0.1.3");
                     }
                 }
@@ -169,7 +182,7 @@ namespace Domain
                 }
                 else if (ct.CurrentConsoleLocation.Equals("0.1.5")) //caratula
                 {
-                    ct.GameToPublish.Caratula = ct.LocationRequest;
+                    ct.GameToPublish.Poster = ct.LocationRequest;
                     options += GoTo(ct, "0.1");
                 }
                 else //error
@@ -222,6 +235,18 @@ Juego:
     5.5. Caratula
     5.6. Ver reviews
 
+
+    
+//El while(true) de client y server hay que cambiarlo por algo que salga si no encuentra conexión. Eso ocurre cuando alguien se desconecta.
+
+    Flujo: ClientProgram -> ServerProgram > ClientConsole < ServerProgram -> ClientProgram
+        ClientProgram escribe en consola, se envia a ServerProgram, el servidor llama a ClientConsole, pasándole los datos de posición actual y último input,
+        ClientConsole revisa la posicion actual de ESE cliente en la consola, lee el input y decide qué opción corresponde mostrar. 
+        Ese string se devuelve al servidor, que lo envía inmediatamente al cliente
+
+    BUGS: Sys no está guardando los juegos de prueba creados en Logic, sólo guarda los creados por el cliente. Problema instance--static class?
+            Sólo se puede conectar UN cliente. Corregir con programa de chat de clases anteriores?
+
  */
 
 //Opcion 1: una consola en el servidor, que atiende clientes de a uno. La consola tendrá que ser mutex.
@@ -239,5 +264,3 @@ Juego:
 //Si suponemos que los clientes pasarán más tiempo leyendo el texto que devolvió la consola que el tiempo que gasta el servidor en procesar los requests de páginas, entonces la mejor opción es la 1. 
 //No vale la pena llenar la RAM del servidor con n hilos con consolas si los clientes hacen pocos requests por unidad de tiempo (en 1 unidad de tiempo, si menos del 50% se usa en requests (o responses?), conviene opcion 1 (calcular??))
 
-
-//El while(true) de client y server hay que cambiarlo por algo que salga si no encuentra conexión. Eso ocurre cuando alguien se desconecta.
