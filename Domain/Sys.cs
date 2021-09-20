@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace Domain
 {
@@ -13,11 +14,24 @@ namespace Domain
         {
             Games = new List<Game>();
             Clients = new List<Client>();
+            Thread t = new Thread(() => TestPrintGames());
+            //t.Start();
         }
 
         public static void AddGame(Game game)
         {
             Games.Add(game);
+        }
+
+        private static void TestPrintGames()
+        {
+            while (true)
+            {
+                foreach (Game game in Games)
+                {
+                    Console.WriteLine(game.Title);
+                }
+            }
         }
     }
 }

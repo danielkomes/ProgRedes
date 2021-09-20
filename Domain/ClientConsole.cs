@@ -33,7 +33,7 @@ namespace Domain
         private string GetConsole(ClientThread ct, string request)
         {
             string options = "";
-            if (request.Equals("0")) //menu
+            if (request.Equals("0.0")) //menu
             {
                 options += "1 Publicar juego\r\n" +
                     "2 Buscar juego\r\n";
@@ -59,6 +59,7 @@ namespace Domain
                 options += "Ingresar titulo: \r\n";
                 ct.CurrentConsoleLocation = "0.1.1";
             }
+            #region Genre
             else if (request.Equals("0.1.2"))
             {
                 options += "Ingresar genero: \r\n" +
@@ -94,6 +95,7 @@ namespace Domain
                 ct.GameToPublish.Genre = EGenre.RPG;
                 options += GoTo(ct, "0.1");
             }
+            #endregion
             else if (request.Equals("0.1.3"))
             {
                 options += "Ingresar calificacion de publico: \r\n";
@@ -125,11 +127,21 @@ namespace Domain
             }
             else if (request.Equals("0.1.7"))//atras
             {
-                options += "\r\nPublishing aborted\r\n";
                 ct.GameToPublish = null;
-                options += GoTo(ct, "0");
+                options += GoTo(ct, "0.0");
+                options += "\r\nPublishing aborted\r\n";
             }
 
+            else if (request.Equals("0.2")) //buscar juego
+            {
+                options += "1 Back\r\n";
+                options += "\r\n" + Logic.ListGames();
+                ct.CurrentConsoleLocation = "0.2";
+            }
+            else if (request.Equals("0.2.1"))
+            {
+                options += GoTo(ct, "0.0");
+            }
             else if (options.Equals("")) //significa que se escribió algo que no era una de las opciones. Si estaba en un campo de respuesta abierta, tomar la respuesta. Si no, dar un error
             {
                 if (ct.CurrentConsoleLocation.Equals("0.1.1")) //si estaba en Publicar juego> elegir título
@@ -160,12 +172,10 @@ namespace Domain
                     ct.GameToPublish.Caratula = ct.LocationRequest;
                     options += GoTo(ct, "0.1");
                 }
-                else
+                else //error
                 {
-                    //error
                     options += error;
                 }
-                request = "";
             }
             else
             {
@@ -230,4 +240,4 @@ Juego:
 //No vale la pena llenar la RAM del servidor con n hilos con consolas si los clientes hacen pocos requests por unidad de tiempo (en 1 unidad de tiempo, si menos del 50% se usa en requests (o responses?), conviene opcion 1 (calcular??))
 
 
-//El while(true) de client hay que cambiarlo por algo que salga si no encuentra conexión al servidor. Eso ocurre cuando el servidor se desconecta.
+//El while(true) de client y server hay que cambiarlo por algo que salga si no encuentra conexión. Eso ocurre cuando alguien se desconecta.
