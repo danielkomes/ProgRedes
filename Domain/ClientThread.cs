@@ -7,18 +7,18 @@ namespace Domain
 {
     public class ClientThread
     {
-        //public HashCode hashCode { get; private set; }
-        public Socket socket { get; set; }
-        public string currentConsoleLocation { get; set; }
-        public string locationRequest { get; set; }
-        public string optionsResponse { get; set; }
+        public Socket Socket { get; set; }
+        public string CurrentConsoleLocation { get; set; }
+        public string LocationRequest { get; set; }
+        public string OptionsResponse { get; set; }
+        public Game GameToPublish { get; set; }
 
         public ClientThread(Socket socket)
         {
-            this.socket = socket;
-            currentConsoleLocation = "0";
-            locationRequest = "";
-            optionsResponse = "";
+            this.Socket = socket;
+            CurrentConsoleLocation = "0";
+            LocationRequest = "";
+            OptionsResponse = "";
         }
     }
 }

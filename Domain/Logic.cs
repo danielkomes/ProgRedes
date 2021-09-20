@@ -8,7 +8,6 @@ namespace Domain
     {
         static void Main(string[] args)
         {
-            //Console.WriteLine("h");
         }
     }
 }

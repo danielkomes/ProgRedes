@@ -4,8 +4,7 @@ using System.Text;
 
 namespace Domain
 {
-    public enum EGenre
+    class Client
     {
-        None, Action, Adventure, Horror, Survival, RPG
     }
 }

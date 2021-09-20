@@ -2,78 +2,170 @@
 using System.Collections.Generic;
 using System.Text;
 
+
 namespace Domain
 {
     public class ClientConsole
     {
-        private const string error = "Comando incorrecto\r\n";
+        private const string error = "\r\nComando incorrecto\r\n";
+        private const string publishGame = "PUBLISH_GAME";
+        private const string separator = "________________________________________________________";
         public void Response(ClientThread ct)
         {
-            string id = ct.locationRequest; //lo que el cliente ingresó
-            string request = ct.currentConsoleLocation + "." + id; //string completo para analizar. Ej "0.1.1"
-            ct.optionsResponse = GetConsole(request); //respuesta de GetConsole con las opciones a mostrar o un mensaje de error
-            if (!ct.optionsResponse.Equals(error)) //si no hubo error
+            string id = ct.LocationRequest; //lo que el cliente ingresó
+            string request = ct.CurrentConsoleLocation + "." + id; //string completo para analizar. Ej "0.1.1"
+            ct.OptionsResponse = GetConsole(ct, request); //respuesta de GetConsole con las opciones a mostrar o un mensaje de error
+            if (!ct.OptionsResponse.Equals(error)) //si no hubo error
             {
-                ct.currentConsoleLocation = request; //actualizar la ubicacion del cliente en la consola
+                //ct.CurrentConsoleLocation = request; //actualizar la ubicacion del cliente en la consola
             }
             else
             {
-                ct.optionsResponse += GetConsole(ct.currentConsoleLocation); //si hubo error, mostrar el mensaje y las mismas opciones que tenía antes de ingresar el string
+                ct.OptionsResponse = GetConsole(ct, ct.CurrentConsoleLocation) + ct.OptionsResponse; //si hubo error, mostrar el mensaje y las mismas opciones que tenía antes de ingresar el string
             }
-            ct.optionsResponse += "\r\n" + request + "\r\n";
-            ct.locationRequest = ""; //borrar el request para que no se envíe a la consola de nuevo
+            ct.OptionsResponse = "\r\n" + separator + "\r\n" + ct.OptionsResponse + "\r\n";
+            ct.LocationRequest = ""; //borrar el request para que no se envíe a la consola de nuevo
+
+
+
         }
 
-        private string GetConsole(string request)
+        private string GetConsole(ClientThread ct, string request)
         {
             string options = "";
             if (request.Equals("0")) //menu
             {
                 options += "1 Publicar juego\r\n" +
                     "2 Buscar juego\r\n";
+                ct.CurrentConsoleLocation = "0";
             }
             else if (request.Equals("0.1")) //publicar juego
             {
-                options += "1 Titulo\r\n" +
-                    "2 Genero\r\n" +
-                    "3 Calificacion de publico\r\n" +
-                    "4 Descripcion\r\n" +
-                    "5 Caratula\r\n" +
-                    "6 Atras\r\n";
+                if (ct.GameToPublish == null)
+                {
+                    ct.GameToPublish = new Game();
+                }
+                options += "1 Titulo: " + ct.GameToPublish.Title + "\r\n" +
+                    "2 Genero: " + ct.GameToPublish.Genre + "\r\n" +
+                    "3 Calificacion de publico: " + ct.GameToPublish.AgeRating + "\r\n" +
+                    "4 Descripcion: " + ct.GameToPublish.Description + "\r\n" +
+                    "5 Caratula: " + ct.GameToPublish.Caratula + "\r\n" +
+                    "6 Aceptar\r\n" +
+                    "7 Atras\r\n";
+                ct.CurrentConsoleLocation = "0.1";
             }
             else if (request.Equals("0.1.1"))
             {
                 options += "Ingresar titulo: \r\n";
+                ct.CurrentConsoleLocation = "0.1.1";
             }
             else if (request.Equals("0.1.2"))
             {
-                options += "Ingresar genero: \r\n";
+                options += "Ingresar genero: \r\n" +
+                    "1 " + EGenre.Action + "\r\n" +
+                    "2 " + EGenre.Adventure + "\r\n" +
+                    "3 " + EGenre.Horror + "\r\n" +
+                    "4 " + EGenre.Survival + "\r\n" +
+                    "5 " + EGenre.RPG + "\r\n";
+                ct.CurrentConsoleLocation = "0.1.2";
+            }
+            else if (request.Equals("0.1.2.1"))
+            {
+                ct.GameToPublish.Genre = EGenre.Action;
+                options += GoTo(ct, "0.1");
+            }
+            else if (request.Equals("0.1.2.2"))
+            {
+                ct.GameToPublish.Genre = EGenre.Adventure;
+                options += GoTo(ct, "0.1");
+            }
+            else if (request.Equals("0.1.2.3"))
+            {
+                ct.GameToPublish.Genre = EGenre.Horror;
+                options += GoTo(ct, "0.1");
+            }
+            else if (request.Equals("0.1.2.4"))
+            {
+                ct.GameToPublish.Genre = EGenre.Survival;
+                options += GoTo(ct, "0.1");
+            }
+            else if (request.Equals("0.1.2.5"))
+            {
+                ct.GameToPublish.Genre = EGenre.RPG;
+                options += GoTo(ct, "0.1");
             }
             else if (request.Equals("0.1.3"))
             {
                 options += "Ingresar calificacion de publico: \r\n";
+                ct.CurrentConsoleLocation = "0.1.3";
             }
             else if (request.Equals("0.1.4"))
             {
                 options += "Ingresar descripcion: \r\n";
+                ct.CurrentConsoleLocation = "0.1.4";
             }
             else if (request.Equals("0.1.5"))
             {
                 options += "Ingresar caratula: \r\n";//???
+                ct.CurrentConsoleLocation = "0.1.5";
             }
-            else if (request.Equals("0.1.6"))//atras
+            else if (request.Equals("0.1.6"))//aceptar
             {
-                options += GetConsole(previousMenu(request));
+                if (ct.GameToPublish.IsFieldsFilled())
+                {
+                    Sys.AddGame(ct.GameToPublish);
+                    ct.GameToPublish = null;
+                    options += "\r\nGame published\r\n";
+                }
+                else
+                {
+                    options += "\r\nSome fields are missing info\r\n";
+                }
+                options += GoTo(ct, "0.1");
+            }
+            else if (request.Equals("0.1.7"))//atras
+            {
+                options += "\r\nPublishing aborted\r\n";
+                ct.GameToPublish = null;
+                options += GoTo(ct, "0");
             }
 
-
-
-
-
-            else if (options.Equals(""))
+            else if (options.Equals("")) //significa que se escribió algo que no era una de las opciones. Si estaba en un campo de respuesta abierta, tomar la respuesta. Si no, dar un error
             {
-                //error
-                options += error;
+                if (ct.CurrentConsoleLocation.Equals("0.1.1")) //si estaba en Publicar juego> elegir título
+                {
+                    ct.GameToPublish.Title = ct.LocationRequest;
+                    options += GoTo(ct, "0.1");
+                }
+                else if (ct.CurrentConsoleLocation.Equals("0.1.3")) //calificacion de edad
+                {
+                    try
+                    {
+                        ct.GameToPublish.AgeRating = int.Parse(ct.LocationRequest);
+                        options += GoTo(ct, "0.1");
+                    }
+                    catch (FormatException)
+                    {
+                        options += "Debe ser un numero\r\n";
+                        options += GoTo(ct, "0.1.3");
+                    }
+                }
+                else if (ct.CurrentConsoleLocation.Equals("0.1.4")) //descripcion
+                {
+                    ct.GameToPublish.Description = ct.LocationRequest;
+                    options += GoTo(ct, "0.1");
+                }
+                else if (ct.CurrentConsoleLocation.Equals("0.1.5")) //caratula
+                {
+                    ct.GameToPublish.Caratula = ct.LocationRequest;
+                    options += GoTo(ct, "0.1");
+                }
+                else
+                {
+                    //error
+                    options += error;
+                }
+                request = "";
             }
             else
             {
@@ -81,10 +173,10 @@ namespace Domain
             return options;
         }
 
-        private string previousMenu(string request)
+        private string GoTo(ClientThread ct, string location)
         {
-            string ret = request.Substring(0, request.LastIndexOf('.'));
-            return ret;
+            ct.CurrentConsoleLocation = location;
+            return GetConsole(ct, location);
         }
     }
 }

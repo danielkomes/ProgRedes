@@ -60,26 +60,23 @@ namespace SocketsSimpleServer
         }
         static void ResponseToClient(Socket clientSocket)
         {
-            ClientThread ct = clientThreads.Find(t => t.socket.Equals(clientSocket));
-            ct.locationRequest = "0";
+            ClientThread ct = clientThreads.Find(t => t.Socket.Equals(clientSocket));
+            ct.LocationRequest = "0";
             while (true)
             {
-                if (!ct.locationRequest.Equals(""))
+                if (!ct.LocationRequest.Equals(""))
                 {
                     console.Response(ct);
-                    string message = ct.optionsResponse;
-                    if (!message.Equals(""))
-                    {
-                        // 1 Leo el mensaje
-                        // 2 Codifico el mensaje a bytes
-                        byte[] data = Encoding.UTF8.GetBytes(message);
-                        // 3 Leo el largo de los datos codificados a bytes
-                        int length = data.Length;
-                        // 4 Codifico el largo de los datos variables a bytes
-                        byte[] dataLength = BitConverter.GetBytes(length);
-                        SendMessage(clientSocket, dataLength);
-                        SendMessage(clientSocket, data);
-                    }
+                    string message = ct.OptionsResponse;
+                    // 1 Leo el mensaje
+                    // 2 Codifico el mensaje a bytes
+                    byte[] data = Encoding.UTF8.GetBytes(message);
+                    // 3 Leo el largo de los datos codificados a bytes
+                    int length = data.Length;
+                    // 4 Codifico el largo de los datos variables a bytes
+                    byte[] dataLength = BitConverter.GetBytes(length);
+                    SendMessage(clientSocket, dataLength);
+                    SendMessage(clientSocket, data);
                 }
             }
         }
@@ -142,8 +139,8 @@ namespace SocketsSimpleServer
                 byte[] data = ReceiveMessage(clientSocket, length);
                 // 6 Convierto (decodifico) esos datos a un string
                 string message = Encoding.UTF8.GetString(data);
-                ClientThread ct = clientThreads.Find(t => t.socket.Equals(clientSocket));
-                ct.locationRequest = message;
+                ClientThread ct = clientThreads.Find(t => t.Socket.Equals(clientSocket));
+                ct.LocationRequest = message;
                 // 7 Muestro los datos
                 //Console.WriteLine(message); ahora hay que responder con las opciones de consola. ResponseToClients() lo hará automáticamente si corresponde
 
