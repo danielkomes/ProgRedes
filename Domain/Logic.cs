@@ -6,12 +6,14 @@ namespace Domain
 {
     static class Logic
     {
+        private const int indexStart = 2;
+
         static void Main(string[] args)
         {
             TestGames();
         }
 
-        private static void TestGames()
+        public static void TestGames()
         {
             Game batman = new Game
             {
@@ -112,9 +114,37 @@ namespace Domain
         public static string ListGames()
         {
             string ret = "";
+            int index = indexStart; //para listar, opción 1 será Back, los juegos van de la 2 en adelante
             foreach (Game game in Sys.Games)
             {
-                ret += game.Title + "\r\n";
+                ret += index + " " + game.Title + "\r\n";
+                index++;
+            }
+            return ret;
+        }
+
+        public static string ListReviews(Game game)
+        {
+            string ret = "";
+            foreach (Review r in game.Reviews)
+            {
+                ret += "\r\n" + r.Description + "\r\n" +
+                    "Rating: " + r.Rating + "\r\n";
+            }
+            return ret;
+        }
+
+        public static Game GetGameByIndex(int input)
+        {
+            int index = input - indexStart;
+            Game ret = null;
+            if (index >= 0 && index < Sys.Games.Count)
+            {
+                ret = Sys.Games[index];
+            }
+            else
+            {
+                //out of range
             }
             return ret;
         }

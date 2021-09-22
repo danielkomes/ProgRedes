@@ -12,6 +12,7 @@ namespace Domain
         public string LocationRequest { get; set; }
         public string OptionsResponse { get; set; }
         public Game GameToPublish { get; set; }
+        public Game GameToView { get; set; }
 
         public ClientThread(Socket socket)
         {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -13,6 +14,8 @@ namespace SocketSimpleClient
         private const string ClientIpAddress = "127.0.0.1";
         private const int ClientPort = 0;
         private const int FixedSize = 4;
+        private static ClientConsole ClientConsole;
+
 
         static void Main(string[] args)
         {
@@ -30,27 +33,28 @@ namespace SocketSimpleClient
                 IPAddress.Parse(ServerIpAddress),
                 ServerPort);
             clientSocket.Connect(serverEndPoint);
-            new Thread(() => Listen(clientSocket)).Start();
+            //new Thread(() => Listen(clientSocket)).Start();
             Console.WriteLine("Connected to server");
+            ClientConsole = new ClientConsole();
             // esto es un ejemplo para mostrar el pasaje de datos
             // por ende es válido un while (true) para hacer más sencilla la tarea
             // el while (true) nunca sería válido en un trabajo que requiera corrección
             #endregion
-            while (true)
-            {
-                // 1 Leo el mensaje
-                string message = Console.ReadLine();
-                // 2 Codifico el mensaje a bytes
-                byte[] data = Encoding.UTF8.GetBytes(message);
-                // 3 Leo el largo de los datos codificados a bytes
-                int length = data.Length;
-                // 4 Codifico el largo de los datos variables a bytes
-                byte[] dataLength = BitConverter.GetBytes(length);
-                // 6 Envío el mensaje codificado a bytes
+            //while (true)
+            //{
+            //    // 1 Leo el mensaje
+            //    string message = Console.ReadLine();
+            //    // 2 Codifico el mensaje a bytes
+            //    byte[] data = Encoding.UTF8.GetBytes(message);
+            //    // 3 Leo el largo de los datos codificados a bytes
+            //    int length = data.Length;
+            //    // 4 Codifico el largo de los datos variables a bytes
+            //    byte[] dataLength = BitConverter.GetBytes(length);
+            //    // 6 Envío el mensaje codificado a bytes
 
-                SendMessage(clientSocket, dataLength);
-                SendMessage(clientSocket, data);
-            }
+            //    SendMessage(clientSocket, dataLength);
+            //    SendMessage(clientSocket, data);
+            //}
         }
 
         static void SendMessage(Socket clientSocket, byte[] data)

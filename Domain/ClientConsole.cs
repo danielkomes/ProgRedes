@@ -2,265 +2,577 @@
 using System.Collections.Generic;
 using System.Text;
 
-
 namespace Domain
 {
     public class ClientConsole
     {
-        private const string error = "\r\nIncorrect input\r\n";
-        private const string publishGame = "PUBLISH_GAME";
-        private const string separator = "________________________________________________________";
-        public void Response(ClientThread ct)
+        private const string IncorrectInputError = "Incorrect input";
+        private Game GameToPublish { get; set; }
+        private Game GameToView { get; set; }
+        private Review Review { get; set; }
+
+        public ClientConsole()
         {
-            string id = ct.LocationRequest; //lo que el cliente ingresó
-            string request = ct.CurrentConsoleLocation + "." + id; //string completo para analizar. Ej "0.1.1"
-            ct.OptionsResponse = GetConsole(ct, request); //respuesta de GetConsole con las opciones a mostrar o un mensaje de error
-            if (!ct.OptionsResponse.Equals(error)) //si no hubo error
-            {
-                //ct.CurrentConsoleLocation = request; //actualizar la ubicacion del cliente en la consola
-            }
-            else
-            {
-                ct.OptionsResponse = GetConsole(ct, ct.CurrentConsoleLocation) + ct.OptionsResponse; //si hubo error, mostrar el mensaje y las mismas opciones que tenía antes de ingresar el string
-            }
-            ct.OptionsResponse = "\r\n" + separator + "\r\n" + ct.OptionsResponse + "\r\n";
-            ct.LocationRequest = ""; //borrar el request para que no se envíe a la consola de nuevo
-
-
-
+            Menu0();
         }
-
-        private string GetConsole(ClientThread ct, string request)
+        public void GetConsole()
         {
+            string input = "";
             string options = "";
-            if (request.Equals("0.0")) //menu
+            int selection = -1;
+            bool acceptInput = false;
+
+            while (!acceptInput)
             {
-                options += "1 Publish game\r\n" +
+                options = "1 Publish game\r\n" +
                     "2 Find game\r\n";
-                ct.CurrentConsoleLocation = "0";
+                input = Console.ReadLine();
+                selection = GetOption(input);
             }
-            else if (request.Equals("0.1")) //publicar juego
+            if (selection == 1)
             {
-                if (ct.GameToPublish == null)
+                if (GameToPublish == null)
                 {
-                    ct.GameToPublish = new Game();
+                    GameToPublish = new Game();
                 }
-                options += "1 Title: " + ct.GameToPublish.Title + "\r\n" +
-                    "2 Genre: " + ct.GameToPublish.Genre + "\r\n" +
-                    "3 Age rating: " + ct.GameToPublish.AgeRating + "\r\n" +
-                    "4 Description: " + ct.GameToPublish.Description + "\r\n" +
-                    "5 Poster: " + ct.GameToPublish.Poster + "\r\n" +
+
+                options = "1 Title: " + GameToPublish.Title + "\r\n" +
+                    "2 Genre: " + GameToPublish.Genre + "\r\n" +
+                    "3 Age rating: " + GameToPublish.AgeRating + "\r\n" +
+                    "4 Description: " + GameToPublish.Description + "\r\n" +
+                    "5 Poster: " + GameToPublish.Poster + "\r\n" +
                     "\r\n" +
                     "6 Accept\r\n" +
                     "7 Back\r\n" +
                     "8-------------- TEST FILL\r\n";
-                ct.CurrentConsoleLocation = "0.1";
             }
-            else if (request.Equals("0.1.1"))
+            else if (selection == 2)
             {
-                options += "Input title: \r\n";
-                ct.CurrentConsoleLocation = "0.1.1";
+
             }
-            #region Genre
-            else if (request.Equals("0.1.2"))
+            else
             {
-                options += "Ingresar genero: \r\n" +
+
+            }
+        } //old
+
+        private void Menu0()
+        {
+            Logic.TestGames();
+            while (true)
+            {
+                string options = "1 Publish game\r\n" +
+                    "2 Find game\r\n";
+                Console.WriteLine(options);
+                string input = Console.ReadLine();
+                int option = GetOption(input);
+                if (option == 1)
+                {
+                    MenuPublishGame();
+                }
+                else if (option == 2)
+                {
+                    FindGame();
+                }
+                else
+                {
+                    Console.WriteLine(IncorrectInputError);
+                }
+            }
+        }
+        private void MenuPublishGame()
+        {
+            bool loop = true;
+            while (loop)
+            {
+                string options = "";
+                if (GameToPublish == null)
+                {
+                    GameToPublish = new Game();
+                }
+                options = "\r\n------------\r\n1 Title: " + GameToPublish.Title + "\r\n" +
+                    "2 Genre: " + GameToPublish.Genre + "\r\n" +
+                    "3 Age rating: " + GameToPublish.AgeRating + "\r\n" +
+                    "4 Description: " + GameToPublish.Description + "\r\n" +
+                    "5 Poster: " + GameToPublish.Poster + "\r\n" +
+                    "\r\n" +
+                    "6 Accept\r\n" +
+                    "7 Back\r\n" +
+                    "8-------------- TEST FILL\r\n";
+                Console.WriteLine(options);
+                string input = Console.ReadLine();
+                int option = GetOption(input);
+                if (option == 1)
+                {
+                    options = "\r\nInput name:\r\n";
+                    Console.WriteLine(options);
+                    GameToPublish.Title = Console.ReadLine();
+                }
+                else if (option == 2)
+                {
+                    MenuGenres();
+                }
+                else if (option == 3)
+                {
+                    MenuAgeRating();
+                }
+                else if (option == 4)
+                {
+                    MenuDescription();
+                }
+                else if (option == 5)
+                {
+                    MenuPoster();
+                }
+                else if (option == 6) //Accept
+                {
+                    if (GameToPublish.IsFieldsFilled())
+                    {
+                        Sys.AddGame(GameToPublish);
+                        GameToPublish = null;
+                        Console.WriteLine("Game published");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Some fields are missing info");
+                        MenuPublishGame();
+                        return;
+                    }
+                }
+                else if (option == 7)
+                {
+                    GameToPublish = null;
+                    loop = false;
+                }
+                else if (option == 8)
+                {
+                    GameToPublish.Title = "TEST TITLE";
+                    GameToPublish.Genre = EGenre.Action;
+                    GameToPublish.AgeRating = 999;
+                    GameToPublish.Description = "TEST DESCRIPTION";
+                    GameToPublish.Poster = "TEST POSTER";
+                }
+                else
+                {
+                    Console.WriteLine(IncorrectInputError);
+                }
+            }
+        }
+        #region Publish game
+        private void MenuGenres()
+        {
+            bool loop = true;
+            while (loop)
+            {
+                string options = "Ingresar genero: \r\n" +
                     "1 " + EGenre.Action + "\r\n" +
                     "2 " + EGenre.Adventure + "\r\n" +
                     "3 " + EGenre.Horror + "\r\n" +
                     "4 " + EGenre.Survival + "\r\n" +
                     "5 " + EGenre.RPG + "\r\n";
-                ct.CurrentConsoleLocation = "0.1.2";
-            }
-            else if (request.Equals("0.1.2.1"))
-            {
-                ct.GameToPublish.Genre = EGenre.Action;
-                options += GoTo(ct, "0.1");
-            }
-            else if (request.Equals("0.1.2.2"))
-            {
-                ct.GameToPublish.Genre = EGenre.Adventure;
-                options += GoTo(ct, "0.1");
-            }
-            else if (request.Equals("0.1.2.3"))
-            {
-                ct.GameToPublish.Genre = EGenre.Horror;
-                options += GoTo(ct, "0.1");
-            }
-            else if (request.Equals("0.1.2.4"))
-            {
-                ct.GameToPublish.Genre = EGenre.Survival;
-                options += GoTo(ct, "0.1");
-            }
-            else if (request.Equals("0.1.2.5"))
-            {
-                ct.GameToPublish.Genre = EGenre.RPG;
-                options += GoTo(ct, "0.1");
-            }
-            #endregion
-            else if (request.Equals("0.1.3"))
-            {
-                options += "Input age rating: \r\n";
-                ct.CurrentConsoleLocation = "0.1.3";
-            }
-            else if (request.Equals("0.1.4"))
-            {
-                options += "Input description: \r\n";
-                ct.CurrentConsoleLocation = "0.1.4";
-            }
-            else if (request.Equals("0.1.5"))
-            {
-                options += "Input poster: \r\n";//???
-                ct.CurrentConsoleLocation = "0.1.5";
-            }
-            else if (request.Equals("0.1.6"))//aceptar
-            {
-                if (ct.GameToPublish.IsFieldsFilled())
+                Console.WriteLine(options);
+                string input = Console.ReadLine();
+                int option = GetOption(input);
+                if (option == 1)
                 {
-                    Sys.AddGame(ct.GameToPublish);
-                    ct.GameToPublish = null;
-                    options += "\r\nGAME PUBLISHED\r\n";
+                    GameToPublish.Genre = EGenre.Action;
+                    loop = false;
+                }
+                else if (option == 2)
+                {
+                    GameToPublish.Genre = EGenre.Adventure;
+                    loop = false;
+                }
+                else if (option == 3)
+                {
+                    GameToPublish.Genre = EGenre.Horror;
+                    loop = false;
+                }
+                else if (option == 4)
+                {
+                    GameToPublish.Genre = EGenre.Survival;
+                    loop = false;
+                }
+                else if (option == 5)
+                {
+                    GameToPublish.Genre = EGenre.RPG;
+                    loop = false;
                 }
                 else
                 {
-                    options += "\r\nSome fields are missing info\r\n";
+                    Console.WriteLine(IncorrectInputError);
                 }
-                options = GoTo(ct, "0.1") + options;
             }
-            else if (request.Equals("0.1.7"))//atras
+        }
+        private void MenuAgeRating()
+        {
+            bool loop = true;
+            while (loop)
             {
-                ct.GameToPublish = null;
-                options += GoTo(ct, "0.0");
-                options += "\r\nPublishing aborted\r\n";
+                string options = "Input age rating: ";
+                Console.WriteLine(options);
+                string input = Console.ReadLine();
+                int option = GetOption(input);
+                if (option >= 0)
+                {
+                    GameToPublish.AgeRating = option;
+                    loop = false;
+                }
+                else
+                {
+                    Console.WriteLine(IncorrectInputError);
+                }
             }
-            else if (request.Equals("0.1.8"))//test fill
-            {
-                ct.GameToPublish.Title = "TEST TITLE";
-                ct.GameToPublish.Genre = EGenre.Action;
-                ct.GameToPublish.AgeRating = -1;
-                ct.GameToPublish.Description = "TEST DESCRIPTION";
-                ct.GameToPublish.Poster = "TEST CARATULA";
-                options += GoTo(ct, "0.1");
-            }
+        }
+        private void MenuDescription()
+        {
+            string options = "Input description: ";
+            Console.WriteLine(options);
+            string input = Console.ReadLine();
+            GameToPublish.Description = input;
+        }
+        private void MenuPoster()
+        {
+            string options = "Input poster: ";
+            Console.WriteLine(options);
+            string input = Console.ReadLine();
+            GameToPublish.Poster = input;
+        }
 
-            else if (request.Equals("0.2")) //buscar juego
+        #endregion
+        private void FindGame()
+        {
+            bool loop = true;
+            string options = "";
+            while (loop)
             {
-                options += "1 Back\r\n";
-                options += "--------\r\n";
-                options += "Games: \r\n";
-                options += "\r\n" + Logic.ListGames();
-                ct.CurrentConsoleLocation = "0.2";
+                options = "\r\n---------\r\n" +
+                    "1 Back\r\n----------\r\n" +
+                    Logic.ListGames();
+                Console.WriteLine(options);
+                string input = Console.ReadLine();
+                int option = GetOption(input);
+                if (option == 1)
+                {
+                    loop = false;
+                }
+                else if (option >= 0)
+                {
+                    GameToView = Logic.GetGameByIndex(option);
+                    ViewGame();
+                }
             }
-            else if (request.Equals("0.2.1")) //atras
+        }
+        private void ViewGame()
+        {
+            bool loop = true;
+            string options = "";
+            while (loop && GameToView != null)
             {
-                options += GoTo(ct, "0.0");
+                options = "\r\n-------\r\n" +
+                    "Viewing game: " + GameToView.Title +
+                    "\r\n-------\r\n" +
+                    "1 Edit game\r\n" +
+                    "2 Review game\r\n" +
+                    "3 Details\r\n" +
+                    "4 Back\r\n" +
+                    "----------------\r\n";
+
+                Console.WriteLine(options);
+                string input = Console.ReadLine();
+                int option = GetOption(input);
+                if (option == 1)
+                {
+                    EditGame();
+                }
+                else if (option == 2)
+                {
+                    ReviewGame();
+                }
+                else if (option == 3)
+                {
+                    DetailsGame();
+                }
+                else if (option == 4)
+                {
+                    loop = false;
+                }
+                else
+                {
+                    Console.WriteLine(IncorrectInputError);
+                }
             }
-            else if (options.Equals("")) //significa que se escribió algo que no era una de las opciones. Si estaba en un campo de respuesta abierta, tomar la respuesta. Si no, dar un error
+        }
+        #region Edit game
+        private void EditGame()
+        {
+            bool loop = true;
+            string options = "";
+            while (loop && GameToView != null)
             {
-                if (ct.CurrentConsoleLocation.Equals("0.1.1")) //si estaba en Publicar juego> elegir título
+                options = "\r\n-------\r\n" +
+                    "Edit game: " + GameToView.Title +
+                    "\r\n-------\r\n" +
+                    "1 Edit title\r\n" +
+                    "2 Edit description\r\n" +
+                    "3 Edit age rating\r\n" +
+                    "4 Delete game\r\n" +
+                    "5 Back\r\n" +
+                    "----------------\r\n";
+
+                Console.WriteLine(options);
+                string input = Console.ReadLine();
+                int option = GetOption(input);
+                if (option == 1)
                 {
-                    ct.GameToPublish.Title = ct.LocationRequest;
-                    options += GoTo(ct, "0.1");
+                    MenuEditTitle();
                 }
-                else if (ct.CurrentConsoleLocation.Equals("0.1.3")) //calificacion de edad
+                else if (option == 2)
                 {
-                    try
-                    {
-                        ct.GameToPublish.AgeRating = int.Parse(ct.LocationRequest);
-                        options += GoTo(ct, "0.1");
-                    }
-                    catch (FormatException)
-                    {
-                        options += "Input must be a number\r\n";
-                        options += GoTo(ct, "0.1.3");
-                    }
+                    MenuEditAgeRating();
                 }
-                else if (ct.CurrentConsoleLocation.Equals("0.1.4")) //descripcion
+                else if (option == 3)
                 {
-                    ct.GameToPublish.Description = ct.LocationRequest;
-                    options += GoTo(ct, "0.1");
+                    MenuEditDescription();
                 }
-                else if (ct.CurrentConsoleLocation.Equals("0.1.5")) //caratula
+                else if (option == 4)
                 {
-                    ct.GameToPublish.Poster = ct.LocationRequest;
-                    options += GoTo(ct, "0.1");
+                    MenuConfirmDeleteGame();
                 }
-                else //error
+                else if (option == 5)
                 {
-                    options += error;
+                    loop = false;
                 }
+                else
+                {
+                    Console.WriteLine(IncorrectInputError);
+                }
+            }
+        }
+        private void MenuEditTitle()
+        {
+            Console.WriteLine("Input new title: ");
+            string newTitle = Console.ReadLine();
+            GameToView.Title = newTitle;
+        }
+        private void MenuEditAgeRating()
+        {
+            bool loop = true;
+            while (loop)
+            {
+                Console.WriteLine("Input new age rating: ");
+                string inputNewAgeRating = Console.ReadLine();
+                int newAgeRating = GetOption(inputNewAgeRating);
+                if (newAgeRating >= 0)
+                {
+                    GameToView.AgeRating = newAgeRating;
+                    loop = false;
+                }
+                else
+                {
+                    Console.WriteLine(IncorrectInputError);
+                }
+            }
+        }
+        private void MenuEditDescription()
+        {
+            Console.WriteLine("Input new description: ");
+            string newDescription = Console.ReadLine();
+            GameToView.Description = newDescription;
+        }
+        private bool MenuConfirmDeleteGame()
+        {
+            bool ret = false;
+            bool loop = true;
+            while (loop)
+            {
+                Console.WriteLine("Are you sure you want to delete game: '" + GameToView.Title + "'?  yes/no");
+                string input = Console.ReadLine();
+                if (input.Equals("yes"))
+                {
+                    Sys.DeleteGame(GameToView);
+                    GameToView = null;
+                    loop = false;
+                    ret = true;
+                }
+                else if (input.Equals("no"))
+                {
+                    loop = false;
+                    ret = false;
+                }
+                else
+                {
+                    Console.WriteLine(IncorrectInputError);
+                }
+            }
+            return ret;
+        }
+        #endregion
+        #region Review game
+        private void ReviewGame()
+        {
+            bool loop = true;
+            string options = "";
+            while (loop && GameToView != null)
+            {
+                if (Review == null)
+                {
+                    Review = new Review();
+                }
+                string currentReview = Review.Description;
+                string currentRating = Review.Rating + "";
+                if (string.IsNullOrEmpty(currentReview))
+                {
+                    currentReview = "None";
+                }
+                if (currentRating.Equals("0"))
+                {
+                    currentRating = "None";
+                }
+
+                options = "\r\n-------\r\n" +
+                    "Reviewing game: " + GameToView.Title +
+                    "\r\n-------\r\n" +
+                    "1 Write review (current: " + currentReview + ")\r\n" +
+                    "2 Rate game (current: " + currentRating + ")\r\n" +
+                    "3 Accept\r\n" +
+                    "4 Back\r\n" +
+                    "----------------\r\n";
+                Console.WriteLine(options);
+                string input = Console.ReadLine();
+                int option = GetOption(input);
+                if (option == 1)
+                {
+                    WriteReview();
+                }
+                else if (option == 2)
+                {
+                    RateGame();
+                }
+                else if (option == 3)
+                {
+                    AcceptReview();
+                }
+                else if (option == 4) //back
+                {
+                    Review = null;
+                    loop = false;
+                }
+                else
+                {
+                    Console.WriteLine(IncorrectInputError);
+                }
+            }
+        }
+        private void WriteReview()
+        {
+            Console.WriteLine("Input review for '" + GameToView.Title + "'");
+            Review.Description = Console.ReadLine();
+        }
+        private void RateGame()
+        {
+            bool loop = true;
+            while (loop)
+            {
+                Console.WriteLine("Input rating for '" + GameToView.Title + "' in a scale from 1 (worst) to 100 (best)");
+                string input = Console.ReadLine();
+                int rating = GetOption(input);
+                if (rating >= 1 && rating <= 100)
+                {
+                    Review.Rating = rating;
+                    loop = false;
+                }
+                else
+                {
+                    Console.WriteLine(IncorrectInputError);
+                }
+            }
+        }
+        private void AcceptReview()
+        {
+            if (Review.IsFieldsFilled())
+            {
+                GameToView.AddReview(Review);
+                Review = null;
+                Console.WriteLine("Review posted");
             }
             else
             {
+                Console.WriteLine("\r\nSome fields are missing info\r\n");
             }
-            return options;
         }
-
-        private string GoTo(ClientThread ct, string location)
+        #endregion
+        #region Details game
+        private void DetailsGame()
         {
-            ct.CurrentConsoleLocation = location;
-            return GetConsole(ct, location);
+            bool loop = true;
+            while (loop)
+            {
+                string options = "\r\n-------\r\n" +
+                    "Viewing game: " + GameToView.Title +
+                    "\r\n-------\r\n" +
+                    "Title: " + GameToView.Title + "\r\n" +
+                    "Genre: " + GameToView.Genre + "\r\n" +
+                    "Age rating: " + GameToView.AgeRating + "\r\n" +
+                    "Description: " + GameToView.Description + "\r\n" +
+                    "Poster: " + GameToView.Poster + "\r\n" +
+                    "\r\n---------\r\n" +
+                    "1 See reviews\r\n" +
+                    "2 Back\r\n";
+                Console.WriteLine(options);
+                string input = Console.ReadLine();
+                int option = GetOption(input);
+                if (option == 1)
+                {
+                    SeeReviews();
+                }
+                else if (option == 2)
+                {
+                    loop = false;
+                }
+                else
+                {
+                    Console.WriteLine(IncorrectInputError);
+                }
+            }
+        }
+        private void SeeReviews()
+        {
+            bool loop = true;
+            while (loop)
+            {
+                string options = "\r\n-------\r\n" +
+                    "Viewing reviews for: " + GameToView.Title + "\r\n" +
+                    "Average rating: " + GameToView.AverageRating() +
+                    "\r\n-------\r\n" +
+                    Logic.ListReviews(GameToView) + "\r\n" +
+                    "1 Back\r\n";
+                Console.WriteLine(options);
+                string input = Console.ReadLine();
+                int option = GetOption(input);
+                if (option == 1)
+                {
+                    loop = false;
+                }
+                else
+                {
+                    Console.WriteLine(IncorrectInputError);
+                }
+            }
+        }
+        #endregion
+        private int GetOption(string input)
+        {
+            int option = -1;
+            try
+            {
+                option = int.Parse(input);
+            }
+            catch (Exception)
+            {
+            }
+            return option;
         }
     }
+
 }
-
-/*
-menu principal
-1. Publicar juego
-    1.1. Titulo
-    1.2. Genero
-    1.3. Calificacion de publico
-    1.4. Descripcion
-    1.5. Caratula
-    1.6. Atras
-3. Buscar juegos
-    3.1. Categoria
-    3.2. Titulo
-    3.3. Rating
-    3.4. Atras
-
-Juego:
-2. Modificar o borrar juego
-    2.1. Titulo
-    2.2. Descripcion
-    2.3. Calificacion de publico
-4. Calificar juego
-    4.1. Comentario
-    4.2. Rating
-5. Detalle
-    5.1. Titulo
-    5.2. Genero
-    5.3. Calificacion de publico
-    5.4. Descripcion
-    5.5. Caratula
-    5.6. Ver reviews
-
-
-    
-//El while(true) de client y server hay que cambiarlo por algo que salga si no encuentra conexión. Eso ocurre cuando alguien se desconecta.
-
-    Flujo: ClientProgram -> ServerProgram > ClientConsole < ServerProgram -> ClientProgram
-        ClientProgram escribe en consola, se envia a ServerProgram, el servidor llama a ClientConsole, pasándole los datos de posición actual y último input,
-        ClientConsole revisa la posicion actual de ESE cliente en la consola, lee el input y decide qué opción corresponde mostrar. 
-        Ese string se devuelve al servidor, que lo envía inmediatamente al cliente
-
-    BUGS: Sys no está guardando los juegos de prueba creados en Logic, sólo guarda los creados por el cliente. Problema instance--static class?
-            Sólo se puede conectar UN cliente. Corregir con programa de chat de clases anteriores?
-
- */
-
-//Opcion 1: una consola en el servidor, que atiende clientes de a uno. La consola tendrá que ser mutex.
-//Pros: no afectaría la memoria (RAM) del lado del servidor
-//Contras: Si hubiera muchos clientes cada uno tendría que esperar a los anteriores a que terminen de usar la consola.
-
-//Opcion 2: una consola en cada thread de clientes.
-//Pros: Los clientes no tendrían que esperar su turno en la consola. 
-//Contras: se podría acabar la memoria con muchos clientes.
-
-//Opcion 3: cada cliente se "descarga" una consola que habla con el servidor (significaría poner la consola en el lado del cliente, y que use la memoria de su máquina)
-//Pros: sin espera de turno y el servidor no se sobrecarga con n consolas
-//Contras: el cliente debe descargar la consola, tener la RAM necesaria. Pierde la gracia el obligatorio, en el que suponemos que hay que demostrar lo que entendimos de comunicación de redes 
-
-//Si suponemos que los clientes pasarán más tiempo leyendo el texto que devolvió la consola que el tiempo que gasta el servidor en procesar los requests de páginas, entonces la mejor opción es la 1. 
-//No vale la pena llenar la RAM del servidor con n hilos con consolas si los clientes hacen pocos requests por unidad de tiempo (en 1 unidad de tiempo, si menos del 50% se usa en requests (o responses?), conviene opcion 1 (calcular??))
-

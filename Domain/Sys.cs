@@ -14,13 +14,15 @@ namespace Domain
         {
             Games = new List<Game>();
             Clients = new List<Client>();
-            Thread t = new Thread(() => TestPrintGames());
-            //t.Start();
         }
 
         public static void AddGame(Game game)
         {
             Games.Add(game);
+        }
+        public static void DeleteGame(Game game)
+        {
+            Games.Remove(game);
         }
 
         private static void TestPrintGames()

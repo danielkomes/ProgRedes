@@ -17,7 +17,7 @@ namespace SocketsSimpleServer
         private const int FixedSize = 4;
 
         private static List<ClientThread> clientThreads;
-        private static ClientConsole console;
+        //private static ClientConsoleOld console;
 
         static void Main(string[] args)
         {
@@ -38,7 +38,7 @@ namespace SocketsSimpleServer
             Console.WriteLine("Start listening for client");
             // Capturo al primer cliente que se quiera conectar
             clientThreads = new List<ClientThread>();
-            console = new ClientConsole();
+            //console = new ClientConsoleOld();
             Thread AcceptClientsThread = new Thread(() => AcceptClients());
             AcceptClientsThread.Start();
             //serverSocket.Close();
@@ -66,7 +66,7 @@ namespace SocketsSimpleServer
             {
                 if (!ct.LocationRequest.Equals(""))
                 {
-                    console.Response(ct);
+                    //console.Response(ct);
                     string message = ct.OptionsResponse;
                     // 1 Leo el mensaje
                     // 2 Codifico el mensaje a bytes
