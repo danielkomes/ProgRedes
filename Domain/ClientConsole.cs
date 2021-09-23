@@ -126,6 +126,7 @@ namespace Domain
                 }
                 else if (option == 6) //Accept
                 {
+                    MenuAcceptPublishGame();
                 }
                 else if (option == 7)
                 {
