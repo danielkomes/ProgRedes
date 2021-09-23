@@ -15,8 +15,7 @@ namespace SocketsSimpleServer
         private const int ServerPort = 6000;
         private const int Backlog = 4;
         private const int FixedSize = 4;
-
-        private static List<ClientThread> clientThreads;
+        private static List<Socket> clients;
         //private static ClientConsoleOld console;
 
         static void Main(string[] args)
@@ -37,7 +36,7 @@ namespace SocketsSimpleServer
             serverSocket.Listen(Backlog);
             Console.WriteLine("Start listening for client");
             // Capturo al primer cliente que se quiera conectar
-            clientThreads = new List<ClientThread>();
+            clients = new List<Socket>();
             //console = new ClientConsoleOld();
             Thread AcceptClientsThread = new Thread(() => AcceptClients());
             AcceptClientsThread.Start();
@@ -52,35 +51,36 @@ namespace SocketsSimpleServer
             while (true)
             {
                 Socket clientSocket = serverSocket.Accept();
-                clientThreads.Add(new ClientThread(clientSocket));
-                Console.WriteLine("new client connected");
+                clients.Add(clientSocket);
+                Console.WriteLine("New client connected. Total: " + clients.Count);
                 new Thread(() => Listen(clientSocket)).Start();
                 new Thread(() => ResponseToClient(clientSocket)).Start();
             }
         }
         static void ResponseToClient(Socket clientSocket)
         {
-            ClientThread ct = clientThreads.Find(t => t.Socket.Equals(clientSocket));
-            ct.LocationRequest = "0";
             while (true)
             {
-                if (!ct.LocationRequest.Equals(""))
-                {
-                    //console.Response(ct);
-                    string message = ct.OptionsResponse;
-                    // 1 Leo el mensaje
-                    // 2 Codifico el mensaje a bytes
-                    byte[] data = Encoding.UTF8.GetBytes(message);
-                    // 3 Leo el largo de los datos codificados a bytes
-                    int length = data.Length;
-                    // 4 Codifico el largo de los datos variables a bytes
-                    byte[] dataLength = BitConverter.GetBytes(length);
-                    SendMessage(clientSocket, dataLength);
-                    SendMessage(clientSocket, data);
-                }
+                // 1 Leo el mensaje
+                string message = Console.ReadLine();
+                SendMessage(clientSocket, message);
             }
         }
-        static void SendMessage(Socket clientSocket, byte[] data)
+
+        public static void SendMessage(Socket clientSocket, string message)
+        {
+            // 2 Codifico el mensaje a bytes
+            byte[] data = Encoding.UTF8.GetBytes(message);
+            // 3 Leo el largo de los datos codificados a bytes
+            int length = data.Length;
+            // 4 Codifico el largo de los datos variables a bytes
+            byte[] dataLength = BitConverter.GetBytes(length);
+            // 6 Envío el mensaje codificado a bytes
+
+            SendMessageAux(clientSocket, dataLength);
+            SendMessageAux(clientSocket, data);
+        }
+        private static void SendMessageAux(Socket clientSocket, byte[] data)
         {
             int offset = 0;
             // 5 Envío (el largo de) los datos
@@ -102,17 +102,30 @@ namespace SocketsSimpleServer
             }
 
         }
-        static byte[] ReceiveMessage(Socket clientSocket, int bufferSize)
+        public static string ReceiveMessage(Socket clientSocket)
+        {
+            byte[] dataLength = ReceiveMessageAux(clientSocket, FixedSize);
+            // 3 Interpreto ese valor para obtener el largo variable
+            int length = BitConverter.ToInt32(dataLength);
+            // 4 Creo el buffer para leer los datos
+            // 5 Recibo los datos
+            byte[] data = ReceiveMessageAux(clientSocket, length);
+            // 6 Convierto (decodifico) esos datos a un string
+            string message = Encoding.UTF8.GetString(data);
+            // 7 Muestro los datos
+            return message;
+        }
+        static byte[] ReceiveMessageAux(Socket clientSocket, int bufferSize)
         {
             // 1 Leo la parte de datos que es fija
-            byte[] data = new byte[bufferSize];
+            byte[] dataLength = new byte[bufferSize];
             // 2 Recibo esos datos
             int offset = 0;
             try
             {
                 while (offset < bufferSize)
                 {
-                    int received = clientSocket.Receive(data, offset, bufferSize - offset, SocketFlags.None);
+                    int received = clientSocket.Receive(dataLength, offset, bufferSize - offset, SocketFlags.None);
                     if (received == 0)
                     {
                         throw new SocketException();
@@ -124,26 +137,14 @@ namespace SocketsSimpleServer
             {
                 Console.WriteLine(se.Message);
             }
-            return data;
+            return dataLength;
         }
 
         static void Listen(Socket clientSocket)
         {
             while (true)
             {
-                byte[] dataLength = ReceiveMessage(clientSocket, FixedSize);
-                // 3 Interpreto ese valor para obtener el largo variable
-                int length = BitConverter.ToInt32(dataLength);
-                // 4 Creo el buffer para leer los datos
-                // 5 Recibo los datos
-                byte[] data = ReceiveMessage(clientSocket, length);
-                // 6 Convierto (decodifico) esos datos a un string
-                string message = Encoding.UTF8.GetString(data);
-                ClientThread ct = clientThreads.Find(t => t.Socket.Equals(clientSocket));
-                ct.LocationRequest = message;
-                // 7 Muestro los datos
-                //Console.WriteLine(message); ahora hay que responder con las opciones de consola. ResponseToClients() lo hará automáticamente si corresponde
-
+                Console.WriteLine(ReceiveMessage(clientSocket));
             }
         }
     }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
-namespace Domain
+namespace DB
 {
     public static class Sys
     {

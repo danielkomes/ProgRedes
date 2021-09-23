@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Domain
 {
-    static class Logic
+    public static class Logic
     {
         private const int indexStart = 2;
 

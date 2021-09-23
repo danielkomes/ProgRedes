@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Domain;
 
-namespace Domain
+namespace SocketSimpleClient
 {
     public class ClientConsole
     {
@@ -231,8 +232,8 @@ namespace Domain
         {
             if (GameToPublish.IsFieldsFilled())
             {
-                //Sys.AddGame(GameToPublish);//cambiar por Send
-
+                //Sys.AddGame(GameToPublish);
+                ClientProgram.SendMessage(ClientProgram.clientSocket, "ACÁ VA EL JUEGO A PUBLICAR (TODO)");
                 GameToPublish = null;
                 Console.WriteLine("Game published");
             }
