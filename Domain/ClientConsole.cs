@@ -126,18 +126,6 @@ namespace Domain
                 }
                 else if (option == 6) //Accept
                 {
-                    if (GameToPublish.IsFieldsFilled())
-                    {
-                        Sys.AddGame(GameToPublish);
-                        GameToPublish = null;
-                        Console.WriteLine("Game published");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Some fields are missing info");
-                        MenuPublishGame();
-                        return;
-                    }
                 }
                 else if (option == 7)
                 {
@@ -237,6 +225,19 @@ namespace Domain
             Console.WriteLine(options);
             string input = Console.ReadLine();
             GameToPublish.Poster = input;
+        }
+        private void MenuAcceptPublishGame()
+        {
+            if (GameToPublish.IsFieldsFilled())
+            {
+                Sys.AddGame(GameToPublish);
+                GameToPublish = null;
+                Console.WriteLine("Game published");
+            }
+            else
+            {
+                Console.WriteLine("Some fields are missing info");
+            }
         }
 
         #endregion

@@ -275,7 +275,7 @@ Juego:
         ClientConsole revisa la posicion actual de ESE cliente en la consola, lee el input y decide qué opción corresponde mostrar. 
         Ese string se devuelve al servidor, que lo envía inmediatamente al cliente
 
-    BUGS: Sys no está guardando los juegos de prueba creados en Logic, sólo guarda los creados por el cliente. Problema instance--static class?
+    BUGS: Sys no está guardando los juegos de prueba creados en Logic, sólo guarda los creados por el cliente. Problema instance--static class? DOMAIN.LOGIC NO LANZA SU MAIN
 
  */
 
