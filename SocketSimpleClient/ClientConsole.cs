@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Domain;
 
-namespace SocketSimpleClient
+namespace Client
 {
     public class ClientConsole
     {
@@ -11,56 +11,18 @@ namespace SocketSimpleClient
         private Game GameToPublish { get; set; }
         private Game GameToView { get; set; }
         private Review Review { get; set; }
+        private readonly ClientHandler ch;
 
-        public ClientConsole()
+        public ClientConsole(ClientHandler ch)
         {
+            this.ch = ch;
             Menu0();
         }
-        public void GetConsole()
-        {
-            string input = "";
-            string options = "";
-            int selection = -1;
-            bool acceptInput = false;
-
-            while (!acceptInput)
-            {
-                options = "1 Publish game\r\n" +
-                    "2 Find game\r\n";
-                input = Console.ReadLine();
-                selection = GetOption(input);
-            }
-            if (selection == 1)
-            {
-                if (GameToPublish == null)
-                {
-                    GameToPublish = new Game();
-                }
-
-                options = "1 Title: " + GameToPublish.Title + "\r\n" +
-                    "2 Genre: " + GameToPublish.Genre + "\r\n" +
-                    "3 Age rating: " + GameToPublish.AgeRating + "\r\n" +
-                    "4 Description: " + GameToPublish.Description + "\r\n" +
-                    "5 Poster: " + GameToPublish.Poster + "\r\n" +
-                    "\r\n" +
-                    "6 Accept\r\n" +
-                    "7 Back\r\n" +
-                    "8-------------- TEST FILL\r\n";
-            }
-            else if (selection == 2)
-            {
-
-            }
-            else
-            {
-
-            }
-        } //old
 
         private void Menu0()
         {
             Logic.TestGames();
-            while (true)
+            while (true) //To do: quitar
             {
                 string options = "1 Publish game\r\n" +
                     "2 Find game\r\n";
@@ -233,7 +195,7 @@ namespace SocketSimpleClient
             if (GameToPublish.IsFieldsFilled())
             {
                 //Sys.AddGame(GameToPublish);
-                ClientProgram.SendMessage(ClientProgram.clientSocket, "ACÁ VA EL JUEGO A PUBLICAR (TODO)");
+                ch.SendMessage(ETransferType.Publish, Logic.EncodeGame(GameToPublish));
                 GameToPublish = null;
                 Console.WriteLine("Game published");
             }

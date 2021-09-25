@@ -7,6 +7,8 @@ namespace Domain
     public static class Logic
     {
         private const int indexStart = 2;
+        public const string GameTransferSeparator = "%";
+        public const string ReviewTransferSeparator = "$";
 
         static void Main(string[] args)
         {
@@ -146,6 +148,86 @@ namespace Domain
             {
                 //out of range
             }
+            return ret;
+        }
+
+        public static string EncodeGame(Game game)
+        {
+            return game.Id + GameTransferSeparator +
+                game.Title + GameTransferSeparator +
+                game.Genre + GameTransferSeparator +
+                game.Description + GameTransferSeparator +
+                ListReviews(game) + GameTransferSeparator +
+                game.Poster;
+        }
+
+        public static string EncodeReviews(List<Review> l)
+        {
+            string ret = "";
+            for (int i = 0; i < l.Count; i++)
+            {
+                ret += EncodeReview(l[i]);
+                if (i < l.Count - 1)
+                {
+                    ret += ReviewTransferSeparator;
+                }
+            }
+            return ret;
+        }
+        private static string EncodeReview(Review r)
+        {
+            return r.Description + ReviewTransferSeparator +
+                r.Rating;
+        }
+
+        public static Game DecodeGame(string s)
+        {
+            string[] arr = s.Split(GameTransferSeparator);
+            Game ret = new Game(int.Parse(arr[0]))
+            {
+                Title = arr[1],
+                Genre = DecodeGenre(arr[2]),
+                Description = arr[3],
+                Reviews = DecodeReviews(arr[4]),
+                Poster = arr[5],
+            };
+            return ret;
+        }
+        private static EGenre DecodeGenre(string s)
+        {
+            EGenre ret = EGenre.None;
+            foreach (var genre in Enum.GetValues(typeof(EGenre)))
+            {
+                if (s.Equals(genre))
+                {
+                    ret = (EGenre)genre;
+                }
+            }
+            return ret;
+        }
+
+        private static List<Review> DecodeReviews(string s)
+        {
+            List<Review> ret = new List<Review>();
+            string[] arr = s.Split(ReviewTransferSeparator);
+            if (!string.IsNullOrEmpty(s))
+            {
+                for (int i = 0; i < arr.Length; i += 2)
+                {
+                    Review r = DecodeReview(arr[0] + arr[1]);
+                    ret.Add(r);
+                }
+            }
+            return ret;
+        }
+        private static Review DecodeReview(string s)
+        {
+            string[] arr = s.Split(ReviewTransferSeparator);
+            Review ret = new Review
+            {
+                Description = arr[0],
+                Rating = int.Parse(arr[1])
+            };
             return ret;
         }
     }

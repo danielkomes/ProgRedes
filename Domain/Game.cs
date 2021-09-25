@@ -6,6 +6,8 @@ namespace Domain
 
     public class Game
     {
+        private static int IdCounter { get; set; }
+        public int Id { get; private set; }
         public string Title { get; set; }
         public EGenre Genre { get; set; }
         public int AgeRating { get; set; } //podria ser un enum
@@ -16,6 +18,16 @@ namespace Domain
 
         public Game()
         {
+            Id = IdCounter++;
+            Title = "";
+            Genre = EGenre.None;
+            Description = "";
+            Reviews = new List<Review>();
+            Poster = "";
+        }
+        public Game(int Id)
+        {
+            this.Id = Id;
             Title = "";
             Genre = EGenre.None;
             Description = "";
@@ -51,5 +63,6 @@ namespace Domain
         {
             return !string.IsNullOrEmpty(Title) && Genre != EGenre.None && AgeRating != 0 && !string.IsNullOrEmpty(Description) && !string.IsNullOrEmpty(Poster);
         }
+
     }
 }

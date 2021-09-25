@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client", "SocketSimpleClien
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csproj", "{EB090256-8305-4245-93A8-89B58BCDDEC7}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{6964A692-8FD4-4874-9611-D68718E89A87}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{EB090256-8305-4245-93A8-89B58BCDDEC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB090256-8305-4245-93A8-89B58BCDDEC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB090256-8305-4245-93A8-89B58BCDDEC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6964A692-8FD4-4874-9611-D68718E89A87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6964A692-8FD4-4874-9611-D68718E89A87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6964A692-8FD4-4874-9611-D68718E89A87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6964A692-8FD4-4874-9611-D68718E89A87}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -19,6 +19,7 @@ namespace Domain
         public static void AddGame(Game game)
         {
             Games.Add(game);
+            Console.WriteLine("new game: " + game.Title);
         }
         public static void DeleteGame(Game game)
         {
