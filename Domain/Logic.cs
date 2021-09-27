@@ -113,6 +113,43 @@ namespace Domain
             Sys.AddGame(tera);
         }
 
+        public static List<Game> FilterByTitle(List<Game> list, string title)
+        {
+            List<Game> ret = new List<Game>();
+            foreach (Game g in list)
+            {
+                if (g.Title.Contains(title))
+                {
+                    ret.Add(g);
+                }
+            }
+            return ret;
+        }
+        public static List<Game> FilterByGenre(List<Game> list, EGenre genre)
+        {
+            List<Game> ret = new List<Game>();
+            foreach (Game g in list)
+            {
+                if (g.Genre.Equals(genre))
+                {
+                    ret.Add(g);
+                }
+            }
+            return ret;
+        }
+        public static List<Game> FilterByRating(List<Game> list, int min, int max)
+        {
+            List<Game> ret = new List<Game>();
+            foreach (Game g in list)
+            {
+                if (g.AverageRating() >= min && g.AverageRating() <= max)
+                {
+                    ret.Add(g);
+                }
+            }
+            return ret;
+        }
+
         public static string ListGames(List<Game> list)
         {
             string ret = "";
@@ -227,7 +264,7 @@ namespace Domain
             EGenre ret = EGenre.None;
             foreach (var genre in Enum.GetValues(typeof(EGenre)))
             {
-                if (s.Equals(genre))
+                if (s.Equals(genre.ToString()))
                 {
                     ret = (EGenre)genre;
                 }

@@ -20,6 +20,11 @@ namespace Client
             Menu0();
         }
 
+        private void RequestListGames()
+        {
+            ch.SendMessage(ETransferType.List, "");
+            ListGames = Logic.DecodeListGames(ch.ReceiveMessage());
+        }
         private void Menu0()
         {
             while (true) //To do: quitar
@@ -35,7 +40,7 @@ namespace Client
                 }
                 else if (option == 2)
                 {
-                    FindGame();
+                    FilterGameByAttr();
                 }
                 else
                 {
@@ -73,7 +78,7 @@ namespace Client
                 }
                 else if (option == 2)
                 {
-                    MenuGenres();
+                    GameToPublish.Genre = MenuGenres();
                 }
                 else if (option == 3)
                 {
@@ -111,12 +116,13 @@ namespace Client
             }
         }
         #region Publish game
-        private void MenuGenres()
+        private EGenre MenuGenres()
         {
             bool loop = true;
+            EGenre ret = EGenre.None;
             while (loop)
             {
-                string options = "Ingresar genero: \r\n" +
+                string options = "Input genre: \r\n" +
                     "1 " + EGenre.Action + "\r\n" +
                     "2 " + EGenre.Adventure + "\r\n" +
                     "3 " + EGenre.Horror + "\r\n" +
@@ -127,27 +133,27 @@ namespace Client
                 int option = GetOption(input);
                 if (option == 1)
                 {
-                    GameToPublish.Genre = EGenre.Action;
+                    ret = EGenre.Action;
                     loop = false;
                 }
                 else if (option == 2)
                 {
-                    GameToPublish.Genre = EGenre.Adventure;
+                    ret = EGenre.Adventure;
                     loop = false;
                 }
                 else if (option == 3)
                 {
-                    GameToPublish.Genre = EGenre.Horror;
+                    ret = EGenre.Horror;
                     loop = false;
                 }
                 else if (option == 4)
                 {
-                    GameToPublish.Genre = EGenre.Survival;
+                    ret = EGenre.Survival;
                     loop = false;
                 }
                 else if (option == 5)
                 {
-                    GameToPublish.Genre = EGenre.RPG;
+                    ret = EGenre.RPG;
                     loop = false;
                 }
                 else
@@ -155,6 +161,7 @@ namespace Client
                     Console.WriteLine(IncorrectInputError);
                 }
             }
+            return ret;
         }
         private void MenuAgeRating()
         {
@@ -207,6 +214,155 @@ namespace Client
         }
 
         #endregion
+        #region View game
+        private void FilterGameByAttr()
+        {
+            bool loop = true;
+            string options = "";
+            while (loop)
+            {
+                options = "\r\n1 Filter by title\r\n" +
+                    "2 Filter by genre\r\n" +
+                    "3 Filter by rating\r\n" +
+                    "4 Back\r\n";
+                Console.WriteLine(options);
+                string input = Console.ReadLine();
+                int option = GetOption(input);
+                if (option == 1)
+                {
+                    FilterByTitle();
+                }
+                else if (option == 2)
+                {
+                    FilterByGenre();
+                }
+                else if (option == 3)
+                {
+                    FilterByRating();
+                }
+                else if (option == 4)
+                {
+                    loop = false;
+                }
+                else
+                {
+                    Console.WriteLine(IncorrectInputError);
+                }
+            }
+        }
+        private void FilterByTitle()
+        {
+            bool loop = true;
+            while (loop)
+            {
+                Console.WriteLine("Input title to search: ");
+                string input = Console.ReadLine();
+                RequestListGames();
+                List<Game> filteredList = Logic.FilterByTitle(ListGames, input);
+                int sel = SelectGame(filteredList);
+                if(sel == -1)
+                {
+                    loop = false;
+                }
+            }
+        }
+        private void FilterByGenre()
+        {
+            bool loop = true;
+            while (loop)
+            {
+                EGenre genre = MenuGenres();
+                RequestListGames();
+                List<Game> filteredList = Logic.FilterByGenre(ListGames, genre);
+                int sel = SelectGame(filteredList);
+
+                if (sel == -1)
+                {
+                    loop = false;
+                }
+            }
+        }
+        private void FilterByRating()
+        {
+            bool loop = true;
+            while (loop)
+            {
+                string options = "1 1-25\r\n" +
+                    "2 26-50\r\n" +
+                    "3 51-75\r\n" +
+                    "4 76-100\r\n" +
+                    "5 Back\r\n";
+                Console.WriteLine(options);
+                string input = Console.ReadLine();
+                int option = GetOption(input);
+                RequestListGames();
+                List<Game> filteredList = null;
+                if (option == 1)
+                {
+                    filteredList = Logic.FilterByRating(ListGames, 1, 25);
+                }
+                else if (option == 2)
+                {
+                    filteredList = Logic.FilterByRating(ListGames, 26, 50);
+                }
+                else if (option == 3)
+                {
+                    filteredList = Logic.FilterByRating(ListGames, 51, 75);
+                }
+                else if (option == 4)
+                {
+                    filteredList = Logic.FilterByRating(ListGames, 76, 100);
+                }
+                else if (option == 5)
+                {
+                    loop = false;
+                }
+                else
+                {
+                    Console.WriteLine(IncorrectInputError);
+                }
+                if (filteredList != null)
+                {
+                    SelectGame(filteredList);
+                }
+            }
+        }
+        private int SelectGame(List<Game> list)
+        {
+            bool loop = true;
+            string options = "";
+            int ret = 0;
+            while (loop)
+            {
+                ret = 0;
+                options = "\r\n---------\r\n" +
+                    "1 Back\r\n" +
+                    "----------\r\n";
+                options += Logic.ListGames(list);
+                Console.WriteLine(options);
+                string input = Console.ReadLine();
+                int option = GetOption(input);
+                if (option == 1)
+                {
+                    loop = false;
+                    ret = -1;
+                }
+                else if (option >= 0)
+                {
+                    GameToView = Logic.GetGameByIndex(option, list);
+                    if (GameToView != null)
+                    {
+                        ViewGame();
+                    }
+                    else
+                    {
+                        Console.WriteLine(IncorrectInputError);
+                    }
+                }
+            }
+            return ret;
+        }
+
         private void FindGame()
         {
             bool loop = true;
@@ -214,9 +370,9 @@ namespace Client
             while (loop)
             {
                 options = "\r\n---------\r\n" +
-                    "1 Back\r\n----------\r\n";
-                ch.SendMessage(ETransferType.List, "");
-                ListGames = Logic.DecodeListGames(ch.ReceiveMessage());
+                    "1 Back\r\n" +
+                    "----------\r\n";
+                RequestListGames();
                 options += Logic.ListGames(ListGames);
 
                 Console.WriteLine(options);
@@ -280,6 +436,7 @@ namespace Client
                 }
             }
         }
+        #endregion
         #region Edit game
         private void EditGame()
         {
