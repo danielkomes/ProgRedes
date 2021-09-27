@@ -11,6 +11,10 @@ namespace Domain
         public const string ReviewTransferSeparator = "$";
         public const string GameSeparator = "~";
 
+        static void Main(string[] args)
+        {
+        }
+
         public static void TestGames()
         {
             Game batman = new Game
@@ -34,7 +38,7 @@ namespace Domain
 
             Game mario = new Game
             {
-                Title = "Mario Oddysey",
+                Title = "Mario Oddyssey",
                 Genre = EGenre.Adventure,
                 AgeRating = 7,
                 Description = "plumber with dead carreer almost gets killed, is saved by alien who then helps him overtake the mind of creatures against their will, all to get a girl",

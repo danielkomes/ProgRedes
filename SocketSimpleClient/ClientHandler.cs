@@ -11,6 +11,7 @@ namespace Client
         private readonly Socket clientSocket;
         private readonly IPEndPoint _clientIpEndPoint;
         private readonly IPEndPoint _serverIpEndPoint;
+        private const string ClientPosterFolder = "Posters/";
         private FileCommunicationHandler fch;
 
         public ClientHandler()
@@ -31,16 +32,13 @@ namespace Client
             }
         }
 
-        public void SendFile(string path)
+        public void SendFile(FileCommunicationHandler fch, string path)
         {
             //_socket.Connect(_serverIpEndPoint);
-            var fileCommunication = new FileCommunicationHandler(clientSocket);
-            fileCommunication.SendFile(path);
+            fch.SendFile(path);
         }
         public void SendMessage(ETransferType action, string message)
         {
-            //_socket.Connect(_serverIpEndPoint);
-            FileCommunicationHandler fch = new FileCommunicationHandler(clientSocket);
             message = action + Logic.GameTransferSeparator + message;
             fch.SendMessage(message);
         }
@@ -49,6 +47,10 @@ namespace Client
         {
             //_socket.Connect(_serverIpEndPoint);
             return fch.ReceiveMessage();
+        }
+        public void ReceiveFile()
+        {
+            fch.ReceiveFile(ClientPosterFolder);
         }
         public void CloseConnection()
         {

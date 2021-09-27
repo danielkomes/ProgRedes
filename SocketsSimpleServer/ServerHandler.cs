@@ -12,6 +12,7 @@ namespace Server
     {
         private readonly Socket serverSocket;
         private readonly IPEndPoint _serverIpEndPoint;
+        private const string ServerPosterFolder = "Posters/";
         public List<Socket> clients;
         public ServerHandler()
         {
@@ -69,26 +70,26 @@ namespace Server
                 int id = int.Parse(arr[0]);
                 Review r = Logic.DecodeReview(arr[1]);
                 Sys.AddReview(id, r);
-
+            }
+            else if (action.Equals(ETransferType.Download.ToString()))
+            {
+                Game game = Logic.DecodeGame(message);
+                int id = game.Id;
+                SendFile(fch, ServerPosterFolder + id + ".jpg");
             }
         }
-        public void ReceiveFile()
+        public void ReceiveFile(FileCommunicationHandler fch)
         {
-            Socket client = serverSocket.Accept();
-            serverSocket.Close();
-            //var fileCommunication = new FileCommunicationHandler(clientSocket);
-            //fileCommunication.ReceiveFile();
+            fch.ReceiveFile(ServerPosterFolder);
+        }
+        public void SendFile(FileCommunicationHandler fch, string path)
+        {
+            fch.SendFile(path);
         }
         public void SendMessage(FileCommunicationHandler fch, string message)
         {
             //_socket.Connect(_serverIpEndPoint);
             fch.SendMessage(message);
         }
-
-        //public string ReceiveMessage(Socket clientSocket)
-        //{
-        //_socket.Connect(_serverIpEndPoint);
-        //return fileCommunicationHandler.ReceiveMessage();
-        //}
     }
 }

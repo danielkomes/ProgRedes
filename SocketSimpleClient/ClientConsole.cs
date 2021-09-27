@@ -499,16 +499,23 @@ namespace Client
                     "Description: " + GameToView.Description + "\r\n" +
                     "Poster: " + GameToView.Poster + "\r\n" +
                     "\r\n---------\r\n" +
-                    "1 See reviews\r\n" +
-                    "2 Back\r\n";
+                    "1 Download poster\r\n" +
+                    "2 See reviews\r\n" +
+                    "3 Back\r\n";
                 Console.WriteLine(options);
                 string input = Console.ReadLine();
                 int option = GetOption(input);
                 if (option == 1)
                 {
-                    SeeReviews();
+                    ch.SendMessage(ETransferType.Download, Logic.EncodeGame(GameToView));
+                    ch.ReceiveFile();
+                    Console.WriteLine("\r\n------Poster downloaded------\r\n");
                 }
                 else if (option == 2)
+                {
+                    SeeReviews();
+                }
+                else if (option == 3)
                 {
                     loop = false;
                 }
