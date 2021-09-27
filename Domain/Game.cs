@@ -13,7 +13,7 @@ namespace Domain
         public int AgeRating { get; set; } //podria ser un enum
         public string Description { get; set; }
         public string Poster { get; set; }
-        //public object? caratula??
+        //asegurarse que es la ruta de un archivo de imagen valido, guardarlo en una carpeta del lado del servidor para ser descargada. Por ahora se permite un string cualquiera
         public List<Review> Reviews { get; set; }
 
         public Game()
@@ -64,5 +64,10 @@ namespace Domain
             return !string.IsNullOrEmpty(Title) && Genre != EGenre.None && AgeRating != 0 && !string.IsNullOrEmpty(Description) && !string.IsNullOrEmpty(Poster);
         }
 
+        public override bool Equals(object obj)
+        {
+            Game g = (Game)obj;
+            return Id == g.Id;    
+        }
     }
 }

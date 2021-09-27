@@ -6,6 +6,6 @@ namespace Domain
 {
     public enum ETransferType
     {
-        Publish, Edit, 
+        Publish, Edit, List, Delete, Review,
     }
 }

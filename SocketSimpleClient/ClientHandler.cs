@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using Common;
 using Domain;
 
@@ -7,29 +8,39 @@ namespace Client
 {
     public class ClientHandler
     {
-        private readonly Socket _socket;
+        private readonly Socket clientSocket;
         private readonly IPEndPoint _clientIpEndPoint;
         private readonly IPEndPoint _serverIpEndPoint;
+        private FileCommunicationHandler fch;
 
         public ClientHandler()
         {
-            _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _clientIpEndPoint = new IPEndPoint(IPAddress.Loopback, 0);
             _serverIpEndPoint = new IPEndPoint(IPAddress.Loopback, 7000);
-            _socket.Bind(_clientIpEndPoint);
-            _socket.Connect(_serverIpEndPoint);
+            clientSocket.Bind(_clientIpEndPoint);
+            clientSocket.Connect(_serverIpEndPoint);
+            fch = new FileCommunicationHandler(clientSocket);
+            new Thread(() => Listen()).Start();
+        }
+        private void Listen()
+        {
+            while (true)
+            {
+                //ReceiveMessage();
+            }
         }
 
         public void SendFile(string path)
         {
             //_socket.Connect(_serverIpEndPoint);
-            var fileCommunication = new FileCommunicationHandler(_socket);
+            var fileCommunication = new FileCommunicationHandler(clientSocket);
             fileCommunication.SendFile(path);
         }
         public void SendMessage(ETransferType action, string message)
         {
             //_socket.Connect(_serverIpEndPoint);
-            FileCommunicationHandler fch = new FileCommunicationHandler(_socket);
+            FileCommunicationHandler fch = new FileCommunicationHandler(clientSocket);
             message = action + Logic.GameTransferSeparator + message;
             fch.SendMessage(message);
         }
@@ -37,13 +48,12 @@ namespace Client
         public string ReceiveMessage()
         {
             //_socket.Connect(_serverIpEndPoint);
-            FileCommunicationHandler fch = new FileCommunicationHandler(_socket);
             return fch.ReceiveMessage();
         }
         public void CloseConnection()
         {
-            _socket.Shutdown(SocketShutdown.Both);
-            _socket.Close();
+            clientSocket.Shutdown(SocketShutdown.Both);
+            clientSocket.Close();
         }
 
     }

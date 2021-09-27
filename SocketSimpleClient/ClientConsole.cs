@@ -9,6 +9,7 @@ namespace Client
     {
         private const string IncorrectInputError = "Incorrect input";
         private Game GameToPublish { get; set; }
+        private List<Game> ListGames { get; set; }
         private Game GameToView { get; set; }
         private Review Review { get; set; }
         private readonly ClientHandler ch;
@@ -21,7 +22,6 @@ namespace Client
 
         private void Menu0()
         {
-            Logic.TestGames();
             while (true) //To do: quitar
             {
                 string options = "1 Publish game\r\n" +
@@ -194,7 +194,6 @@ namespace Client
         {
             if (GameToPublish.IsFieldsFilled())
             {
-                //Sys.AddGame(GameToPublish);
                 ch.SendMessage(ETransferType.Publish, Logic.EncodeGame(GameToPublish));
                 GameToPublish = null;
                 Console.WriteLine("Game published");
@@ -213,8 +212,11 @@ namespace Client
             while (loop)
             {
                 options = "\r\n---------\r\n" +
-                    "1 Back\r\n----------\r\n" +
-                    Logic.ListGames();
+                    "1 Back\r\n----------\r\n";
+                ch.SendMessage(ETransferType.List, "");
+                ListGames = Logic.DecodeListGames(ch.ReceiveMessage());
+                options += Logic.ListGames(ListGames);
+
                 Console.WriteLine(options);
                 string input = Console.ReadLine();
                 int option = GetOption(input);
@@ -224,8 +226,15 @@ namespace Client
                 }
                 else if (option >= 0)
                 {
-                    GameToView = Logic.GetGameByIndex(option);
-                    ViewGame();
+                    GameToView = Logic.GetGameByIndex(option, ListGames);
+                    if (GameToView != null)
+                    {
+                        ViewGame();
+                    }
+                    else
+                    {
+                        Console.WriteLine(IncorrectInputError);
+                    }
                 }
             }
         }
@@ -283,7 +292,8 @@ namespace Client
                     "2 Edit description\r\n" +
                     "3 Edit age rating\r\n" +
                     "4 Delete game\r\n" +
-                    "5 Back\r\n" +
+                    "5 Accept\r\n" +
+                    "6 Back\r\n" +
                     "----------------\r\n";
 
                 Console.WriteLine(options);
@@ -306,6 +316,11 @@ namespace Client
                     MenuConfirmDeleteGame();
                 }
                 else if (option == 5)
+                {
+                    ch.SendMessage(ETransferType.Edit, Logic.EncodeGame(GameToView));
+                    loop = false;
+                }
+                else if (option == 6)
                 {
                     loop = false;
                 }
@@ -356,7 +371,7 @@ namespace Client
                 string input = Console.ReadLine();
                 if (input.Equals("yes"))
                 {
-                    Sys.DeleteGame(GameToView);
+                    ch.SendMessage(ETransferType.Delete, Logic.EncodeGame(GameToView));
                     GameToView = null;
                     loop = false;
                     ret = true;
@@ -459,6 +474,7 @@ namespace Client
             if (Review.IsFieldsFilled())
             {
                 GameToView.AddReview(Review);
+                ch.SendMessage(ETransferType.Review, GameToView.Id + Logic.GameTransferSeparator + Logic.EncodeReview(Review));
                 Review = null;
                 Console.WriteLine("Review posted");
             }

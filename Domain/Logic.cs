@@ -9,11 +9,7 @@ namespace Domain
         private const int indexStart = 2;
         public const string GameTransferSeparator = "%";
         public const string ReviewTransferSeparator = "$";
-
-        static void Main(string[] args)
-        {
-            TestGames();
-        }
+        public const string GameSeparator = "~";
 
         public static void TestGames()
         {
@@ -113,11 +109,11 @@ namespace Domain
             Sys.AddGame(tera);
         }
 
-        public static string ListGames()
+        public static string ListGames(List<Game> list)
         {
             string ret = "";
             int index = indexStart; //para listar, opción 1 será Back, los juegos van de la 2 en adelante
-            foreach (Game game in Sys.Games)
+            foreach (Game game in list)
             {
                 ret += index + " " + game.Title + "\r\n";
                 index++;
@@ -136,13 +132,13 @@ namespace Domain
             return ret;
         }
 
-        public static Game GetGameByIndex(int input)
+        public static Game GetGameByIndex(int input, List<Game> list)
         {
             int index = input - indexStart;
             Game ret = null;
-            if (index >= 0 && index < Sys.Games.Count)
+            if (index >= 0 && index < list.Count)
             {
-                ret = Sys.Games[index];
+                ret = list[index];
             }
             else
             {
@@ -150,17 +146,32 @@ namespace Domain
             }
             return ret;
         }
-
+        public static string EncodeListGames(List<Game> list)
+        {
+            string ret = "";
+            if (list.Count == 0)
+            {
+                //list.Add(new Game());
+            }
+            foreach (Game g in list)
+            {
+                ret += EncodeGame(g);
+                if (list.IndexOf(g) < list.Count - 1)
+                {
+                    ret += GameSeparator;
+                }
+            }
+            return ret;
+        }
         public static string EncodeGame(Game game)
         {
             return game.Id + GameTransferSeparator +
                 game.Title + GameTransferSeparator +
                 game.Genre + GameTransferSeparator +
                 game.Description + GameTransferSeparator +
-                ListReviews(game) + GameTransferSeparator +
+                EncodeReviews(game.Reviews) + GameTransferSeparator +
                 game.Poster;
         }
-
         public static string EncodeReviews(List<Review> l)
         {
             string ret = "";
@@ -174,10 +185,24 @@ namespace Domain
             }
             return ret;
         }
-        private static string EncodeReview(Review r)
+        public static string EncodeReview(Review r)
         {
             return r.Description + ReviewTransferSeparator +
                 r.Rating;
+        }
+
+        public static List<Game> DecodeListGames(string s)
+        {
+            List<Game> ret = new List<Game>();
+            if (s.Length > 0)
+            {
+                string[] arr = s.Split(GameSeparator);
+                foreach (string game in arr)
+                {
+                    ret.Add(DecodeGame(game));
+                }
+            }
+            return ret;
         }
 
         public static Game DecodeGame(string s)
@@ -214,13 +239,13 @@ namespace Domain
             {
                 for (int i = 0; i < arr.Length; i += 2)
                 {
-                    Review r = DecodeReview(arr[0] + arr[1]);
+                    Review r = DecodeReview(arr[i] + ReviewTransferSeparator + arr[i + 1]);
                     ret.Add(r);
                 }
             }
             return ret;
         }
-        private static Review DecodeReview(string s)
+        public static Review DecodeReview(string s)
         {
             string[] arr = s.Split(ReviewTransferSeparator);
             Review ret = new Review

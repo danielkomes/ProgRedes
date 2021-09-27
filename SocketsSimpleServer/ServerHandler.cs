@@ -13,7 +13,6 @@ namespace Server
         private readonly Socket serverSocket;
         private readonly IPEndPoint _serverIpEndPoint;
         public List<Socket> clients;
-
         public ServerHandler()
         {
             serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -30,19 +29,18 @@ namespace Server
                 Socket clientSocket = serverSocket.Accept();
                 clients.Add(clientSocket);
                 Console.WriteLine("New client connected. Total: " + clients.Count);
-                new Thread(() => Listen(clientSocket)).Start();
-                //new Thread(() => ResponseToClient(clientSocket)).Start();
+                FileCommunicationHandler fileCommunicationHandler = new FileCommunicationHandler(clientSocket);
+                new Thread(() => Listen(fileCommunicationHandler)).Start();
             }
         }
-        void Listen(Socket clientSocket)
+        void Listen(FileCommunicationHandler fch)
         {
-            var fileCommunicationHandler = new FileCommunicationHandler(clientSocket);
             while (true)
             {
-                ProcessMessage(fileCommunicationHandler.ReceiveMessage());
+                ProcessMessage(fch, fch.ReceiveMessage());
             }
         }
-        private void ProcessMessage(string message)
+        private void ProcessMessage(FileCommunicationHandler fch, string message)
         {
             string action = message.Substring(0, message.IndexOf(Logic.GameTransferSeparator));
             message = message.Remove(0, action.Length + Logic.GameTransferSeparator.Length);
@@ -50,6 +48,28 @@ namespace Server
             {
                 Game game = Logic.DecodeGame(message);
                 Sys.AddGame(game);
+            }
+            else if (action.Equals(ETransferType.List.ToString()))
+            {
+                SendMessage(fch, Logic.EncodeListGames(Sys.Games));
+            }
+            else if (action.Equals(ETransferType.Edit.ToString()))
+            {
+                Game game = Logic.DecodeGame(message);
+                Sys.ReplaceGame(game);
+            }
+            else if (action.Equals(ETransferType.Delete.ToString()))
+            {
+                Game game = Logic.DecodeGame(message);
+                Sys.DeleteGame(game);
+            }
+            else if (action.Equals(ETransferType.Review.ToString()))
+            {
+                string[] arr = message.Split(Logic.GameTransferSeparator);
+                int id = int.Parse(arr[0]);
+                Review r = Logic.DecodeReview(arr[1]);
+                Sys.AddReview(id, r);
+
             }
         }
         public void ReceiveFile()
@@ -59,11 +79,11 @@ namespace Server
             //var fileCommunication = new FileCommunicationHandler(clientSocket);
             //fileCommunication.ReceiveFile();
         }
-        //public void SendMessage(string message)
-        //{
-        //    //_socket.Connect(_serverIpEndPoint);
-        //    fileCommunicationHandler.SendMessage(message);
-        //}
+        public void SendMessage(FileCommunicationHandler fch, string message)
+        {
+            //_socket.Connect(_serverIpEndPoint);
+            fch.SendMessage(message);
+        }
 
         //public string ReceiveMessage(Socket clientSocket)
         //{

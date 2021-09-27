@@ -25,7 +25,26 @@ namespace Domain
         {
             Games.Remove(game);
         }
+        public static void ReplaceGame(Game game)
+        {
+            for (int i = 0; i < Games.Count; i++)
+            {
+                if (Games[i].Equals(game))
+                {
+                    Games[i] = game;
+                    return;
+                }
+            }
+        }
+        public static void AddReview(int id, Review review)
+        {
+            Game g = Games.Find(g => g.Id == id);
+            if (g != null)
+            {
+                g.Reviews.Add(review);
+            }
 
+        }
         private static void TestPrintGames()
         {
             while (true)
