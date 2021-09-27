@@ -287,7 +287,7 @@ namespace Client
             bool loop = true;
             while (loop)
             {
-                string options = "1 1-25\r\n" +
+                string options = "1 0-25\r\n" +
                     "2 26-50\r\n" +
                     "3 51-75\r\n" +
                     "4 76-100\r\n" +
@@ -299,7 +299,7 @@ namespace Client
                 List<Game> filteredList = null;
                 if (option == 1)
                 {
-                    filteredList = Logic.FilterByRating(ListGames, 1, 25);
+                    filteredList = Logic.FilterByRating(ListGames, 0, 25);
                 }
                 else if (option == 2)
                 {
