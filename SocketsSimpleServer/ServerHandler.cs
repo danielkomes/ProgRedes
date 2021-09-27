@@ -49,6 +49,7 @@ namespace Server
             {
                 Game game = Logic.DecodeGame(message);
                 Sys.AddGame(game);
+                ReceiveFile(fch);
             }
             else if (action.Equals(ETransferType.List.ToString()))
             {
@@ -75,16 +76,16 @@ namespace Server
             {
                 Game game = Logic.DecodeGame(message);
                 int id = game.Id;
-                SendFile(fch, ServerPosterFolder + id + ".jpg");
+                SendFile(fch, ServerPosterFolder + id + ".jpg", game.Title + ".jpg");
             }
         }
         public void ReceiveFile(FileCommunicationHandler fch)
         {
             fch.ReceiveFile(ServerPosterFolder);
         }
-        public void SendFile(FileCommunicationHandler fch, string path)
+        public void SendFile(FileCommunicationHandler fch, string path, string newName)
         {
-            fch.SendFile(path);
+            fch.SendFile(path, newName);
         }
         public void SendMessage(FileCommunicationHandler fch, string message)
         {

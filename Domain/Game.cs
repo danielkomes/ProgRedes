@@ -6,19 +6,18 @@ namespace Domain
 
     public class Game
     {
-        private static int IdCounter { get; set; }
         public int Id { get; private set; }
         public string Title { get; set; }
         public EGenre Genre { get; set; }
         public int AgeRating { get; set; } //podria ser un enum
         public string Description { get; set; }
         public string Poster { get; set; }
-        //asegurarse que es la ruta de un archivo de imagen valido, guardarlo en una carpeta del lado del servidor para ser descargada. Por ahora se permite un string cualquiera
+        //asegurarse que es la ruta de un archivo de imagen valido
         public List<Review> Reviews { get; set; }
 
         public Game()
         {
-            Id = IdCounter++;
+            Id = Sys.GetNewId();
             Title = "";
             Genre = EGenre.None;
             Description = "";
@@ -67,7 +66,7 @@ namespace Domain
         public override bool Equals(object obj)
         {
             Game g = (Game)obj;
-            return Id == g.Id;    
+            return Id == g.Id;
         }
     }
 }

@@ -32,10 +32,9 @@ namespace Client
             }
         }
 
-        public void SendFile(FileCommunicationHandler fch, string path)
+        public void SendFile(string path, string newName)
         {
-            //_socket.Connect(_serverIpEndPoint);
-            fch.SendFile(path);
+            fch.SendFile(path, newName);
         }
         public void SendMessage(ETransferType action, string message)
         {

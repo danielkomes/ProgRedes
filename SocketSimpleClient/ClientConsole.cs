@@ -185,7 +185,7 @@ namespace Client
         }
         private void MenuPoster()
         {
-            string options = "Input poster: ";
+            string options = "Input poster path: ";
             Console.WriteLine(options);
             string input = Console.ReadLine();
             GameToPublish.Poster = input;
@@ -195,8 +195,10 @@ namespace Client
             if (GameToPublish.IsFieldsFilled())
             {
                 ch.SendMessage(ETransferType.Publish, Logic.EncodeGame(GameToPublish));
+                Console.WriteLine("Sending. Please wait...");
+                ch.SendFile(GameToPublish.Poster, GameToPublish.Id + ".jpg");
                 GameToPublish = null;
-                Console.WriteLine("Game published");
+                Console.WriteLine("Done. Game published");
             }
             else
             {

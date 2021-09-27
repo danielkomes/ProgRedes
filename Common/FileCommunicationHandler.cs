@@ -20,11 +20,12 @@ namespace Common
             _fileStreamHandler = new FileStreamHandler();
         }
 
-        public void SendFile(string path)
+        public void SendFile(string path, string newName)
         {
             var fileInfo = new FileInfo(path);
-            string fileName = fileInfo.Name;
-            byte[] fileNameData = Encoding.UTF8.GetBytes(fileName);
+            //string fileName = fileInfo.Name;
+            //byte[] fileNameData = Encoding.UTF8.GetBytes(fileName);
+            byte[] fileNameData = Encoding.UTF8.GetBytes(newName);
             int fileNameLength = fileNameData.Length;
             byte[] fileNameLengthData = BitConverter.GetBytes(fileNameLength);
             // 1.- Envío el largo del nombre del archivo

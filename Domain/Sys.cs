@@ -7,6 +7,7 @@ namespace Domain
 {
     public static class Sys
     {
+        public static int IdCounter { get; set; }
         public static List<Game> Games { get; set; }
         public static List<Client> Clients { get; set; }
 
@@ -14,6 +15,10 @@ namespace Domain
         {
             Games = new List<Game>();
             Clients = new List<Client>();
+        }
+        public static int GetNewId()
+        {
+            return IdCounter++;
         }
 
         public static void AddGame(Game game)
@@ -44,16 +49,6 @@ namespace Domain
                 g.Reviews.Add(review);
             }
 
-        }
-        private static void TestPrintGames()
-        {
-            while (true)
-            {
-                foreach (Game game in Games)
-                {
-                    Console.WriteLine(game.Title);
-                }
-            }
         }
     }
 }
