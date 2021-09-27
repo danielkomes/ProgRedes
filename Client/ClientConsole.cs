@@ -260,7 +260,7 @@ namespace Client
                 RequestListGames();
                 List<Game> filteredList = Logic.FilterByTitle(ListGames, input);
                 int sel = SelectGame(filteredList);
-                if(sel == -1)
+                if (sel == -1)
                 {
                     loop = false;
                 }

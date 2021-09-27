@@ -48,8 +48,9 @@ namespace Server
             if (action.Equals(ETransferType.Publish.ToString()))
             {
                 Game game = Logic.DecodeGame(message);
+                game.Id = Sys.GetNewId();
                 Sys.AddGame(game);
-                ReceiveFile(fch);
+                ReceiveFile(fch, game.Id + ".jpg");
             }
             else if (action.Equals(ETransferType.List.ToString()))
             {
@@ -79,9 +80,9 @@ namespace Server
                 SendFile(fch, ServerPosterFolder + id + ".jpg", game.Title + ".jpg");
             }
         }
-        public void ReceiveFile(FileCommunicationHandler fch)
+        public void ReceiveFile(FileCommunicationHandler fch, string newName)
         {
-            fch.ReceiveFile(ServerPosterFolder);
+            fch.ReceiveFile(ServerPosterFolder, newName);
         }
         public void SendFile(FileCommunicationHandler fch, string path, string newName)
         {

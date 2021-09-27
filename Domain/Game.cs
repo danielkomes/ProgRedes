@@ -6,7 +6,7 @@ namespace Domain
 
     public class Game
     {
-        public int Id { get; private set; }
+        public int Id { get; set; }
         public string Title { get; set; }
         public EGenre Genre { get; set; }
         public int AgeRating { get; set; } //podria ser un enum

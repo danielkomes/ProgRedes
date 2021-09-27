@@ -41,7 +41,7 @@ namespace Common
             SendFile(fileSize, path);
         }
 
-        public void ReceiveFile(string pathNoName)
+        public void ReceiveFile(string pathNoName, string newName = "")
         {
             // 1.- Recibir el largo del nombre del archivo
             byte[] fileNameLengthData = _socketStreamHandler.ReceiveData(ProtocolSpecification.FileNameSize);
@@ -49,7 +49,10 @@ namespace Common
             // 2.- Recibir el nombre del archivo
             byte[] fileNameData = _socketStreamHandler.ReceiveData(fileNameLength);
             string fileName = Encoding.UTF8.GetString(fileNameData);
-
+            if (!string.IsNullOrEmpty(newName))
+            {
+                fileName = newName;
+            }
             // 3.- Recibo el largo del archivo
             byte[] fileSizeDataLength = _socketStreamHandler.ReceiveData(ProtocolSpecification.FileSize);
             long fileSize = BitConverter.ToInt64(fileSizeDataLength);
