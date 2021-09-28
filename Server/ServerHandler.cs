@@ -36,16 +36,52 @@ namespace Server
         }
         void Listen(FileCommunicationHandler fch)
         {
-            while (true)
+            bool loop = true;
+            while (loop)
             {
-                ProcessMessage(fch, fch.ReceiveMessage());
+                loop = ProcessMessage(fch, fch.ReceiveMessage());
             }
         }
-        private void ProcessMessage(FileCommunicationHandler fch, string message)
+        private bool ProcessMessage(FileCommunicationHandler fch, string message)
         {
             string action = message.Substring(0, message.IndexOf(Logic.GameTransferSeparator));
             message = message.Remove(0, action.Length + Logic.GameTransferSeparator.Length);
-            if (action.Equals(ETransferType.Publish.ToString()))
+            bool ret = true;
+            if (action.Equals(ETransferType.Login.ToString()))
+            {
+                Client client = Sys.GetClient(message);
+                if (client != null)
+                {
+                    if (!client.IsOnline)
+                    {
+                        client.IsOnline = true;
+                        SendMessage(fch, "true");
+                        SendMessage(fch, Logic.EncodeOwnedGames(client.OwnedGames));
+                    }
+                    else
+                    {
+                        SendMessage(fch, "false");
+                    }
+                }
+                else
+                {
+                    SendMessage(fch, "false");
+                }
+            }
+            else if (action.Equals(ETransferType.Signup.ToString()))
+            {
+                bool msg = Sys.AddClient(message);
+                if (msg)
+                {
+                    Sys.GetClient(message).IsOnline = true;
+                }
+                SendMessage(fch, msg + "");
+            }
+            else if (action.Equals(ETransferType.Logoff.ToString()))
+            {
+                Sys.GetClient(message).IsOnline = false;
+            }
+            else if (action.Equals(ETransferType.Publish.ToString()))
             {
                 Game game = Logic.DecodeGame(message);
                 game.Id = Sys.GetNewId();
@@ -79,6 +115,24 @@ namespace Server
                 int id = game.Id;
                 SendFile(fch, ServerPosterFolder + id + ".jpg", game.Title + ".jpg");
             }
+            else if (action.Equals(ETransferType.BuyGame.ToString()))
+            {
+                string[] arr = message.Split(Logic.GameTransferSeparator);
+                int gameId = int.Parse(arr[0]);
+                string username = arr[1];
+                bool response = Sys.BuyGame(username, gameId);
+                SendMessage(fch, response + "");
+                if (response)
+                {
+                    SendMessage(fch, Logic.EncodeOwnedGames(Sys.GetClient(username).OwnedGames));
+                }
+            }
+            else if (action.Equals(ETransferType.Disconnect.ToString()))
+            {
+                ret = false;
+                Console.WriteLine("Client disconnected. Total: " + clients.Count);
+            }
+            return ret;
         }
         public void ReceiveFile(FileCommunicationHandler fch, string newName)
         {

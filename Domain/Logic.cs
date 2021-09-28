@@ -187,13 +187,35 @@ namespace Domain
             }
             return ret;
         }
+        public static string EncodeOwnedGames(List<int> list)
+        {
+            string ret = "";
+            for (int i = 0; i < list.Count; i++)
+            {
+                ret += list[i];
+                if (i < list.Count - 1)
+                {
+                    ret += GameSeparator;
+                }
+            }
+            return ret;
+        }
+        public static List<int> DecodeOwnedGames(string s)
+        {
+            List<int> ret = new List<int>();
+            string[] arr = s.Split(GameSeparator);
+            foreach (string game in arr)
+            {
+                if (!string.IsNullOrEmpty(game))
+                {
+                    ret.Add(int.Parse(game));
+                }
+            }
+            return ret;
+        }
         public static string EncodeListGames(List<Game> list)
         {
             string ret = "";
-            if (list.Count == 0)
-            {
-                //list.Add(new Game());
-            }
             foreach (Game g in list)
             {
                 ret += EncodeGame(g);

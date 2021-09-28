@@ -16,6 +16,21 @@ namespace Domain
             Games = new List<Game>();
             Clients = new List<Client>();
         }
+        public static Client GetClient(string username)
+        {
+            return Clients.Find(c => c.Username.Equals(username));
+        }
+        public static bool AddClient(string username)
+        {
+            bool ret = false;
+            Client c = new Client(username);
+            if (!Clients.Contains(c))
+            {
+                Clients.Add(c);
+                ret = true;
+            }
+            return ret;
+        }
         public static int GetNewId()
         {
             return IdCounter++;
@@ -29,6 +44,24 @@ namespace Domain
         public static void DeleteGame(Game game)
         {
             Games.Remove(game);
+            foreach (Client c in Clients)
+            {
+                c.OwnedGames.Remove(game.Id);
+            }
+        }
+        public static bool BuyGame(string username, int id)
+        {
+            bool ret = false;
+            Client client = GetClient(username);
+            if (Games.Find(g => g.Id == id) != null)
+            {
+                if (!client.OwnedGames.Contains(id))
+                {
+                    client.OwnedGames.Add(id);
+                    ret = true;
+                }
+            }
+            return ret;
         }
         public static void ReplaceGame(Game game)
         {

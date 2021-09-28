@@ -12,12 +12,13 @@ namespace Client
         private List<Game> ListGames { get; set; }
         private Game GameToView { get; set; }
         private Review Review { get; set; }
+        private Domain.Client Client { get; set; }
         private readonly ClientHandler ch;
 
         public ClientConsole(ClientHandler ch)
         {
             this.ch = ch;
-            Menu0();
+            CredentialsMenu();
         }
 
         private void RequestListGames()
@@ -25,12 +26,80 @@ namespace Client
             ch.SendMessage(ETransferType.List, "");
             ListGames = Logic.DecodeListGames(ch.ReceiveMessage());
         }
+        private void CredentialsMenu()
+        {
+            bool loop = true;
+            while (loop)
+            {
+                string options = "1 Login\r\n" +
+                    "2 Sign up\r\n" +
+                    "3 Disconnect\r\n";
+                Console.WriteLine(options);
+                string input = Console.ReadLine();
+                int option = GetOption(input);
+                if (option == 1)
+                {
+                    Login();
+                }
+                else if (option == 2)
+                {
+                    Signup();
+                }
+                else if (option == 3)
+                {
+                    ch.SendMessage(ETransferType.Disconnect, "");
+                    ch.CloseConnection();
+                    loop = false;
+                }
+                else
+                {
+                    Console.WriteLine(IncorrectInputError);
+                }
+            }
+        }
+        private void Login()
+        {
+            Console.WriteLine("Input username: ");
+            string input = Console.ReadLine();
+            ch.SendMessage(ETransferType.Login, input);
+            bool success = bool.Parse(ch.ReceiveMessage());
+            if (success)
+            {
+                Client = new Domain.Client(input);
+                Client.OwnedGames = Logic.DecodeOwnedGames(ch.ReceiveMessage());
+                Console.WriteLine("Successfully logged in");
+                Menu0();
+            }
+            else
+            {
+                Console.WriteLine("Username not found or already logged in");
+            }
+        }
+        private void Signup()
+        {
+            Console.WriteLine("Input username: ");
+            string input = Console.ReadLine();
+            ch.SendMessage(ETransferType.Signup, input);
+            bool success = bool.Parse(ch.ReceiveMessage());
+            if (success)
+            {
+                Client = new Domain.Client(input);
+                Console.WriteLine("Successfully signed up");
+                Menu0();
+            }
+            else
+            {
+                Console.WriteLine("Username already exists");
+            }
+        }
         private void Menu0()
         {
-            while (true) //To do: quitar
+            bool loop = true;
+            while (loop)
             {
                 string options = "1 Publish game\r\n" +
-                    "2 Find game\r\n";
+                    "2 Find game\r\n" +
+                    "3 Log off\r\n";
                 Console.WriteLine(options);
                 string input = Console.ReadLine();
                 int option = GetOption(input);
@@ -41,6 +110,11 @@ namespace Client
                 else if (option == 2)
                 {
                     FilterGameByAttr();
+                }
+                else if (option == 3)
+                {
+                    ch.SendMessage(ETransferType.Logoff, Client.Username);
+                    loop = false;
                 }
                 else
                 {
@@ -334,6 +408,7 @@ namespace Client
             int ret = 0;
             while (loop)
             {
+                RequestListGames();
                 ret = 0;
                 options = "\r\n---------\r\n" +
                     "1 Back\r\n" +
@@ -353,6 +428,7 @@ namespace Client
                     if (GameToView != null)
                     {
                         ViewGame();
+                        loop = false;
                     }
                     else
                     {
@@ -659,8 +735,9 @@ namespace Client
                     "Poster: " + GameToView.Poster + "\r\n" +
                     "\r\n---------\r\n" +
                     "1 Download poster\r\n" +
-                    "2 See reviews\r\n" +
-                    "3 Back\r\n";
+                    "2 Get game\r\n" +
+                    "3 See reviews\r\n" +
+                    "4 Back\r\n";
                 Console.WriteLine(options);
                 string input = Console.ReadLine();
                 int option = GetOption(input);
@@ -672,9 +749,23 @@ namespace Client
                 }
                 else if (option == 2)
                 {
-                    SeeReviews();
+                    ch.SendMessage(ETransferType.BuyGame, GameToView.Id + Logic.GameTransferSeparator + Client.Username);
+                    bool response = bool.Parse(ch.ReceiveMessage());
+                    if (response)
+                    {
+                        Console.WriteLine("\r\n------Game bought------\r\n");
+                        Client.OwnedGames = Logic.DecodeOwnedGames(ch.ReceiveMessage());
+                    }
+                    else
+                    {
+                        Console.WriteLine("Could not buy game. You might already own it or it may have been deleted");
+                    }
                 }
                 else if (option == 3)
+                {
+                    SeeReviews();
+                }
+                else if (option == 4)
                 {
                     loop = false;
                 }
