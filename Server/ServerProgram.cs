@@ -17,7 +17,7 @@ namespace Server
         {
             Logic.TestGames();
             sh = new ServerHandler();
-            clients = new List<Socket>();
+            ServerConsole sc = new ServerConsole(sh);
         }
     }
 }

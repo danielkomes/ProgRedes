@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using Common;
@@ -21,15 +22,8 @@ namespace Client
             _serverIpEndPoint = new IPEndPoint(IPAddress.Loopback, 7000);
             clientSocket.Bind(_clientIpEndPoint);
             clientSocket.Connect(_serverIpEndPoint);
+            Console.WriteLine("Connected to server");
             fch = new FileCommunicationHandler(clientSocket);
-            new Thread(() => Listen()).Start();
-        }
-        private void Listen()
-        {
-            while (true)
-            {
-                //ReceiveMessage();
-            }
         }
 
         public void SendFile(string path, string newName)

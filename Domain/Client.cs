@@ -16,16 +16,6 @@ namespace Domain
             OwnedGames = new List<int>();
             IsOnline = false;
         }
-        public bool BuyGame(int id)
-        {
-            bool ret = false;
-            if (!OwnedGames.Contains(id))
-            {
-                OwnedGames.Add(id);
-                ret = true;
-            }
-            return ret;
-        }
         public override bool Equals(object obj)
         {
             Client c = (Client)obj;

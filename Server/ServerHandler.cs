@@ -13,6 +13,8 @@ namespace Server
         private readonly Socket serverSocket;
         private readonly IPEndPoint _serverIpEndPoint;
         private const string ServerPosterFolder = "Posters/";
+        private bool socketOpen;
+        private Thread acceptClients;
         public List<Socket> clients;
         public ServerHandler()
         {
@@ -20,24 +22,33 @@ namespace Server
             _serverIpEndPoint = new IPEndPoint(IPAddress.Loopback, 7000);
             serverSocket.Bind(_serverIpEndPoint);
             serverSocket.Listen(1);
+            socketOpen = true;
             clients = new List<Socket>();
-            AcceptClients();
+            acceptClients = new Thread(() => AcceptClients());
+            acceptClients.Start();
         }
         void AcceptClients()
         {
-            while (true)
+            while (socketOpen)
             {
-                Socket clientSocket = serverSocket.Accept();
-                clients.Add(clientSocket);
-                Console.WriteLine("New client connected. Total: " + clients.Count);
-                FileCommunicationHandler fileCommunicationHandler = new FileCommunicationHandler(clientSocket);
-                new Thread(() => Listen(fileCommunicationHandler)).Start();
+                try
+                {
+                    Socket clientSocket = serverSocket.Accept();
+                    clients.Add(clientSocket);
+                    Console.WriteLine("New client connected. Total: " + clients.Count);
+                    FileCommunicationHandler fileCommunicationHandler = new FileCommunicationHandler(clientSocket);
+                    new Thread(() => Listen(fileCommunicationHandler)).Start();
+                }
+                catch (SocketException)
+                {
+                    socketOpen = false;
+                }
             }
         }
         void Listen(FileCommunicationHandler fch)
         {
             bool loop = true;
-            while (loop)
+            while (loop && socketOpen)
             {
                 loop = ProcessMessage(fch, fch.ReceiveMessage());
             }
@@ -84,7 +95,6 @@ namespace Server
             else if (action.Equals(ETransferType.Publish.ToString()))
             {
                 Game game = Logic.DecodeGame(message);
-                game.Id = Sys.GetNewId();
                 Sys.AddGame(game);
                 ReceiveFile(fch, game.Id + ".jpg");
             }
@@ -146,6 +156,14 @@ namespace Server
         {
             //_socket.Connect(_serverIpEndPoint);
             fch.SendMessage(message);
+        }
+        public void CloseConnection()
+        {
+            socketOpen = false;
+            //acceptClients.Suspend();
+            //acceptClients.Abort();
+                serverSocket.Close();
+                serverSocket.Shutdown(SocketShutdown.Both);
         }
     }
 }

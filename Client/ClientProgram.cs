@@ -16,7 +16,6 @@ namespace Client
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Connected to server");
             ClientHandler = new ClientHandler();
             ClientConsole = new ClientConsole(ClientHandler);
         }

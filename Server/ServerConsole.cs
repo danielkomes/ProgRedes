@@ -1,96 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using Domain;
 
-namespace Client
+namespace Server
 {
-    public class ClientConsole
+    public class ServerConsole
     {
         private const string IncorrectInputError = "Incorrect input";
         private Game GameToPublish { get; set; }
-        private List<Game> ListGames { get; set; }
+        //private List<Game> ListGames { get; set; }
         private Game GameToView { get; set; }
         private Review Review { get; set; }
         private Domain.Client Client { get; set; }
-        private readonly ClientHandler ch;
+        private readonly ServerHandler sh;
 
-        public ClientConsole(ClientHandler ch)
+        public ServerConsole(ServerHandler sh)
         {
-            this.ch = ch;
-            CredentialsMenu();
-        }
-
-        private void RequestListGames()
-        {
-            ch.SendMessage(ETransferType.List, "");
-            ListGames = Logic.DecodeListGames(ch.ReceiveMessage());
-        }
-        private void CredentialsMenu()
-        {
-            bool loop = true;
-            while (loop)
-            {
-                string options = "1 Login\r\n" +
-                    "2 Sign up\r\n" +
-                    "3 Disconnect\r\n";
-                Console.WriteLine(options);
-                string input = Console.ReadLine();
-                int option = GetOption(input);
-                if (option == 1)
-                {
-                    Login();
-                }
-                else if (option == 2)
-                {
-                    Signup();
-                }
-                else if (option == 3)
-                {
-                    ch.SendMessage(ETransferType.Disconnect, "");
-                    ch.CloseConnection();
-                    loop = false;
-                }
-                else
-                {
-                    Console.WriteLine(IncorrectInputError);
-                }
-            }
-        }
-        private void Login()
-        {
-            Console.WriteLine("Input username: ");
-            string input = Console.ReadLine();
-            ch.SendMessage(ETransferType.Login, input);
-            bool success = bool.Parse(ch.ReceiveMessage());
-            if (success)
-            {
-                Client = new Domain.Client(input);
-                Client.OwnedGames = Logic.DecodeOwnedGames(ch.ReceiveMessage());
-                Console.WriteLine("Successfully logged in");
-                Menu0();
-            }
-            else
-            {
-                Console.WriteLine("Username not found or already logged in");
-            }
-        }
-        private void Signup()
-        {
-            Console.WriteLine("Input username: ");
-            string input = Console.ReadLine();
-            ch.SendMessage(ETransferType.Signup, input);
-            bool success = bool.Parse(ch.ReceiveMessage());
-            if (success)
-            {
-                Client = new Domain.Client(input);
-                Console.WriteLine("Successfully signed up");
-                Menu0();
-            }
-            else
-            {
-                Console.WriteLine("Username already exists");
-            }
+            this.sh = sh;
+            Menu0();
         }
         private void Menu0()
         {
@@ -99,7 +28,7 @@ namespace Client
             {
                 string options = "1 Publish game\r\n" +
                     "2 Find game\r\n" +
-                    "3 Log off\r\n";
+                    "3 Shutdown server\r\n";
                 Console.WriteLine(options);
                 string input = Console.ReadLine();
                 int option = GetOption(input);
@@ -113,7 +42,7 @@ namespace Client
                 }
                 else if (option == 3)
                 {
-                    ch.SendMessage(ETransferType.Logoff, Client.Username);
+                    sh.CloseConnection();
                     loop = false;
                 }
                 else
@@ -275,9 +204,10 @@ namespace Client
         {
             if (GameToPublish.IsFieldsFilled())
             {
-                ch.SendMessage(ETransferType.Publish, Logic.EncodeGame(GameToPublish));
-                Console.WriteLine("Sending. Please wait...");
-                ch.SendFile(GameToPublish.Poster, GameToPublish.Id + ".jpg");
+                //sh.SendMessage(ETransferType.Publish, Logic.EncodeGame(GameToPublish));
+                //Console.WriteLine("Sending. Please wait...");
+                //sh.SendFile(GameToPublish.Poster, GameToPublish.Id + ".jpg");
+                Sys.AddGame(GameToPublish);
                 GameToPublish = null;
                 Console.WriteLine("Done. Game published");
             }
@@ -331,8 +261,7 @@ namespace Client
             {
                 Console.WriteLine("Input title to search: ");
                 string input = Console.ReadLine();
-                RequestListGames();
-                List<Game> filteredList = Logic.FilterByTitle(ListGames, input);
+                List<Game> filteredList = Logic.FilterByTitle(Sys.Games, input);
                 int sel = SelectGame(filteredList);
                 if (sel == -1)
                 {
@@ -346,8 +275,7 @@ namespace Client
             while (loop)
             {
                 EGenre genre = MenuGenres();
-                RequestListGames();
-                List<Game> filteredList = Logic.FilterByGenre(ListGames, genre);
+                List<Game> filteredList = Logic.FilterByGenre(Sys.Games, genre);
                 int sel = SelectGame(filteredList);
 
                 if (sel == -1)
@@ -369,23 +297,22 @@ namespace Client
                 Console.WriteLine(options);
                 string input = Console.ReadLine();
                 int option = GetOption(input);
-                RequestListGames();
                 List<Game> filteredList = null;
                 if (option == 1)
                 {
-                    filteredList = Logic.FilterByRating(ListGames, 0, 25);
+                    filteredList = Logic.FilterByRating(Sys.Games, 0, 25);
                 }
                 else if (option == 2)
                 {
-                    filteredList = Logic.FilterByRating(ListGames, 26, 50);
+                    filteredList = Logic.FilterByRating(Sys.Games, 26, 50);
                 }
                 else if (option == 3)
                 {
-                    filteredList = Logic.FilterByRating(ListGames, 51, 75);
+                    filteredList = Logic.FilterByRating(Sys.Games, 51, 75);
                 }
                 else if (option == 4)
                 {
-                    filteredList = Logic.FilterByRating(ListGames, 76, 100);
+                    filteredList = Logic.FilterByRating(Sys.Games, 76, 100);
                 }
                 else if (option == 5)
                 {
@@ -408,7 +335,6 @@ namespace Client
             int ret = 0;
             while (loop)
             {
-                RequestListGames();
                 ret = 0;
                 options = "\r\n---------\r\n" +
                     "1 Back\r\n" +
@@ -448,8 +374,7 @@ namespace Client
                 options = "\r\n---------\r\n" +
                     "1 Back\r\n" +
                     "----------\r\n";
-                RequestListGames();
-                options += Logic.ListGames(ListGames);
+                options += Logic.ListGames(Sys.Games);
 
                 Console.WriteLine(options);
                 string input = Console.ReadLine();
@@ -460,7 +385,7 @@ namespace Client
                 }
                 else if (option >= 0)
                 {
-                    GameToView = Logic.GetGameByIndex(option, ListGames);
+                    GameToView = Logic.GetGameByIndex(option, Sys.Games);
                     if (GameToView != null)
                     {
                         ViewGame();
@@ -552,7 +477,7 @@ namespace Client
                 }
                 else if (option == 5)
                 {
-                    ch.SendMessage(ETransferType.Edit, Logic.EncodeGame(GameToView));
+                    //sh.SendMessage(ETransferType.Edit, Logic.EncodeGame(GameToView));
                     loop = false;
                 }
                 else if (option == 6)
@@ -606,7 +531,8 @@ namespace Client
                 string input = Console.ReadLine();
                 if (input.Equals("yes"))
                 {
-                    ch.SendMessage(ETransferType.Delete, Logic.EncodeGame(GameToView));
+                    //sh.SendMessage(ETransferType.Delete, Logic.EncodeGame(GameToView));
+                    Sys.DeleteGame(GameToView);
                     GameToView = null;
                     loop = false;
                     ret = true;
@@ -708,7 +634,7 @@ namespace Client
         {
             if (Review.IsFieldsFilled())
             {
-                ch.SendMessage(ETransferType.Review, GameToView.Id + Logic.GameTransferSeparator + Logic.EncodeReview(Review));
+                Sys.AddReview(GameToView.Id, Review);
                 Review = null;
                 Console.WriteLine("Review posted");
             }
@@ -733,41 +659,29 @@ namespace Client
                     "Description: " + GameToView.Description + "\r\n" +
                     "Poster: " + GameToView.Poster + "\r\n" +
                     "\r\n---------\r\n" +
-                    "1 Download poster\r\n" +
-                    "2 Get game\r\n" +
-                    "3 See reviews\r\n" +
-                    "4 Back\r\n";
+                    //"1 Download poster\r\n" +
+                    //"2 Get game\r\n" +
+                    "1 See reviews\r\n" +
+                    "2 Back\r\n";
                 Console.WriteLine(options);
                 string input = Console.ReadLine();
                 int option = GetOption(input);
                 if (option == 1)
                 {
-                    ch.SendMessage(ETransferType.Download, Logic.EncodeGame(GameToView));
-                    ch.ReceiveFile();
-                    Console.WriteLine("\r\n------Poster downloaded------\r\n");
+                    SeeReviews();
                 }
                 else if (option == 2)
                 {
-                    ch.SendMessage(ETransferType.BuyGame, GameToView.Id + Logic.GameTransferSeparator + Client.Username);
-                    bool response = bool.Parse(ch.ReceiveMessage());
-                    if (response)
-                    {
-                        Console.WriteLine("\r\n------Game bought------\r\n");
-                        Client.OwnedGames = Logic.DecodeOwnedGames(ch.ReceiveMessage());
-                    }
-                    else
-                    {
-                        Console.WriteLine("Could not buy game. You might already own it or it may have been deleted");
-                    }
-                }
-                else if (option == 3)
-                {
-                    SeeReviews();
-                }
-                else if (option == 4)
-                {
                     loop = false;
                 }
+                //else if (option == 3)
+                //{
+                //    SeeReviews();
+                //}
+                //else if (option == 4)
+                //{
+                //    loop = false;
+                //}
                 else
                 {
                     Console.WriteLine(IncorrectInputError);

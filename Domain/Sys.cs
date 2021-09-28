@@ -38,8 +38,8 @@ namespace Domain
 
         public static void AddGame(Game game)
         {
+            game.Id = GetNewId();
             Games.Add(game);
-            Console.WriteLine("new game: " + game.Title);
         }
         public static void DeleteGame(Game game)
         {
