@@ -2,7 +2,6 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using Common;
 using Domain;
 using Newtonsoft.Json.Linq;
@@ -17,7 +16,7 @@ namespace Client
         private string ClientPosterFolder;
         private int ClientPort;
         private int ServerPort;
-        private FileCommunicationHandler fch;
+        private readonly FileCommunicationHandler fch;
 
         public ClientHandler()
         {

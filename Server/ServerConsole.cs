@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using Domain;
 
 namespace Server
@@ -13,7 +11,6 @@ namespace Server
         //private List<Game> ListGames { get; set; }
         private Game GameToView { get; set; }
         private Review Review { get; set; }
-        private Domain.Client Client { get; set; }
         private readonly ServerHandler sh;
 
         public ServerConsole(ServerHandler sh)
@@ -56,12 +53,11 @@ namespace Server
             bool loop = true;
             while (loop)
             {
-                string options = "";
                 if (GameToPublish == null)
                 {
                     GameToPublish = new Game();
                 }
-                options = "\r\n------------\r\n1 Title: " + GameToPublish.Title + "\r\n" +
+                string options = "\r\n------------\r\n1 Title: " + GameToPublish.Title + "\r\n" +
                     "2 Genre: " + GameToPublish.Genre + "\r\n" +
                     "3 Age rating: " + GameToPublish.AgeRating + "\r\n" +
                     "4 Description: " + GameToPublish.Description + "\r\n" +
@@ -222,10 +218,9 @@ namespace Server
         private void FilterGameByAttr()
         {
             bool loop = true;
-            string options = "";
             while (loop)
             {
-                options = "\r\n1 Filter by title\r\n" +
+                string options = "\r\n1 Filter by title\r\n" +
                     "2 Filter by genre\r\n" +
                     "3 Filter by rating\r\n" +
                     "4 Back\r\n";
@@ -331,12 +326,11 @@ namespace Server
         private int SelectGame(List<Game> list)
         {
             bool loop = true;
-            string options = "";
             int ret = 0;
             while (loop)
             {
                 ret = 0;
-                options = "\r\n---------\r\n" +
+                string options = "\r\n---------\r\n" +
                     "1 Back\r\n" +
                     "----------\r\n";
                 options += Logic.ListGames(list);
@@ -364,46 +358,12 @@ namespace Server
             }
             return ret;
         }
-
-        private void FindGame()
-        {
-            bool loop = true;
-            string options = "";
-            while (loop)
-            {
-                options = "\r\n---------\r\n" +
-                    "1 Back\r\n" +
-                    "----------\r\n";
-                options += Logic.ListGames(Sys.Games);
-
-                Console.WriteLine(options);
-                string input = Console.ReadLine();
-                int option = GetOption(input);
-                if (option == 1)
-                {
-                    loop = false;
-                }
-                else if (option >= 0)
-                {
-                    GameToView = Logic.GetGameByIndex(option, Sys.Games);
-                    if (GameToView != null)
-                    {
-                        ViewGame();
-                    }
-                    else
-                    {
-                        Console.WriteLine(IncorrectInputError);
-                    }
-                }
-            }
-        }
         private void ViewGame()
         {
             bool loop = true;
-            string options = "";
             while (loop && GameToView != null)
             {
-                options = "\r\n-------\r\n" +
+                string options = "\r\n-------\r\n" +
                     "Viewing game: " + GameToView.Title +
                     "\r\n-------\r\n" +
                     "1 Edit game\r\n" +
@@ -442,10 +402,9 @@ namespace Server
         private void EditGame()
         {
             bool loop = true;
-            string options = "";
             while (loop && GameToView != null)
             {
-                options = "\r\n-------\r\n" +
+                string options = "\r\n-------\r\n" +
                     "Edit game: " + GameToView.Title +
                     "\r\n-------\r\n" +
                     "1 Edit title\r\n" +
@@ -554,7 +513,6 @@ namespace Server
         private void ReviewGame()
         {
             bool loop = true;
-            string options = "";
             while (loop && GameToView != null)
             {
                 if (Review == null)
@@ -572,7 +530,7 @@ namespace Server
                     currentRating = "None";
                 }
 
-                options = "\r\n-------\r\n" +
+                string options = "\r\n-------\r\n" +
                     "Reviewing game: " + GameToView.Title +
                     "\r\n-------\r\n" +
                     "1 Write review (current: " + currentReview + ")\r\n" +
