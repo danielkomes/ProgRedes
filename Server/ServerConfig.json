@@ -1,0 +1,5 @@
+{
+	"ServerPort" : "7000",
+	"Backlog" : "10",
+	"ServerPosterFolder" : "Posters/",
+}

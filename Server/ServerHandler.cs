@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using Common;
 using Domain;
+using Newtonsoft.Json.Linq;
 
 namespace Server
 {
@@ -12,20 +14,36 @@ namespace Server
     {
         private readonly Socket serverSocket;
         private readonly IPEndPoint _serverIpEndPoint;
-        private const string ServerPosterFolder = "Posters/";
+        private string ServerPosterFolder;
+        private int ServerPort;
+        private int Backlog;
         private bool socketOpen;
         private Thread acceptClients;
         public List<Socket> clients;
         public ServerHandler()
         {
+            ReadJson();
             serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _serverIpEndPoint = new IPEndPoint(IPAddress.Loopback, 7000);
+            _serverIpEndPoint = new IPEndPoint(IPAddress.Loopback, ServerPort);
             serverSocket.Bind(_serverIpEndPoint);
-            serverSocket.Listen(1);
+            serverSocket.Listen(Backlog);
             socketOpen = true;
             clients = new List<Socket>();
             acceptClients = new Thread(() => AcceptClients());
             acceptClients.Start();
+        }
+
+        private void ReadJson()
+        {
+            string filepath = "../../../ServerConfig.json";
+            using (StreamReader r = new StreamReader(filepath))
+            {
+                var json = r.ReadToEnd();
+                var jobj = JObject.Parse(json);
+                ServerPort = (int)jobj.GetValue("ServerPort");
+                Backlog = (int)jobj.GetValue("Backlog");
+                ServerPosterFolder = (string)jobj.GetValue("ServerPosterFolder");
+            }
         }
         void AcceptClients()
         {
@@ -159,11 +177,11 @@ namespace Server
         }
         public void CloseConnection()
         {
-            socketOpen = false;
             //acceptClients.Suspend();
             //acceptClients.Abort();
-                serverSocket.Close();
-                serverSocket.Shutdown(SocketShutdown.Both);
+            serverSocket.Close();
+            serverSocket.Shutdown(SocketShutdown.Both);
+            socketOpen = false;
         }
     }
 }

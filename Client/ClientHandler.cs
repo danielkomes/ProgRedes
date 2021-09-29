@@ -1,9 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using Common;
 using Domain;
+using Newtonsoft.Json.Linq;
 
 namespace Client
 {
@@ -12,18 +14,33 @@ namespace Client
         private readonly Socket clientSocket;
         private readonly IPEndPoint _clientIpEndPoint;
         private readonly IPEndPoint _serverIpEndPoint;
-        private const string ClientPosterFolder = "Posters/";
+        private string ClientPosterFolder;
+        private int ClientPort;
+        private int ServerPort;
         private FileCommunicationHandler fch;
 
         public ClientHandler()
         {
+            ReadJson();
             clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _clientIpEndPoint = new IPEndPoint(IPAddress.Loopback, 0);
-            _serverIpEndPoint = new IPEndPoint(IPAddress.Loopback, 7000);
+            _clientIpEndPoint = new IPEndPoint(IPAddress.Loopback, ClientPort);
+            _serverIpEndPoint = new IPEndPoint(IPAddress.Loopback, ServerPort);
             clientSocket.Bind(_clientIpEndPoint);
             clientSocket.Connect(_serverIpEndPoint);
             Console.WriteLine("Connected to server");
             fch = new FileCommunicationHandler(clientSocket);
+        }
+        private void ReadJson()
+        {
+            string filepath = "../../../ClientConfig.json";
+            using (StreamReader r = new StreamReader(filepath))
+            {
+                var json = r.ReadToEnd();
+                var jobj = JObject.Parse(json);
+                ServerPort = (int)jobj.GetValue("ServerPort");
+                ClientPort = (int)jobj.GetValue("ClientPort");
+                ClientPosterFolder = (string)jobj.GetValue("ClientPosterFolder");
+            }
         }
 
         public void SendFile(string path, string newName)

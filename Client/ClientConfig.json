@@ -1,0 +1,5 @@
+{
+	"ServerPort" : "7000",
+	"ClientPort" : "0",
+	"ClientPosterFolder" : "Posters/",
+}
