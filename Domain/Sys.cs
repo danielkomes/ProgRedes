@@ -7,76 +7,102 @@ namespace Domain
         public static int IdCounter { get; set; }
         public static List<Game> Games { get; set; }
         public static List<Client> Clients { get; set; }
+        private static object locker;
 
         static Sys()
         {
+            locker = new object();
             Games = new List<Game>();
             Clients = new List<Client>();
         }
         public static Client GetClient(string username)
         {
-            return Clients.Find(c => c.Username.Equals(username));
+            lock (locker)
+            {
+                return Clients.Find(c => c.Username.Equals(username));
+            }
         }
         public static bool AddClient(string username)
         {
-            bool ret = false;
-            Client c = new Client(username);
-            if (!Clients.Contains(c))
+            lock (locker)
             {
-                Clients.Add(c);
-                ret = true;
+                bool ret = false;
+                Client c = new Client(username);
+                if (!Clients.Contains(c))
+                {
+                    Clients.Add(c);
+                    ret = true;
+                }
+                return ret;
             }
-            return ret;
         }
         public static int GetNewId()
         {
-            return IdCounter++;
+            lock (locker)
+            {
+                return IdCounter++;
+            }
         }
 
         public static void AddGame(Game game)
         {
-            game.Id = GetNewId();
-            Games.Add(game);
+            lock (locker)
+            {
+                game.Id = GetNewId();
+                Games.Add(game);
+            }
         }
         public static void DeleteGame(Game game)
         {
-            Games.Remove(game);
-            foreach (Client c in Clients)
+            lock (locker)
             {
-                c.OwnedGames.Remove(game.Id);
+                Games.Remove(game);
+                foreach (Client c in Clients)
+                {
+                    c.OwnedGames.Remove(game.Id);
+                }
             }
         }
         public static bool BuyGame(string username, int id)
         {
-            bool ret = false;
-            Client client = GetClient(username);
-            if (Games.Find(g => g.Id == id) != null)
+            lock (locker)
             {
-                if (!client.OwnedGames.Contains(id))
+                bool ret = false;
+                Client client = GetClient(username);
+                if (Games.Find(g => g.Id == id) != null)
                 {
-                    client.OwnedGames.Add(id);
-                    ret = true;
+                    if (!client.OwnedGames.Contains(id))
+                    {
+                        client.OwnedGames.Add(id);
+                        ret = true;
+                    }
                 }
+                return ret;
             }
-            return ret;
         }
         public static void ReplaceGame(Game game)
         {
-            for (int i = 0; i < Games.Count; i++)
+            lock (locker)
             {
-                if (Games[i].Equals(game))
+                for (int i = 0; i < Games.Count; i++)
                 {
-                    Games[i] = game;
-                    return;
+                    if (Games[i].Equals(game))
+                    {
+                        Games[i] = game;
+                        return;
+                    }
                 }
             }
         }
         public static void AddReview(int id, Review review)
         {
-            Game g = Games.Find(g => g.Id == id);
-            if (g != null)
+            lock (locker)
             {
-                g.Reviews.Add(review);
+                Game g = Games.Find(g => g.Id == id);
+                if (g != null)
+                {
+                    g.Reviews.Add(review);
+                }
             }
 
         }
