@@ -35,7 +35,7 @@ namespace Server
 
         private void ReadJson()
         {
-            string filepath = "../../../ServerConfig.json";
+            string filepath = "ServerConfig.json";
             using (StreamReader r = new StreamReader(filepath))
             {
                 var json = r.ReadToEnd();
