@@ -15,7 +15,6 @@ namespace Domain
 
         public Game()
         {
-            Id = Sys.GetNewId();
             Title = "";
             Genre = EGenre.None;
             Description = "";

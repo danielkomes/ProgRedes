@@ -31,7 +31,7 @@ namespace Client
         }
         private void ReadJson()
         {
-            string filepath = "../../../ClientConfig.json";
+            string filepath = "ClientConfig.json";
             using (StreamReader r = new StreamReader(filepath))
             {
                 var json = r.ReadToEnd();

@@ -229,8 +229,6 @@ namespace Domain
                 game.AgeRating + GameTransferSeparator +
                 game.Description + GameTransferSeparator +
                 EncodeReviews(game.Reviews);
-            //+ GameTransferSeparator +
-            //game.Poster;
         }
         public static string EncodeReviews(List<Review> l)
         {
