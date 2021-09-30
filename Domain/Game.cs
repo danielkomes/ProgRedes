@@ -8,10 +8,9 @@ namespace Domain
         public int Id { get; set; }
         public string Title { get; set; }
         public EGenre Genre { get; set; }
-        public int AgeRating { get; set; } //podria ser un enum
+        public int AgeRating { get; set; }
         public string Description { get; set; }
         public string Poster { get; set; }
-        //asegurarse que es la ruta de un archivo de imagen valido
         public List<Review> Reviews { get; set; }
 
         public Game()

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Sockets;
 using Domain;
 
@@ -188,7 +189,6 @@ namespace Client
                     GameToPublish.Genre = EGenre.Action;
                     GameToPublish.AgeRating = 999;
                     GameToPublish.Description = "TEST DESCRIPTION";
-                    GameToPublish.Poster = "TEST POSTER";
                 }
                 else
                 {
@@ -276,7 +276,14 @@ namespace Client
             string options = "Input poster path: ";
             Console.WriteLine(options);
             string input = Console.ReadLine();
-            GameToPublish.Poster = input;
+            if (File.Exists(input))
+            {
+                GameToPublish.Poster = input;
+            }
+            else
+            {
+                Console.WriteLine("Path not found");
+            }
         }
         private void MenuAcceptPublishGame()
         {

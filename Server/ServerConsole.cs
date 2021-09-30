@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Domain;
 
 namespace Server
@@ -8,7 +9,6 @@ namespace Server
     {
         private const string IncorrectInputError = "Incorrect input";
         private Game GameToPublish { get; set; }
-        //private List<Game> ListGames { get; set; }
         private Game GameToView { get; set; }
         private Review Review { get; set; }
         private readonly ServerHandler sh;
@@ -106,7 +106,6 @@ namespace Server
                     GameToPublish.Genre = EGenre.Action;
                     GameToPublish.AgeRating = 999;
                     GameToPublish.Description = "TEST DESCRIPTION";
-                    GameToPublish.Poster = "TEST POSTER";
                 }
                 else
                 {
@@ -194,15 +193,19 @@ namespace Server
             string options = "Input poster path: ";
             Console.WriteLine(options);
             string input = Console.ReadLine();
-            GameToPublish.Poster = input;
+            if (File.Exists(input))
+            {
+                GameToPublish.Poster = input;
+            }
+            else
+            {
+                Console.WriteLine("Path not found");
+            }
         }
         private void MenuAcceptPublishGame()
         {
             if (GameToPublish.IsFieldsFilled())
             {
-                //sh.SendMessage(ETransferType.Publish, Logic.EncodeGame(GameToPublish));
-                //Console.WriteLine("Sending. Please wait...");
-                //sh.SendFile(GameToPublish.Poster, GameToPublish.Id + ".jpg");
                 Sys.AddGame(GameToPublish);
                 GameToPublish = null;
                 Console.WriteLine("Done. Game published");
@@ -436,7 +439,6 @@ namespace Server
                 }
                 else if (option == 5)
                 {
-                    //sh.SendMessage(ETransferType.Edit, Logic.EncodeGame(GameToView));
                     loop = false;
                 }
                 else if (option == 6)
@@ -490,7 +492,6 @@ namespace Server
                 string input = Console.ReadLine();
                 if (input.Equals("yes"))
                 {
-                    //sh.SendMessage(ETransferType.Delete, Logic.EncodeGame(GameToView));
                     Sys.DeleteGame(GameToView);
                     GameToView = null;
                     loop = false;
@@ -617,8 +618,6 @@ namespace Server
                     "Description: " + GameToView.Description + "\r\n" +
                     "Poster: " + GameToView.Poster + "\r\n" +
                     "\r\n---------\r\n" +
-                    //"1 Download poster\r\n" +
-                    //"2 Get game\r\n" +
                     "1 See reviews\r\n" +
                     "2 Back\r\n";
                 Console.WriteLine(options);
@@ -632,14 +631,6 @@ namespace Server
                 {
                     loop = false;
                 }
-                //else if (option == 3)
-                //{
-                //    SeeReviews();
-                //}
-                //else if (option == 4)
-                //{
-                //    loop = false;
-                //}
                 else
                 {
                     Console.WriteLine(IncorrectInputError);

@@ -6,7 +6,6 @@ namespace Domain
 {
     public class Review
     {
-        public string Author { get; set; }//innecesario
         public string Description { get; set; }
         public int Rating { get; set; }
 

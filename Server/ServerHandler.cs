@@ -75,7 +75,6 @@ namespace Server
                 catch (SocketException)
                 {
                     clientSocket.Shutdown(SocketShutdown.Both);
-                    //clientSocket.Close();
                     clients.Remove(clientSocket);
                     Console.WriteLine("Client disconnected. Total: " + clients.Count);
                     loop = false;
@@ -182,19 +181,15 @@ namespace Server
         }
         public void SendMessage(FileCommunicationHandler fch, string message)
         {
-            //_socket.Connect(_serverIpEndPoint);
             fch.SendMessage(message);
         }
         public void CloseConnection()
         {
-            //acceptClients.Suspend();
-            //acceptClients.Abort();
             serverSocket.Close();
             foreach (Socket s in clients)
             {
                 s.Shutdown(SocketShutdown.Both);
             }
-            //serverSocket.Shutdown(SocketShutdown.Both);
             socketOpen = false;
         }
     }

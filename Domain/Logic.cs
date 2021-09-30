@@ -180,10 +180,6 @@ namespace Domain
             {
                 ret = list[index];
             }
-            else
-            {
-                //out of range
-            }
             return ret;
         }
         public static string EncodeOwnedGames(List<int> list)
