@@ -408,15 +408,15 @@ namespace Server
             while (loop && GameToView != null)
             {
                 string options = "\r\n-------\r\n" +
-                    "Edit game: " + GameToView.Title +
-                    "\r\n-------\r\n" +
-                    "1 Edit title\r\n" +
-                    "2 Edit age rating\r\n" +
-                    "3 Edit description\r\n" +
-                    "4 Delete game\r\n" +
-                    "5 Accept\r\n" +
-                    "6 Back\r\n" +
-                    "----------------\r\n";
+                     "Edit game: " + GameToView.Title +
+                     "\r\n-------\r\n" +
+                     "1 Edit title (current: " + GameToView.Title + ")\r\n" +
+                     "2 Edit age rating (current: " + GameToView.AgeRating + ")\r\n" +
+                     "3 Edit description (current: " + GameToView.Description + ")\r\n" +
+                     "4 Delete game\r\n" +
+                     "5 Accept\r\n" +
+                     "6 Back\r\n" +
+                     "----------------\r\n";
 
                 Console.WriteLine(options);
                 string input = Console.ReadLine();
@@ -616,7 +616,6 @@ namespace Server
                     "Genre: " + GameToView.Genre + "\r\n" +
                     "Age rating: " + GameToView.AgeRating + "\r\n" +
                     "Description: " + GameToView.Description + "\r\n" +
-                    "Poster: " + GameToView.Poster + "\r\n" +
                     "\r\n---------\r\n" +
                     "1 See reviews\r\n" +
                     "2 Back\r\n";
