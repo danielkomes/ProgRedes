@@ -7,6 +7,5 @@
             ClientHandler ClientHandler = new ClientHandler();
             new ClientConsole(ClientHandler);
         }
-
     }
 }

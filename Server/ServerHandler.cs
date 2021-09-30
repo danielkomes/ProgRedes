@@ -49,13 +49,13 @@ namespace Server
         {
             while (socketOpen)
             {
-                try
+                try //para interrumpir el Accept()
                 {
                     Socket clientSocket = serverSocket.Accept();
                     clients.Add(clientSocket);
                     Console.WriteLine("New client connected. Total: " + clients.Count);
                     FileCommunicationHandler fileCommunicationHandler = new FileCommunicationHandler(clientSocket);
-                    new Thread(() => Listen(fileCommunicationHandler)).Start();
+                    new Thread(() => Listen(fileCommunicationHandler, clientSocket)).Start();
                 }
                 catch (SocketException)
                 {
@@ -63,12 +63,23 @@ namespace Server
                 }
             }
         }
-        void Listen(FileCommunicationHandler fch)
+        void Listen(FileCommunicationHandler fch, Socket clientSocket)
         {
             bool loop = true;
             while (loop && socketOpen)
             {
-                loop = ProcessMessage(fch, fch.ReceiveMessage());
+                try
+                {
+                    loop = ProcessMessage(fch, fch.ReceiveMessage());
+                }
+                catch (SocketException)
+                {
+                    clientSocket.Shutdown(SocketShutdown.Both);
+                    //clientSocket.Close();
+                    clients.Remove(clientSocket);
+                    Console.WriteLine("Client disconnected. Total: " + clients.Count);
+                    loop = false;
+                }
             }
         }
         private bool ProcessMessage(FileCommunicationHandler fch, string message)
@@ -158,7 +169,6 @@ namespace Server
             else if (action.Equals(ETransferType.Disconnect.ToString()))
             {
                 ret = false;
-                Console.WriteLine("Client disconnected. Total: " + clients.Count);
             }
             return ret;
         }
@@ -180,7 +190,11 @@ namespace Server
             //acceptClients.Suspend();
             //acceptClients.Abort();
             serverSocket.Close();
-            serverSocket.Shutdown(SocketShutdown.Both);
+            foreach (Socket s in clients)
+            {
+                s.Shutdown(SocketShutdown.Both);
+            }
+            //serverSocket.Shutdown(SocketShutdown.Both);
             socketOpen = false;
         }
     }

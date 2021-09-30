@@ -54,7 +54,6 @@ namespace Client
 
         public string ReceiveMessage()
         {
-            //_socket.Connect(_serverIpEndPoint);
             return fch.ReceiveMessage();
         }
         public void ReceiveFile()

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Sockets;
 using Domain;
 
 namespace Client
@@ -17,7 +18,15 @@ namespace Client
         public ClientConsole(ClientHandler ch)
         {
             this.ch = ch;
-            CredentialsMenu();
+            try
+            {
+                CredentialsMenu();
+            }
+            catch (SocketException)
+            {
+                Console.WriteLine("The connection has been lost.\r\nPress Enter to close the console");
+                Console.ReadLine();
+            }
         }
 
         private void RequestListGames()
