@@ -411,8 +411,8 @@ namespace Server
                     "Edit game: " + GameToView.Title +
                     "\r\n-------\r\n" +
                     "1 Edit title\r\n" +
-                    "2 Edit description\r\n" +
-                    "3 Edit age rating\r\n" +
+                    "2 Edit age rating\r\n" +
+                    "3 Edit description\r\n" +
                     "4 Delete game\r\n" +
                     "5 Accept\r\n" +
                     "6 Back\r\n" +
