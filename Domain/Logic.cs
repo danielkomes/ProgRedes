@@ -226,9 +226,11 @@ namespace Domain
             return game.Id + GameTransferSeparator +
                 game.Title + GameTransferSeparator +
                 game.Genre + GameTransferSeparator +
+                game.AgeRating + GameTransferSeparator +
                 game.Description + GameTransferSeparator +
-                EncodeReviews(game.Reviews) + GameTransferSeparator +
-                game.Poster;
+                EncodeReviews(game.Reviews);
+            //+ GameTransferSeparator +
+            //game.Poster;
         }
         public static string EncodeReviews(List<Review> l)
         {
@@ -270,9 +272,9 @@ namespace Domain
             {
                 Title = arr[1],
                 Genre = DecodeGenre(arr[2]),
-                Description = arr[3],
-                Reviews = DecodeReviews(arr[4]),
-                Poster = arr[5],
+                AgeRating = int.Parse(arr[3]),
+                Description = arr[4],
+                Reviews = DecodeReviews(arr[5]),
             };
             return ret;
         }
