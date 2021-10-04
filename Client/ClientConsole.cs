@@ -35,6 +35,20 @@ namespace Client
             ch.SendMessage(ETransferType.List, "");
             ListGames = Logic.DecodeListGames(ch.ReceiveMessage());
         }
+        private Game UpdateGame(Game g)
+        {
+            RequestListGames();
+            Game ret = null;
+            try
+            {
+                ret = ListGames.Find(game => game.Id == g.Id);
+            }
+            catch (NullReferenceException)
+            {
+                Console.WriteLine("Can't find game. It may have been deleted");
+            }
+            return ret;
+        }
         private void CredentialsMenu()
         {
             bool loop = true;
@@ -487,6 +501,7 @@ namespace Client
                 {
                     Console.WriteLine(IncorrectInputError);
                 }
+                GameToView = UpdateGame(GameToView);
             }
         }
         #endregion
@@ -697,7 +712,7 @@ namespace Client
         private void DetailsGame()
         {
             bool loop = true;
-            while (loop)
+            while (loop && GameToView != null)
             {
                 string options = "\r\n-------\r\n" +
                     "Viewing game: " + GameToView.Title +
@@ -746,6 +761,7 @@ namespace Client
                 {
                     Console.WriteLine(IncorrectInputError);
                 }
+                GameToView = UpdateGame(GameToView);
             }
         }
         private void SeeReviews()
