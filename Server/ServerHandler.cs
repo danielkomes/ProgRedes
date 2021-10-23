@@ -12,23 +12,24 @@ namespace Server
 {
     public class ServerHandler
     {
-        private readonly Socket serverSocket;
+        private readonly TcpListener tcpListener;
         private readonly IPEndPoint _serverIpEndPoint;
+
         private string ServerPosterFolder;
         private int ServerPort;
         private int Backlog;
         private bool socketOpen;
         private Thread acceptClients;
-        public List<Socket> clients;
+        public List<TcpClient> clients;
         public ServerHandler()
         {
             ReadJson();
-            serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _serverIpEndPoint = new IPEndPoint(IPAddress.Loopback, ServerPort);
-            serverSocket.Bind(_serverIpEndPoint);
-            serverSocket.Listen(Backlog);
+            tcpListener = new TcpListener(_serverIpEndPoint);
+            tcpListener.Start(Backlog);
+
             socketOpen = true;
-            clients = new List<Socket>();
+            clients = new List<TcpClient>();
             acceptClients = new Thread(() => AcceptClients());
             acceptClients.Start();
         }
@@ -51,11 +52,11 @@ namespace Server
             {
                 try //para interrumpir el Accept()
                 {
-                    Socket clientSocket = serverSocket.Accept();
-                    clients.Add(clientSocket);
+                    TcpClient tcpClient = tcpListener.AcceptTcpClient();
+                    clients.Add(tcpClient);
                     Console.WriteLine("New client connected. Total: " + clients.Count);
-                    FileCommunicationHandler fileCommunicationHandler = new FileCommunicationHandler(clientSocket);
-                    new Thread(() => Listen(fileCommunicationHandler, clientSocket)).Start();
+                    FileCommunicationHandler fileCommunicationHandler = new FileCommunicationHandler(tcpClient);
+                    new Thread(() => Listen(fileCommunicationHandler, tcpClient)).Start();
                 }
                 catch (SocketException)
                 {
@@ -63,7 +64,7 @@ namespace Server
                 }
             }
         }
-        void Listen(FileCommunicationHandler fch, Socket clientSocket)
+        void Listen(FileCommunicationHandler fch, TcpClient tcpClient)
         {
             bool loop = true;
             while (loop && socketOpen)
@@ -74,8 +75,8 @@ namespace Server
                 }
                 catch (SocketException)
                 {
-                    clientSocket.Shutdown(SocketShutdown.Both);
-                    clients.Remove(clientSocket);
+                    tcpClient.GetStream().Close();
+                    clients.Remove(tcpClient);
                     Console.WriteLine("Client disconnected. Total: " + clients.Count);
                     loop = false;
                 }
@@ -185,10 +186,10 @@ namespace Server
         }
         public void CloseConnection()
         {
-            serverSocket.Close();
-            foreach (Socket s in clients)
+            tcpListener.Stop();
+            foreach (TcpClient s in clients)
             {
-                s.Shutdown(SocketShutdown.Both);
+                s.GetStream().Close();
             }
             socketOpen = false;
         }

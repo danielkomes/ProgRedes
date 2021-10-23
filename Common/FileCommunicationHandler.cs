@@ -7,16 +7,17 @@ namespace Common
 {
     public class FileCommunicationHandler
     {
-        static void Main(string[] args)
+        private readonly FileStreamHandler _fileStreamHandler;
+        private readonly NetworkStreamHandler _socketStreamHandler;
+
+        public static void Main(string[] args)
         {
 
         }
-        private readonly FileStreamHandler _fileStreamHandler;
-        private readonly SocketStreamHandler _socketStreamHandler;
 
-        public FileCommunicationHandler(Socket socket)
+        public FileCommunicationHandler(TcpClient tcpClient)
         {
-            _socketStreamHandler = new SocketStreamHandler(socket);
+            _socketStreamHandler = new NetworkStreamHandler(tcpClient.GetStream());
             _fileStreamHandler = new FileStreamHandler();
         }
 
@@ -26,26 +27,26 @@ namespace Common
             byte[] fileNameData = Encoding.UTF8.GetBytes(newName);
             int fileNameLength = fileNameData.Length;
             byte[] fileNameLengthData = BitConverter.GetBytes(fileNameLength);
-            _socketStreamHandler.SendData(fileNameLengthData);
-            _socketStreamHandler.SendData(fileNameData);
+            _socketStreamHandler.SendDataAsync(fileNameLengthData);
+            _socketStreamHandler.SendDataAsync(fileNameData);
 
             long fileSize = fileInfo.Length;
             byte[] fileSizeDataLength = BitConverter.GetBytes(fileSize);
-            _socketStreamHandler.SendData(fileSizeDataLength);
+            _socketStreamHandler.SendDataAsync(fileSizeDataLength);
             SendFile(fileSize, path);
         }
 
         public void ReceiveFile(string pathNoName, string newName = "")
         {
-            byte[] fileNameLengthData = _socketStreamHandler.ReceiveData(ProtocolSpecification.FileNameSize);
+            byte[] fileNameLengthData = _socketStreamHandler.ReadDataAsync(ProtocolSpecification.FileNameSize);
             int fileNameLength = BitConverter.ToInt32(fileNameLengthData);
-            byte[] fileNameData = _socketStreamHandler.ReceiveData(fileNameLength);
+            byte[] fileNameData = _socketStreamHandler.ReadDataAsync(fileNameLength);
             string fileName = Encoding.UTF8.GetString(fileNameData);
             if (!string.IsNullOrEmpty(newName))
             {
                 fileName = newName;
             }
-            byte[] fileSizeDataLength = _socketStreamHandler.ReceiveData(ProtocolSpecification.FileSize);
+            byte[] fileSizeDataLength = _socketStreamHandler.ReadDataAsync(ProtocolSpecification.FileSize);
             long fileSize = BitConverter.ToInt64(fileSizeDataLength);
             ReceiveFile(fileSize, pathNoName + fileName);
         }
@@ -71,7 +72,7 @@ namespace Common
                     offset += lastPartSize;
                 }
 
-                _socketStreamHandler.SendData(data);
+                _socketStreamHandler.SendDataAsync(data);
                 currentPart++;
             }
         }
@@ -86,13 +87,13 @@ namespace Common
                 byte[] data;
                 if (currentPart != fileParts)
                 {
-                    data = _socketStreamHandler.ReceiveData(ProtocolSpecification.MaxPacketSize);
+                    data = _socketStreamHandler.ReadDataAsync(ProtocolSpecification.MaxPacketSize);
                     offset += ProtocolSpecification.MaxPacketSize;
                 }
                 else
                 {
                     int lastPartSize = (int)(fileSize - offset);
-                    data = _socketStreamHandler.ReceiveData(lastPartSize);
+                    data = _socketStreamHandler.ReadDataAsync(lastPartSize);
                     offset += lastPartSize;
                 }
                 _fileStreamHandler.WriteData(fileName, data);
@@ -101,9 +102,9 @@ namespace Common
         }
         public string ReceiveMessage()
         {
-            byte[] dataLength = _socketStreamHandler.ReceiveData(ProtocolSpecification.FileNameSize);
+            byte[] dataLength = _socketStreamHandler.ReadDataAsync(ProtocolSpecification.FileNameSize);
             int length = BitConverter.ToInt32(dataLength);
-            byte[] data = _socketStreamHandler.ReceiveData(length);
+            byte[] data = _socketStreamHandler.ReadDataAsync(length);
             string message = Encoding.UTF8.GetString(data);
             return message;
         }
@@ -113,8 +114,8 @@ namespace Common
             int length = data.Length;
             byte[] dataLength = BitConverter.GetBytes(length);
 
-            _socketStreamHandler.SendData(dataLength);
-            _socketStreamHandler.SendData(data);
+            _socketStreamHandler.SendDataAsync(dataLength);
+            _socketStreamHandler.SendDataAsync(data);
         }
     }
 }

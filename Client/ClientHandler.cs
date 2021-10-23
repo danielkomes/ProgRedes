@@ -10,7 +10,7 @@ namespace Client
 {
     public class ClientHandler
     {
-        private readonly Socket clientSocket;
+        private readonly TcpClient tcpClient;
         private readonly IPEndPoint _clientIpEndPoint;
         private readonly IPEndPoint _serverIpEndPoint;
         private string ClientPosterFolder;
@@ -21,13 +21,13 @@ namespace Client
         public ClientHandler()
         {
             ReadJson();
-            clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _clientIpEndPoint = new IPEndPoint(IPAddress.Loopback, ClientPort);
+            tcpClient = new TcpClient(_clientIpEndPoint);
             _serverIpEndPoint = new IPEndPoint(IPAddress.Loopback, ServerPort);
-            clientSocket.Bind(_clientIpEndPoint);
-            clientSocket.Connect(_serverIpEndPoint);
+
+            tcpClient.Connect(_serverIpEndPoint);
             Console.WriteLine("Connected to server");
-            fch = new FileCommunicationHandler(clientSocket);
+            fch = new FileCommunicationHandler(tcpClient);
         }
         private void ReadJson()
         {
@@ -62,8 +62,8 @@ namespace Client
         }
         public void CloseConnection()
         {
-            clientSocket.Shutdown(SocketShutdown.Both);
-            clientSocket.Close();
+            tcpClient.GetStream().Close();
+            tcpClient.Close();
         }
 
     }
