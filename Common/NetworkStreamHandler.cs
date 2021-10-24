@@ -1,5 +1,4 @@
 ﻿using System.Net.Sockets;
-using System.Threading.Tasks;
 
 namespace Common
 {
@@ -12,13 +11,13 @@ namespace Common
             this.networkStream = networkStream;
         }
 
-        public async Task<byte[]> ReadDataAsync(int length)
+        public byte[] ReadData(int length)
         {
             int offset = 0;
             byte[] response = new byte[length];
             while (offset < length)
             {
-                int received = await networkStream.ReadAsync(response, offset, length - offset);
+                int received = networkStream.Read(response, offset, length - offset);
                 if (received == 0)
                 {
                     throw new SocketException();
@@ -29,9 +28,9 @@ namespace Common
             return response;
         }
 
-        public async Task SendDataAsync(byte[] data)
+        public void SendData(byte[] data)
         {
-            await networkStream.WriteAsync(data, 0, data.Length);
+            networkStream.Write(data, 0, data.Length);
         }
     }
 }
