@@ -183,6 +183,28 @@ namespace Domain
             }
             return ret;
         }
+
+        public static string ListClients(List<Client> list)
+        {
+            string ret = "";
+            int index = indexStart;
+            foreach (Client c in list)
+            {
+                ret += "\r\n" + index + " " + c.Username;
+            }
+            return ret;
+        }
+
+        public static Client GetClientByIndex(int input, List<Client> list)
+        {
+            int index = input - indexStart;
+            Client ret = null;
+            if (index >= 0 && index < list.Count)
+            {
+                ret = list[index];
+            }
+            return ret;
+        }
         public static string EncodeOwnedGames(List<int> list)
         {
             string ret = "";
