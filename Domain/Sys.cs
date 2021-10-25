@@ -80,7 +80,7 @@ namespace Domain
                 return ret;
             }
         }
-        public static bool DeleteGameFromClient(string username, int id)
+        public static bool RemoveGameFromClient(string username, int id)
         {
             lock (locker)
             {
@@ -88,6 +88,14 @@ namespace Domain
                 Client client = GetClient(username);
                 ret = client.OwnedGames.Remove(id);
                 return ret;
+            }
+        }
+        public static void RemoveAllGamesFromClient(string username)
+        {
+            lock (locker)
+            {
+                Client c = GetClient(username);
+                c.OwnedGames.Clear();
             }
         }
         public static void ReplaceGame(Game game)

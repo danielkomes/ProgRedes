@@ -99,7 +99,7 @@ namespace Server
                 }
                 else if (option == 3)
                 {
-
+                    RemoveAllGamesFromUserAccount(c);
                 }
                 else if (option == 4)
                 {
@@ -148,7 +148,6 @@ namespace Server
                 }
             }
         }
-
         private void RemoveGameFromUserAccount(Client c)
         {
             bool loop = true;
@@ -178,7 +177,7 @@ namespace Server
                     Game g = Logic.GetGameByIndex(option, list);
                     if (g != null)
                     {
-                        Sys.DeleteGameFromClient(c.Username, g.Id);
+                        Sys.RemoveGameFromClient(c.Username, g.Id);
                         Console.WriteLine("\r\n" + g.Title + " removed from " + c.Username + "user account\r\n");
                         loop = false;
                     }
@@ -193,7 +192,31 @@ namespace Server
                 }
             }
         }
-
+        private void RemoveAllGamesFromUserAccount(Client c)
+        {
+            bool loop = true;
+            while (loop)
+            {
+                string options = "\r\nALL " + c.OwnedGames.Count + " games will be removed from " + c.Username + " user account. Are you sure? (yes/no)\r\n";
+                Console.WriteLine(options);
+                string input = Console.ReadLine();
+                if (input.Equals("yes"))
+                {
+                    Sys.RemoveAllGamesFromClient(c.Username);
+                    Console.WriteLine("\r\nDone. All removed\r\n");
+                    loop = false;
+                }
+                else if (input.Equals("no"))
+                {
+                    Console.WriteLine("Operation cancelled\r\n");
+                    loop = false;
+                }
+                else
+                {
+                    Console.WriteLine(IncorrectInputError);
+                }
+            }
+        }
         private void RemoveAlreadyOwnedGames(Client c, List<Game> list)
         {
             foreach (int gameId in c.OwnedGames)
