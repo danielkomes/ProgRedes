@@ -7,14 +7,12 @@ namespace Domain
         public string Username { get; private set; }
         public List<int> OwnedGames { get; set; }
         public bool IsOnline { get; set; }
-        public bool IsActive { get; set; }
 
         public Client(string Username)
         {
             this.Username = Username;
             OwnedGames = new List<int>();
             IsOnline = false;
-            IsActive = true;
         }
         public override bool Equals(object obj)
         {
