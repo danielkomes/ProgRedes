@@ -46,21 +46,21 @@ namespace Client
             }
         }
 
-        public async Task SendFileAsync(string path, string newName)
+        public async Task SendFileAsyncAsync(string path, string newName)
         {
             await fch.SendFileAsync(path, newName);
         }
-        public async Task SendMessage(ETransferType action, string message)
+        public async Task SendMessageAsync(ETransferType action, string message)
         {
             message = action + Logic.GameTransferSeparator + message;
             await fch.SendMessageAsync(message);
         }
 
-        public async Task<string> ReceiveMessage()
+        public async Task<string> ReceiveMessageAsync()
         {
             return await fch.ReceiveMessageAsync();
         }
-        public async Task ReceiveFile()
+        public async Task ReceiveFileAsync()
         {
             await fch.ReceiveFileAsync(ClientPosterFolder);
         }

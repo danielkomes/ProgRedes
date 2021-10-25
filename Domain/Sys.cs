@@ -13,6 +13,7 @@ namespace Domain
         static Sys()
         {
             gamesLocker = new object();
+            clientsLocker = new object();
             Games = new List<Game>();
             Clients = new List<Client>();
         }

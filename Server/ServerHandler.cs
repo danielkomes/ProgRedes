@@ -57,7 +57,7 @@ namespace Server
                     clients.Add(tcpClient, null);
                     Console.WriteLine("New client connected. Total: " + clients.Count);
                     FileCommunicationHandler fileCommunicationHandler = new FileCommunicationHandler(tcpClient);
-                    new Thread(async () => await Listen(fileCommunicationHandler, tcpClient)).Start();
+                    new Thread(async () => await ListenAsync(fileCommunicationHandler, tcpClient)).Start();
                 }
                 catch (Exception)
                 {
@@ -65,14 +65,15 @@ namespace Server
                 }
             }
         }
-        async Task Listen(FileCommunicationHandler fch, TcpClient tcpClient)
+        async Task ListenAsync(FileCommunicationHandler fch, TcpClient tcpClient)
         {
             bool loop = true;
             while (loop && serverRunning)
             {
                 try
                 {
-                    loop = await ProcessMessage(tcpClient, fch, fch.ReceiveMessageAsync().Result);
+                    string msg = await fch.ReceiveMessageAsync();
+                    loop = await ProcessMessageAsync(tcpClient, fch, msg);
                 }
                 catch (Exception)
                 {
@@ -83,7 +84,7 @@ namespace Server
                 }
             }
         }
-        private async Task<bool> ProcessMessage(TcpClient tcpClient, FileCommunicationHandler fch, string message)
+        private async Task<bool> ProcessMessageAsync(TcpClient tcpClient, FileCommunicationHandler fch, string message)
         {
             string action = message.Substring(0, message.IndexOf(Logic.GameTransferSeparator));
             message = message.Remove(0, action.Length + Logic.GameTransferSeparator.Length);
@@ -134,6 +135,11 @@ namespace Server
             else if (action.Equals(ETransferType.List.ToString()))
             {
                 await SendMessageAsync(fch, Logic.EncodeListGames(Sys.Games));
+            }
+            else if (action.Equals(ETransferType.Owned.ToString()))
+            {
+                Client c = Sys.GetClient(message);
+                await SendMessageAsync(fch, Logic.EncodeOwnedGames(c.OwnedGames));
             }
             else if (action.Equals(ETransferType.Edit.ToString()))
             {

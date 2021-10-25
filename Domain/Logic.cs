@@ -150,13 +150,17 @@ namespace Domain
             return ret;
         }
 
-        public static string ListGames(List<Game> list)
+        public static string ListGames(List<Game> list, bool showIndex = true)
         {
             string ret = "";
             int index = indexStart; //para listar, opción 1 será Back, los juegos van de la 2 en adelante
             foreach (Game game in list)
             {
-                ret += index + " " + game.Title + "\r\n";
+                if (showIndex)
+                {
+                    ret += index + " ";
+                }
+                ret += game.Title + "\r\n";
                 index++;
             }
             return ret;
