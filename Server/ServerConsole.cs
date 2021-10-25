@@ -8,9 +8,6 @@ namespace Server
     public class ServerConsole
     {
         private const string IncorrectInputError = "Incorrect input";
-        private Game GameToPublish { get; set; }
-        private Game GameToView { get; set; }
-        private Review Review { get; set; }
         private readonly ServerHandler sh;
 
         public ServerConsole(ServerHandler sh)

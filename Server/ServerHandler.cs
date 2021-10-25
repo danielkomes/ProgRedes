@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 using Common;
 using Domain;
 using Newtonsoft.Json.Linq;
@@ -30,7 +31,7 @@ namespace Server
 
             socketOpen = true;
             clients = new List<TcpClient>();
-            acceptClients = new Thread(() => AcceptClients());
+            acceptClients = new Thread(async () => await AcceptClientsAsync());
             acceptClients.Start();
         }
 
@@ -46,17 +47,17 @@ namespace Server
                 ServerPosterFolder = (string)jobj.GetValue("ServerPosterFolder");
             }
         }
-        void AcceptClients()
+        private async Task AcceptClientsAsync()
         {
             while (socketOpen)
             {
                 try //para interrumpir el Accept()
                 {
-                    TcpClient tcpClient = tcpListener.AcceptTcpClient();
+                    TcpClient tcpClient = await tcpListener.AcceptTcpClientAsync();
                     clients.Add(tcpClient);
                     Console.WriteLine("New client connected. Total: " + clients.Count);
                     FileCommunicationHandler fileCommunicationHandler = new FileCommunicationHandler(tcpClient);
-                    new Thread(() => Listen(fileCommunicationHandler, tcpClient)).Start();
+                    new Thread(async () => await Listen(fileCommunicationHandler, tcpClient)).Start();
                 }
                 catch (SocketException)
                 {
@@ -64,14 +65,14 @@ namespace Server
                 }
             }
         }
-        void Listen(FileCommunicationHandler fch, TcpClient tcpClient)
+        async Task Listen(FileCommunicationHandler fch, TcpClient tcpClient)
         {
             bool loop = true;
             while (loop && socketOpen)
             {
                 try
                 {
-                    loop = ProcessMessage(fch, fch.ReceiveMessage());
+                    loop = await ProcessMessage(fch, fch.ReceiveMessageAsync().Result);
                 }
                 catch (SocketException)
                 {
@@ -82,7 +83,7 @@ namespace Server
                 }
             }
         }
-        private bool ProcessMessage(FileCommunicationHandler fch, string message)
+        private async Task<bool> ProcessMessage(FileCommunicationHandler fch, string message)
         {
             string action = message.Substring(0, message.IndexOf(Logic.GameTransferSeparator));
             message = message.Remove(0, action.Length + Logic.GameTransferSeparator.Length);
@@ -95,17 +96,17 @@ namespace Server
                     if (!client.IsOnline)
                     {
                         client.IsOnline = true;
-                        SendMessage(fch, "true");
-                        SendMessage(fch, Logic.EncodeOwnedGames(client.OwnedGames));
+                        await SendMessageAsync(fch, "true");
+                        await SendMessageAsync(fch, Logic.EncodeOwnedGames(client.OwnedGames));
                     }
                     else
                     {
-                        SendMessage(fch, "false");
+                        await SendMessageAsync(fch, "false");
                     }
                 }
                 else
                 {
-                    SendMessage(fch, "false");
+                    await SendMessageAsync(fch, "false");
                 }
             }
             else if (action.Equals(ETransferType.Signup.ToString()))
@@ -115,7 +116,7 @@ namespace Server
                 {
                     Sys.GetClient(message).IsOnline = true;
                 }
-                SendMessage(fch, msg + "");
+                await SendMessageAsync(fch, msg + "");
             }
             else if (action.Equals(ETransferType.Logoff.ToString()))
             {
@@ -125,11 +126,11 @@ namespace Server
             {
                 Game game = Logic.DecodeGame(message);
                 Sys.AddGame(game);
-                ReceiveFile(fch, game.Id + ".jpg");
+                await ReceiveFileAsync(fch, game.Id + ".jpg");
             }
             else if (action.Equals(ETransferType.List.ToString()))
             {
-                SendMessage(fch, Logic.EncodeListGames(Sys.Games));
+                await SendMessageAsync(fch, Logic.EncodeListGames(Sys.Games));
             }
             else if (action.Equals(ETransferType.Edit.ToString()))
             {
@@ -152,7 +153,7 @@ namespace Server
             {
                 Game game = Logic.DecodeGame(message);
                 int id = game.Id;
-                SendFile(fch, ServerPosterFolder + id + ".jpg", game.Title + ".jpg");
+                await SendFile(fch, ServerPosterFolder + id + ".jpg", game.Title + ".jpg");
             }
             else if (action.Equals(ETransferType.BuyGame.ToString()))
             {
@@ -160,10 +161,10 @@ namespace Server
                 int gameId = int.Parse(arr[0]);
                 string username = arr[1];
                 bool response = Sys.BuyGame(username, gameId);
-                SendMessage(fch, response + "");
+                await SendMessageAsync(fch, response + "");
                 if (response)
                 {
-                    SendMessage(fch, Logic.EncodeOwnedGames(Sys.GetClient(username).OwnedGames));
+                    await SendMessageAsync(fch, Logic.EncodeOwnedGames(Sys.GetClient(username).OwnedGames));
                 }
             }
             else if (action.Equals(ETransferType.Disconnect.ToString()))
@@ -172,17 +173,17 @@ namespace Server
             }
             return ret;
         }
-        public void ReceiveFile(FileCommunicationHandler fch, string newName)
+        public async Task ReceiveFileAsync(FileCommunicationHandler fch, string newName)
         {
-            fch.ReceiveFile(ServerPosterFolder, newName);
+            await fch.ReceiveFileAsync(ServerPosterFolder, newName);
         }
-        public void SendFile(FileCommunicationHandler fch, string path, string newName)
+        public async Task SendFile(FileCommunicationHandler fch, string path, string newName)
         {
-            fch.SendFile(path, newName);
+            await fch.SendFileAsync(path, newName);
         }
-        public void SendMessage(FileCommunicationHandler fch, string message)
+        public async Task SendMessageAsync(FileCommunicationHandler fch, string message)
         {
-            fch.SendMessage(message);
+            await fch.SendMessageAsync(message);
         }
         public void CloseConnection()
         {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using Domain;
 
 namespace Client
@@ -21,7 +22,7 @@ namespace Client
             this.ch = ch;
             try
             {
-                CredentialsMenu();
+                await CredentialsMenuAsync();
             }
             catch (SocketException)
             {
@@ -30,14 +31,14 @@ namespace Client
             }
         }
 
-        private void RequestListGames()
+        private async Task RequestListGamesAsync()
         {
-            ch.SendMessage(ETransferType.List, "");
-            ListGames = Logic.DecodeListGames(ch.ReceiveMessage());
+            await ch.SendMessage(ETransferType.List, "");
+            ListGames = Logic.DecodeListGames(ch.ReceiveMessage().Result);
         }
-        private Game UpdateGame(Game g)
+        private async Task<Game> UpdateGame(Game g)
         {
-            RequestListGames();
+            await RequestListGamesAsync();
             Game ret = null;
             try
             {
@@ -49,7 +50,7 @@ namespace Client
             }
             return ret;
         }
-        private void CredentialsMenu()
+        private async Task CredentialsMenuAsync()
         {
             bool loop = true;
             while (loop)
@@ -62,15 +63,15 @@ namespace Client
                 int option = GetOption(input);
                 if (option == 1)
                 {
-                    Login();
+                    await LoginAsync();
                 }
                 else if (option == 2)
                 {
-                    Signup();
+                    await SignupAsync();
                 }
                 else if (option == 3)
                 {
-                    ch.SendMessage(ETransferType.Disconnect, "");
+                    await ch.SendMessage(ETransferType.Disconnect, "");
                     ch.CloseConnection();
                     loop = false;
                 }
@@ -80,42 +81,42 @@ namespace Client
                 }
             }
         }
-        private void Login()
+        private async Task LoginAsync()
         {
             Console.WriteLine("Input username: ");
             string input = Console.ReadLine();
-            ch.SendMessage(ETransferType.Login, input);
-            bool success = bool.Parse(ch.ReceiveMessage());
+            await ch.SendMessage(ETransferType.Login, input);
+            bool success = bool.Parse(ch.ReceiveMessage().Result);
             if (success)
             {
                 Client = new Domain.Client(input);
-                Client.OwnedGames = Logic.DecodeOwnedGames(ch.ReceiveMessage());
+                Client.OwnedGames = Logic.DecodeOwnedGames(ch.ReceiveMessage().Result);
                 Console.WriteLine("Successfully logged in");
-                Menu0();
+                await Menu0Async();
             }
             else
             {
                 Console.WriteLine("Username not found or already logged in");
             }
         }
-        private void Signup()
+        private async Task SignupAsync()
         {
             Console.WriteLine("Input username: ");
             string input = Console.ReadLine();
-            ch.SendMessage(ETransferType.Signup, input);
-            bool success = bool.Parse(ch.ReceiveMessage());
+            await ch.SendMessage(ETransferType.Signup, input);
+            bool success = bool.Parse(ch.ReceiveMessage().Result);
             if (success)
             {
                 Client = new Domain.Client(input);
                 Console.WriteLine("Successfully signed up");
-                Menu0();
+                await Menu0Async();
             }
             else
             {
                 Console.WriteLine("Username already exists");
             }
         }
-        private void Menu0()
+        private async Task Menu0Async()
         {
             bool loop = true;
             while (loop)
@@ -128,15 +129,15 @@ namespace Client
                 int option = GetOption(input);
                 if (option == 1)
                 {
-                    MenuPublishGame();
+                    await MenuPublishGameAsync();
                 }
                 else if (option == 2)
                 {
-                    FilterGameByAttr();
+                    await FilterGameByAttrAsync();
                 }
                 else if (option == 3)
                 {
-                    ch.SendMessage(ETransferType.Logoff, Client.Username);
+                    await ch.SendMessage(ETransferType.Logoff, Client.Username);
                     loop = false;
                 }
                 else
@@ -145,7 +146,7 @@ namespace Client
                 }
             }
         }
-        private void MenuPublishGame()
+        private async Task MenuPublishGameAsync()
         {
             bool loop = true;
             while (loop)
@@ -190,7 +191,7 @@ namespace Client
                 }
                 else if (option == 6) //Accept
                 {
-                    MenuAcceptPublishGame();
+                    await MenuAcceptPublishGameAsync();
                 }
                 else if (option == 7)
                 {
@@ -299,13 +300,13 @@ namespace Client
                 Console.WriteLine("Path not found");
             }
         }
-        private void MenuAcceptPublishGame()
+        private async Task MenuAcceptPublishGameAsync()
         {
             if (GameToPublish.IsFieldsFilled())
             {
-                ch.SendMessage(ETransferType.Publish, Logic.EncodeGame(GameToPublish));
+                await ch.SendMessage(ETransferType.Publish, Logic.EncodeGame(GameToPublish));
                 Console.WriteLine("Sending. Please wait...");
-                ch.SendFile(GameToPublish.Poster, GameToPublish.Id + ".jpg");
+                await ch.SendFileAsync(GameToPublish.Poster, GameToPublish.Id + ".jpg");
                 GameToPublish = null;
                 Console.WriteLine("Done. Game published");
             }
@@ -317,7 +318,7 @@ namespace Client
 
         #endregion
         #region View game
-        private void FilterGameByAttr()
+        private async Task FilterGameByAttrAsync()
         {
             bool loop = true;
             while (loop)
@@ -331,15 +332,15 @@ namespace Client
                 int option = GetOption(input);
                 if (option == 1)
                 {
-                    FilterByTitle();
+                    await FilterByTitleAsync();
                 }
                 else if (option == 2)
                 {
-                    FilterByGenre();
+                    await FilterByGenreAsync();
                 }
                 else if (option == 3)
                 {
-                    FilterByRating();
+                    await FilterByRatingAsync();
                 }
                 else if (option == 4)
                 {
@@ -351,31 +352,31 @@ namespace Client
                 }
             }
         }
-        private void FilterByTitle()
+        private async Task FilterByTitleAsync()
         {
             bool loop = true;
             while (loop)
             {
                 Console.WriteLine("Input title to search: ");
                 string input = Console.ReadLine();
-                RequestListGames();
+                await RequestListGamesAsync();
                 List<Game> filteredList = Logic.FilterByTitle(ListGames, input);
-                int sel = SelectGame(filteredList);
+                int sel = await SelectGameAsync(filteredList);
                 if (sel == -1)
                 {
                     loop = false;
                 }
             }
         }
-        private void FilterByGenre()
+        private async Task FilterByGenreAsync()
         {
             bool loop = true;
             while (loop)
             {
                 EGenre genre = MenuGenres();
-                RequestListGames();
+                await RequestListGamesAsync();
                 List<Game> filteredList = Logic.FilterByGenre(ListGames, genre);
-                int sel = SelectGame(filteredList);
+                int sel = await SelectGameAsync(filteredList);
 
                 if (sel == -1)
                 {
@@ -383,7 +384,7 @@ namespace Client
                 }
             }
         }
-        private void FilterByRating()
+        private async Task FilterByRatingAsync()
         {
             bool loop = true;
             while (loop)
@@ -396,7 +397,7 @@ namespace Client
                 Console.WriteLine(options);
                 string input = Console.ReadLine();
                 int option = GetOption(input);
-                RequestListGames();
+                await RequestListGamesAsync();
                 List<Game> filteredList = null;
                 if (option == 1)
                 {
@@ -424,17 +425,17 @@ namespace Client
                 }
                 if (filteredList != null)
                 {
-                    SelectGame(filteredList);
+                    await SelectGameAsync(filteredList);
                 }
             }
         }
-        private int SelectGame(List<Game> list)
+        private async Task<int> SelectGameAsync(List<Game> list)
         {
             bool loop = true;
             int ret = 0;
             while (loop)
             {
-                RequestListGames();
+                await RequestListGamesAsync();
                 ret = 0;
                 string options = "\r\n---------\r\n" +
                     "1 Back\r\n" +
@@ -453,7 +454,7 @@ namespace Client
                     GameToView = Logic.GetGameByIndex(option, list);
                     if (GameToView != null)
                     {
-                        ViewGame();
+                        await ViewGameAsync();
                         loop = false;
                     }
                     else
@@ -464,7 +465,7 @@ namespace Client
             }
             return ret;
         }
-        private void ViewGame()
+        private async Task ViewGameAsync()
         {
             bool loop = true;
             while (loop && GameToView != null)
@@ -483,15 +484,15 @@ namespace Client
                 int option = GetOption(input);
                 if (option == 1)
                 {
-                    EditGame();
+                    await EditGameAsync();
                 }
                 else if (option == 2)
                 {
-                    ReviewGame();
+                    await ReviewGameAsync();
                 }
                 else if (option == 3)
                 {
-                    DetailsGame();
+                    await DetailsGameAsync();
                 }
                 else if (option == 4)
                 {
@@ -501,12 +502,12 @@ namespace Client
                 {
                     Console.WriteLine(IncorrectInputError);
                 }
-                GameToView = UpdateGame(GameToView);
+                GameToView = await UpdateGame(GameToView);
             }
         }
         #endregion
         #region Edit game
-        private void EditGame()
+        private async Task EditGameAsync()
         {
             bool loop = true;
             while (loop && GameToView != null)
@@ -539,11 +540,11 @@ namespace Client
                 }
                 else if (option == 4)
                 {
-                    MenuConfirmDeleteGame();
+                    await MenuConfirmDeleteGame();
                 }
                 else if (option == 5)
                 {
-                    ch.SendMessage(ETransferType.Edit, Logic.EncodeGame(GameToView));
+                    await ch.SendMessage(ETransferType.Edit, Logic.EncodeGame(GameToView));
                     loop = false;
                 }
                 else if (option == 6)
@@ -587,7 +588,7 @@ namespace Client
             string newDescription = Console.ReadLine();
             GameToView.Description = newDescription;
         }
-        private bool MenuConfirmDeleteGame()
+        private async Task<bool> MenuConfirmDeleteGame()
         {
             bool ret = false;
             bool loop = true;
@@ -597,7 +598,7 @@ namespace Client
                 string input = Console.ReadLine();
                 if (input.Equals("yes"))
                 {
-                    ch.SendMessage(ETransferType.Delete, Logic.EncodeGame(GameToView));
+                    await ch.SendMessage(ETransferType.Delete, Logic.EncodeGame(GameToView));
                     GameToView = null;
                     loop = false;
                     ret = true;
@@ -616,7 +617,7 @@ namespace Client
         }
         #endregion
         #region Review game
-        private void ReviewGame()
+        private async Task ReviewGameAsync()
         {
             bool loop = true;
             while (loop && GameToView != null)
@@ -657,7 +658,7 @@ namespace Client
                 }
                 else if (option == 3)
                 {
-                    AcceptReview();
+                    await AcceptReviewAsync();
                 }
                 else if (option == 4) //back
                 {
@@ -694,11 +695,11 @@ namespace Client
                 }
             }
         }
-        private void AcceptReview()
+        private async Task AcceptReviewAsync()
         {
             if (Review.IsFieldsFilled())
             {
-                ch.SendMessage(ETransferType.Review, GameToView.Id + Logic.GameTransferSeparator + Logic.EncodeReview(Review));
+                await ch.SendMessage(ETransferType.Review, GameToView.Id + Logic.GameTransferSeparator + Logic.EncodeReview(Review));
                 Review = null;
                 Console.WriteLine("Review posted");
             }
@@ -709,7 +710,7 @@ namespace Client
         }
         #endregion
         #region Details game
-        private void DetailsGame()
+        private async Task DetailsGameAsync()
         {
             bool loop = true;
             while (loop && GameToView != null)
@@ -731,18 +732,18 @@ namespace Client
                 int option = GetOption(input);
                 if (option == 1)
                 {
-                    ch.SendMessage(ETransferType.Download, Logic.EncodeGame(GameToView));
-                    ch.ReceiveFile();
+                    await ch.SendMessage(ETransferType.Download, Logic.EncodeGame(GameToView));
+                    await ch.ReceiveFile();
                     Console.WriteLine("\r\n------Poster downloaded------\r\n");
                 }
                 else if (option == 2)
                 {
-                    ch.SendMessage(ETransferType.BuyGame, GameToView.Id + Logic.GameTransferSeparator + Client.Username);
-                    bool response = bool.Parse(ch.ReceiveMessage());
+                    await ch.SendMessage(ETransferType.BuyGame, GameToView.Id + Logic.GameTransferSeparator + Client.Username);
+                    bool response = bool.Parse(ch.ReceiveMessage().Result);
                     if (response)
                     {
                         Console.WriteLine("\r\n------Game bought------\r\n");
-                        Client.OwnedGames = Logic.DecodeOwnedGames(ch.ReceiveMessage());
+                        Client.OwnedGames = Logic.DecodeOwnedGames(ch.ReceiveMessage().Result);
                     }
                     else
                     {
@@ -761,7 +762,7 @@ namespace Client
                 {
                     Console.WriteLine(IncorrectInputError);
                 }
-                GameToView = UpdateGame(GameToView);
+                GameToView = await UpdateGame(GameToView);
             }
         }
         private void SeeReviews()

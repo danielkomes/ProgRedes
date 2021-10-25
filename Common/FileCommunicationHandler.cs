@@ -2,13 +2,14 @@
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Common
 {
     public class FileCommunicationHandler
     {
         private readonly FileStreamHandler _fileStreamHandler;
-        private readonly NetworkStreamHandler _socketStreamHandler;
+        private readonly NetworkStreamHandler networkStreamHandler;
 
         public static void Main(string[] args)
         {
@@ -17,41 +18,41 @@ namespace Common
 
         public FileCommunicationHandler(TcpClient tcpClient)
         {
-            _socketStreamHandler = new NetworkStreamHandler(tcpClient.GetStream());
+            networkStreamHandler = new NetworkStreamHandler(tcpClient.GetStream());
             _fileStreamHandler = new FileStreamHandler();
         }
 
-        public void SendFile(string path, string newName)
+        public async Task SendFileAsync(string path, string newName)
         {
             var fileInfo = new FileInfo(path);
             byte[] fileNameData = Encoding.UTF8.GetBytes(newName);
             int fileNameLength = fileNameData.Length;
             byte[] fileNameLengthData = BitConverter.GetBytes(fileNameLength);
-            _socketStreamHandler.SendData(fileNameLengthData);
-            _socketStreamHandler.SendData(fileNameData);
+            await networkStreamHandler.SendDataAsync(fileNameLengthData);
+            await networkStreamHandler.SendDataAsync(fileNameData);
 
             long fileSize = fileInfo.Length;
             byte[] fileSizeDataLength = BitConverter.GetBytes(fileSize);
-            _socketStreamHandler.SendData(fileSizeDataLength);
-            SendFile(fileSize, path);
+            await networkStreamHandler.SendDataAsync(fileSizeDataLength);
+            await SendFileAsync(fileSize, path);
         }
 
-        public void ReceiveFile(string pathNoName, string newName = "")
+        public async Task ReceiveFileAsync(string pathNoName, string newName = "")
         {
-            byte[] fileNameLengthData = _socketStreamHandler.ReadData(ProtocolSpecification.FileNameSize);
+            byte[] fileNameLengthData = await networkStreamHandler.ReadDataAsync(ProtocolSpecification.FileNameSize);
             int fileNameLength = BitConverter.ToInt32(fileNameLengthData);
-            byte[] fileNameData = _socketStreamHandler.ReadData(fileNameLength);
+            byte[] fileNameData = await networkStreamHandler.ReadDataAsync(fileNameLength);
             string fileName = Encoding.UTF8.GetString(fileNameData);
             if (!string.IsNullOrEmpty(newName))
             {
                 fileName = newName;
             }
-            byte[] fileSizeDataLength = _socketStreamHandler.ReadData(ProtocolSpecification.FileSize);
+            byte[] fileSizeDataLength = await networkStreamHandler.ReadDataAsync(ProtocolSpecification.FileSize);
             long fileSize = BitConverter.ToInt64(fileSizeDataLength);
-            ReceiveFile(fileSize, pathNoName + fileName);
+            await ReceiveFileAsync(fileSize, pathNoName + fileName);
         }
 
-        private void SendFile(long fileSize, string path)
+        private async Task SendFileAsync(long fileSize, string path)
         {
             long fileParts = ProtocolSpecification.CalculateParts(fileSize);
             long offset = 0;
@@ -62,22 +63,22 @@ namespace Common
                 byte[] data;
                 if (currentPart != fileParts)
                 {
-                    data = _fileStreamHandler.ReadData(path, ProtocolSpecification.MaxPacketSize, offset);
+                    data = await _fileStreamHandler.ReadDataAsync(path, ProtocolSpecification.MaxPacketSize, offset);
                     offset += ProtocolSpecification.MaxPacketSize;
                 }
                 else
                 {
                     int lastPartSize = (int)(fileSize - offset);
-                    data = _fileStreamHandler.ReadData(path, lastPartSize, offset);
+                    data = await _fileStreamHandler.ReadDataAsync(path, lastPartSize, offset);
                     offset += lastPartSize;
                 }
 
-                _socketStreamHandler.SendData(data);
+                await networkStreamHandler.SendDataAsync(data);
                 currentPart++;
             }
         }
 
-        private void ReceiveFile(long fileSize, string fileName)
+        private async Task ReceiveFileAsync(long fileSize, string fileName)
         {
             long fileParts = ProtocolSpecification.CalculateParts(fileSize);
             long offset = 0;
@@ -87,35 +88,35 @@ namespace Common
                 byte[] data;
                 if (currentPart != fileParts)
                 {
-                    data = _socketStreamHandler.ReadData(ProtocolSpecification.MaxPacketSize);
+                    data = await networkStreamHandler.ReadDataAsync(ProtocolSpecification.MaxPacketSize);
                     offset += ProtocolSpecification.MaxPacketSize;
                 }
                 else
                 {
                     int lastPartSize = (int)(fileSize - offset);
-                    data = _socketStreamHandler.ReadData(lastPartSize);
+                    data = await networkStreamHandler.ReadDataAsync(lastPartSize);
                     offset += lastPartSize;
                 }
-                _fileStreamHandler.WriteData(fileName, data);
+                await _fileStreamHandler.WriteDataAsync(fileName, data);
                 currentPart++;
             }
         }
-        public string ReceiveMessage()
+        public async Task<string> ReceiveMessageAsync()
         {
-            byte[] dataLength = _socketStreamHandler.ReadData(ProtocolSpecification.FileNameSize);
+            byte[] dataLength = await networkStreamHandler.ReadDataAsync(ProtocolSpecification.FileNameSize);
             int length = BitConverter.ToInt32(dataLength);
-            byte[] data = _socketStreamHandler.ReadData(length);
+            byte[] data = await networkStreamHandler.ReadDataAsync(length);
             string message = Encoding.UTF8.GetString(data);
             return message;
         }
-        public void SendMessage(string message)
+        public async Task SendMessageAsync(string message)
         {
             byte[] data = Encoding.UTF8.GetBytes(message);
             int length = data.Length;
             byte[] dataLength = BitConverter.GetBytes(length);
 
-            _socketStreamHandler.SendData(dataLength);
-            _socketStreamHandler.SendData(data);
+            await networkStreamHandler.SendDataAsync(dataLength);
+            await networkStreamHandler.SendDataAsync(data);
         }
     }
 }
