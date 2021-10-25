@@ -109,17 +109,25 @@ namespace Client
         {
             Console.WriteLine("Input username: ");
             string input = Console.ReadLine();
-            await ch.SendMessage(ETransferType.Signup, input);
-            bool success = bool.Parse(ch.ReceiveMessage().Result);
-            if (success)
+            input = input.Trim();
+            if (input.Equals(string.Empty))
             {
-                Client = new Domain.Client(input);
-                Console.WriteLine("Successfully signed up");
-                await Menu0Async();
+                Console.WriteLine("Username cannot be empty\r\n");
             }
             else
             {
-                Console.WriteLine("Username already exists");
+                await ch.SendMessage(ETransferType.Signup, input);
+                bool success = bool.Parse(ch.ReceiveMessage().Result);
+                if (success)
+                {
+                    Client = new Domain.Client(input);
+                    Console.WriteLine("Successfully signed up");
+                    await Menu0Async();
+                }
+                else
+                {
+                    Console.WriteLine("Username already exists");
+                }
             }
         }
         private async Task Menu0Async()
