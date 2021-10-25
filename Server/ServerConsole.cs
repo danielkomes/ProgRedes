@@ -30,7 +30,7 @@ namespace Server
                     sh.CloseConnection();
                     loop = false;
                 }
-                if (option == 2)
+                else if (option == 2)
                 {
                     ManageUsers();
                 }
@@ -103,7 +103,7 @@ namespace Server
                 }
                 else if (option == 4)
                 {
-
+                    loop = !DeleteUserAccount(c);
                 }
                 else if (option == 5)
                 {
@@ -217,6 +217,36 @@ namespace Server
                 }
             }
         }
+        private bool DeleteUserAccount(Client c)
+        {
+            bool ret = false;
+            bool loop = true;
+            while (loop)
+            {
+                string options = "Are you sure you want to delete " + c.Username + " user account? (yes/no)\r\n";
+                Console.WriteLine(options);
+                string input = Console.ReadLine();
+                if (input.Equals("yes"))
+                {
+                    Sys.DeleteClient(c.Username);
+                    sh.KickClient(c);
+                    Console.WriteLine(c.Username + " account deleted and client disconnected\r\n");
+                    loop = false;
+                    ret = true;
+                }
+                else if (input.Equals("no"))
+                {
+                    Console.WriteLine("Operation cancelled\r\n");
+                    loop = false;
+                }
+                else
+                {
+                    Console.WriteLine(IncorrectInputError);
+                }
+            }
+            return ret;
+        }
+
         private void RemoveAlreadyOwnedGames(Client c, List<Game> list)
         {
             foreach (int gameId in c.OwnedGames)

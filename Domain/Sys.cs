@@ -36,6 +36,14 @@ namespace Domain
                 return ret;
             }
         }
+        public static void DeleteClient(string username)
+        {
+            lock (locker)
+            {
+                Client c = GetClient(username);
+                Clients.Remove(c);
+            }
+        }
         public static int GetNewId()
         {
             lock (locker)

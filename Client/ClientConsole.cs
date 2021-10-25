@@ -29,7 +29,7 @@ namespace Client
             {
                 await cc.CredentialsMenuAsync();
             }
-            catch (SocketException)
+            catch (Exception)
             {
                 Console.WriteLine("The connection has been lost.\r\nPress Enter to close the console");
                 Console.ReadLine();
