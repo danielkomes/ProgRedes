@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using System.Threading.Tasks;
 using Common;
 using Domain;
@@ -20,7 +19,6 @@ namespace Server
         private int ServerPort;
         private int Backlog;
         private bool serverRunning;
-        private Thread acceptClients;
         public Dictionary<TcpClient, Client> clients;
         public ServerHandler()
         {
@@ -31,8 +29,7 @@ namespace Server
 
             serverRunning = true;
             clients = new Dictionary<TcpClient, Client>();
-            acceptClients = new Thread(async () => await AcceptClientsAsync());
-            acceptClients.Start();
+            Task.Run(async () => await AcceptClientsAsync());
         }
 
         private void ReadJson()
@@ -57,7 +54,7 @@ namespace Server
                     clients.Add(tcpClient, null);
                     Console.WriteLine("New client connected. Total: " + clients.Count);
                     FileCommunicationHandler fileCommunicationHandler = new FileCommunicationHandler(tcpClient);
-                    new Thread(async () => await ListenAsync(fileCommunicationHandler, tcpClient)).Start();
+                    await Task.Run(async () => await ListenAsync(fileCommunicationHandler, tcpClient));
                 }
                 catch (Exception)
                 {
