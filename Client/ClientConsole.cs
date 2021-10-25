@@ -17,18 +17,24 @@ namespace Client
         private Domain.Client Client { get; set; }
         private readonly ClientHandler ch;
 
-        public ClientConsole(ClientHandler ch)
+        private ClientConsole(ClientHandler ch)
         {
             this.ch = ch;
+        }
+
+        public static async Task<ClientConsole> ClientConsoleAsync(ClientHandler ch)
+        {
+            ClientConsole cc = new ClientConsole(ch);
             try
             {
-                await CredentialsMenuAsync();
+                await cc.CredentialsMenuAsync();
             }
             catch (SocketException)
             {
                 Console.WriteLine("The connection has been lost.\r\nPress Enter to close the console");
                 Console.ReadLine();
             }
+            return cc;
         }
 
         private async Task RequestListGamesAsync()

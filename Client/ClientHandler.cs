@@ -16,20 +16,22 @@ namespace Client
         private string ClientPosterFolder;
         private int ClientPort;
         private int ServerPort;
-        private readonly FileCommunicationHandler fch;
+        private FileCommunicationHandler fch;
 
-        public ClientHandler()
+        private ClientHandler()
         {
             ReadJson();
             _clientIpEndPoint = new IPEndPoint(IPAddress.Loopback, ClientPort);
             tcpClient = new TcpClient(_clientIpEndPoint);
-            await ConnectAsync();
-            Console.WriteLine("Connected to server");
-            fch = new FileCommunicationHandler(tcpClient);
         }
-        private async Task ConnectAsync()
+        public static async Task<ClientHandler> ClientHandlerAsync()
         {
-            await tcpClient.ConnectAsync(IPAddress.Loopback, ServerPort);
+            ClientHandler ch = new ClientHandler();
+
+            await ch.tcpClient.ConnectAsync(IPAddress.Loopback, ch.ServerPort);
+            Console.WriteLine("Connected to server");
+            ch.fch = new FileCommunicationHandler(ch.tcpClient);
+            return ch;
         }
         private void ReadJson()
         {

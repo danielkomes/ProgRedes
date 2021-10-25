@@ -1,11 +1,13 @@
-﻿namespace Client
+﻿using System.Threading.Tasks;
+
+namespace Client
 {
     public class ClientProgram
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            ClientHandler ClientHandler = new ClientHandler();
-            new ClientConsole(ClientHandler);
+            ClientHandler ch = await ClientHandler.ClientHandlerAsync();
+            await ClientConsole.ClientConsoleAsync(ch);
         }
     }
 }
