@@ -54,7 +54,7 @@ namespace Server
                     clients.Add(tcpClient, null);
                     Console.WriteLine("New client connected. Total: " + clients.Count);
                     FileCommunicationHandler fileCommunicationHandler = new FileCommunicationHandler(tcpClient);
-                    await Task.Run(async () => await ListenAsync(fileCommunicationHandler, tcpClient));
+                    Task.Run(async () => await ListenAsync(fileCommunicationHandler, tcpClient));
                 }
                 catch (Exception)
                 {
@@ -96,7 +96,7 @@ namespace Server
                         client.IsOnline = true;
                         clients[tcpClient] = client;
                         await SendMessageAsync(fch, "true");
-                        await SendMessageAsync(fch, Logic.EncodeOwnedGames(client.OwnedGames));
+                        //await SendMessageAsync(fch, Logic.EncodeOwnedGames(client.OwnedGames));
                     }
                     else
                     {
@@ -131,7 +131,8 @@ namespace Server
             }
             else if (action.Equals(ETransferType.List.ToString()))
             {
-                await SendMessageAsync(fch, Logic.EncodeListGames(Sys.Games));
+                List<Game> list = Sys.GetGames();
+                await SendMessageAsync(fch, Logic.EncodeListGames(list));
             }
             else if (action.Equals(ETransferType.Owned.ToString()))
             {
@@ -168,10 +169,10 @@ namespace Server
                 string username = arr[1];
                 bool response = Sys.BuyGame(username, gameId);
                 await SendMessageAsync(fch, response + "");
-                if (response)
-                {
-                    await SendMessageAsync(fch, Logic.EncodeOwnedGames(Sys.GetClient(username).OwnedGames));
-                }
+                //if (response)
+                //{
+                //    await SendMessageAsync(fch, Logic.EncodeOwnedGames(Sys.GetClient(username).OwnedGames));
+                //}
             }
             else if (action.Equals(ETransferType.Disconnect.ToString()))
             {

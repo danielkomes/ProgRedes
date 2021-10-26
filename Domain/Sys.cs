@@ -17,6 +17,13 @@ namespace Domain
             Games = new List<Game>();
             Clients = new List<Client>();
         }
+        public static List<Game> GetGames()
+        {
+            lock (gamesLocker)
+            {
+                return Games;
+            }
+        }
         public static Client GetClient(string username)
         {
             lock (clientsLocker)
