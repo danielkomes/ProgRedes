@@ -21,7 +21,8 @@ namespace Server
             while (loop)
             {
                 string options = "1 Shutdown server\r\n" +
-                    "2 Manage users\r\n";
+                    "2 Add user account\r\n" +
+                    "3 Edit and delete accounts";
                 Console.WriteLine(options);
                 string input = Console.ReadLine();
                 int option = GetOption(input);
@@ -32,7 +33,11 @@ namespace Server
                 }
                 else if (option == 2)
                 {
-                    ManageUsers();
+                    AddUserAccount();
+                }
+                else if (option == 3)
+                {
+                    EditAndDeleteUsers();
                 }
                 else
                 {
@@ -40,8 +45,23 @@ namespace Server
                 }
             }
         }
+        private void AddUserAccount()
+        {
+            Console.WriteLine("\r\nInput username for the new account");
+            string input = Console.ReadLine();
+            Client c = Sys.GetClient(input);
+            if (c != null)
+            {
+                Console.WriteLine("Username already exists\r\n");
+            }
+            else
+            {
+                Sys.AddClient(input);
+                Console.WriteLine("Account created\r\n");
+            }
+        }
 
-        private void ManageUsers()
+        private void EditAndDeleteUsers()
         {
             bool loop = true;
             while (loop)
