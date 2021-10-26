@@ -22,7 +22,8 @@ namespace Server
             {
                 string options = "1 Shutdown server\r\n" +
                     "2 Add user account\r\n" +
-                    "3 Edit and delete accounts";
+                    "3 Edit and delete accounts\r\n" +
+                    "4 View all games\r\n";
                 Console.WriteLine(options);
                 string input = Console.ReadLine();
                 int option = GetOption(input);
@@ -38,6 +39,10 @@ namespace Server
                 else if (option == 3)
                 {
                     EditAndDeleteUsers();
+                }
+                else if (option == 4)
+                {
+                    ViewAllGames();
                 }
                 else
                 {
@@ -60,7 +65,7 @@ namespace Server
                 Console.WriteLine("Account created\r\n");
             }
         }
-
+        #region Edit and delete users
         private void EditAndDeleteUsers()
         {
             bool loop = true;
@@ -94,7 +99,6 @@ namespace Server
                 }
             }
         }
-
         private void UserDetails(Client c)
         {
             bool loop = true;
@@ -131,7 +135,6 @@ namespace Server
                 }
             }
         }
-
         private void AddGameToUserAccount(Client c)
         {
             bool loop = true;
@@ -266,7 +269,28 @@ namespace Server
             }
             return ret;
         }
-
+        #endregion
+        private void ViewAllGames()
+        {
+            bool loop = true;
+            while (loop)
+            {
+                string options = "----Viewing all games-----\r\n" +
+                    "---1 Back---\r\n" +
+                    Logic.ListGames(Sys.GetGames(), false);
+                Console.WriteLine(options);
+                string input = Console.ReadLine();
+                int option = GetOption(input);
+                if (option == 1)
+                {
+                    loop = false;
+                }
+                else
+                {
+                    Console.WriteLine(IncorrectInputError);
+                }
+            }
+        }
         private void RemoveAlreadyOwnedGames(Client c, List<Game> list)
         {
             foreach (int gameId in c.OwnedGames)
