@@ -4,9 +4,12 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using AdminServer;
 using Common;
 using Domain;
+using Grpc.Net.Client;
 using Newtonsoft.Json.Linq;
+using static AdminServer.Greeter;
 
 namespace Server
 {
@@ -29,7 +32,23 @@ namespace Server
 
             serverRunning = true;
             clients = new Dictionary<TcpClient, Client>();
+            Task.Run(async () => await GrpcSetup());
             Task.Run(async () => await AcceptClientsAsync());
+        }
+        private async Task GrpcSetup()
+        {
+            GrpcChannel channel = GrpcChannel.ForAddress("https://localhost:5001"); //TODO: move to ServerConfig.json
+            GreeterClient client = new GreeterClient(channel);
+            while (true)
+            {
+                string input = Console.ReadLine();
+                HelloReply response = await client.SayHelloAsync(
+                    new HelloRequest
+                    {
+                        Name = input
+                    });
+                Console.WriteLine(response.Message);
+            }
         }
 
         private void ReadJson()
