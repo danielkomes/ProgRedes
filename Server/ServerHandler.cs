@@ -17,6 +17,7 @@ namespace Server
     {
         private readonly TcpListener tcpListener;
         private readonly IPEndPoint _serverIpEndPoint;
+        GreeterClient client;
 
         private string ServerPosterFolder;
         private int ServerPort;
@@ -32,23 +33,23 @@ namespace Server
 
             serverRunning = true;
             clients = new Dictionary<TcpClient, Client>();
-            Task.Run(async () => await GrpcSetup());
+            GrpcSetup();
             Task.Run(async () => await AcceptClientsAsync());
         }
-        private async Task GrpcSetup()
+        private void GrpcSetup()
         {
             GrpcChannel channel = GrpcChannel.ForAddress("https://localhost:5001"); //TODO: move to ServerConfig.json
-            GreeterClient client = new GreeterClient(channel);
-            while (true)
-            {
-                string input = Console.ReadLine();
-                HelloReply response = await client.SayHelloAsync(
-                    new HelloRequest
-                    {
-                        Name = input
-                    });
-                Console.WriteLine(response.Message);
-            }
+            client = new GreeterClient(channel);
+            //while (true)
+            //{
+            //    string input = Console.ReadLine();
+            //    HelloReply response = await client.SayHelloAsync(
+            //        new HelloRequest
+            //        {
+            //            Name = input
+            //        });
+            //    Console.WriteLine(response.Message);
+            //}
         }
 
         private void ReadJson()
@@ -89,7 +90,22 @@ namespace Server
                 try
                 {
                     string msg = await fch.ReceiveMessageAsync();
-                    loop = await ProcessMessageAsync(tcpClient, fch, msg);
+                    HelloReply response = await client.SayHelloAsync(
+                        new HelloRequest
+                        {
+                            Name = msg
+                        });
+                    string RcpResponse = response.Message;
+                    Console.WriteLine("ADMIN: " + RcpResponse);
+                    if (RcpResponse.Equals(Logic.GameSeparator))
+                    {
+                        //await SendMessageAsync(fch, "");
+                    }
+                    else
+                    {
+                        await SendMessageAsync(fch, RcpResponse);
+                    }
+                    //loop = await ProcessMessageAsync(tcpClient, fch, msg);
                 }
                 catch (Exception)
                 {

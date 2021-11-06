@@ -9,8 +9,4 @@
     <Compile Remove="ClientConsole.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\.editorconfig" Link=".editorconfig" />
-  </ItemGroup>
-
 </Project>
