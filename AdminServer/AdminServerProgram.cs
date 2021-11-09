@@ -1,3 +1,4 @@
+using Domain;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -13,6 +14,7 @@ namespace AdminServer
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
+            Logic.TestGames();
         }
 
         // Additional configuration is required to successfully run gRPC on macOS.

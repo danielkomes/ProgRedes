@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+option csharp_namespace = "AdminServer";
+
+package admin;
+
+service MessageExchanger {
+	rpc Login (MessageRequest) returns (MessageReply);
+	rpc Signup (MessageRequest) returns (MessageReply);
+	rpc Logoff (MessageRequest) returns (MessageReply);
+
+	rpc Publish (MessageRequest) returns (PublishReply);
+	rpc ReceiveFile (FileExchange) returns (MessageReply);
+
+	rpc List (MessageRequest) returns (MessageReply);
+	rpc Owned (MessageRequest) returns (MessageReply);
+	rpc Edit (MessageRequest) returns (MessageReply);
+	rpc Delete (MessageRequest) returns (MessageReply);
+	rpc Review (MessageRequest) returns (MessageReply);
+
+	rpc Download (MessageRequest) returns (FileExchange);
+
+	rpc BuyGame (MessageRequest) returns (MessageReply);
+}
+
+message MessageRequest{
+	string message = 1;
+}
+message MessageReply {
+	string message = 1;
+}
+
+message FileExchange {
+	string fileId = 1;
+	string fileName = 2;
+	bytes fileData = 3;
+}
+message PublishReply {
+	string id = 1;
+	string title = 2;
+}

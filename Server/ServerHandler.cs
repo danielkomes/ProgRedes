@@ -9,7 +9,8 @@ using Common;
 using Domain;
 using Grpc.Net.Client;
 using Newtonsoft.Json.Linq;
-using static AdminServer.Greeter;
+//using static AdminServer.Greeter;
+using static AdminServer.MessageExchanger;
 
 namespace Server
 {
@@ -17,13 +18,13 @@ namespace Server
     {
         private readonly TcpListener tcpListener;
         private readonly IPEndPoint _serverIpEndPoint;
-        GreeterClient client;
+        MessageExchangerClient client;
 
         private string ServerPosterFolder;
         private int ServerPort;
         private int Backlog;
         private bool serverRunning;
-        public Dictionary<TcpClient, Client> clients;
+        public Dictionary<TcpClient, string> clients;
         public ServerHandler()
         {
             ReadJson();
@@ -32,14 +33,14 @@ namespace Server
             tcpListener.Start(Backlog);
 
             serverRunning = true;
-            clients = new Dictionary<TcpClient, Client>();
+            clients = new Dictionary<TcpClient, string>();
             GrpcSetup();
             Task.Run(async () => await AcceptClientsAsync());
         }
         private void GrpcSetup()
         {
             GrpcChannel channel = GrpcChannel.ForAddress("https://localhost:5001"); //TODO: move to ServerConfig.json
-            client = new GreeterClient(channel);
+            client = new MessageExchangerClient(channel);
             //while (true)
             //{
             //    string input = Console.ReadLine();
@@ -90,22 +91,23 @@ namespace Server
                 try
                 {
                     string msg = await fch.ReceiveMessageAsync();
-                    HelloReply response = await client.SayHelloAsync(
-                        new HelloRequest
-                        {
-                            Name = msg
-                        });
-                    string RcpResponse = response.Message;
-                    Console.WriteLine("ADMIN: " + RcpResponse);
-                    if (RcpResponse.Equals(Logic.GameSeparator))
-                    {
-                        //await SendMessageAsync(fch, "");
-                    }
-                    else
-                    {
-                        await SendMessageAsync(fch, RcpResponse);
-                    }
-                    //loop = await ProcessMessageAsync(tcpClient, fch, msg);
+
+                    //MessageReply reply = await client.ExchangeMessageAsync(
+                    //    new MessageRequest
+                    //    {
+                    //        Message = msg
+                    //    });
+                    //string RpcResponse = reply.Message;
+                    //Console.WriteLine("ADMIN: " + RcpResponse);
+                    //if (RpcResponse.Equals(Logic.GameSeparator))
+                    //{
+                    //    //await SendMessageAsync(fch, "");
+                    //}
+                    //else
+                    //{
+                    //    await SendMessageAsync(fch, RcpResponse);
+                    //}
+                    loop = await ProcessMessageAsync(tcpClient, fch, msg);
                 }
                 catch (Exception)
                 {
@@ -123,91 +125,133 @@ namespace Server
             bool ret = true;
             if (action.Equals(ETransferType.Login.ToString()))
             {
-                Client client = Sys.GetClient(message);
-                if (client != null)
-                {
-                    if (!client.IsOnline)
+                MessageReply reply = await client.LoginAsync(
+                    new MessageRequest
                     {
-                        client.IsOnline = true;
-                        clients[tcpClient] = client;
-                        await SendMessageAsync(fch, "true");
-                        //await SendMessageAsync(fch, Logic.EncodeOwnedGames(client.OwnedGames));
-                    }
-                    else
-                    {
-                        await SendMessageAsync(fch, "false");
-                    }
-                }
-                else
+                        Message = message
+                    });
+                string RpcReply = reply.Message;
+                if (bool.Parse(RpcReply))
                 {
-                    await SendMessageAsync(fch, "false");
+                    clients[tcpClient] = message;
                 }
+                await SendMessageAsync(fch, RpcReply);
             }
             else if (action.Equals(ETransferType.Signup.ToString()))
             {
-                bool msg = Sys.AddClient(message);
-                if (msg)
+                MessageReply reply = await client.SignupAsync(
+                    new MessageRequest
+                    {
+                        Message = message
+                    });
+                string RpcReply = reply.Message;
+                if (bool.Parse(RpcReply))
                 {
-                    Client client = Sys.GetClient(message);
-                    client.IsOnline = true;
-                    clients[tcpClient] = client;
+                    clients[tcpClient] = message;
                 }
-                await SendMessageAsync(fch, msg + "");
+                await SendMessageAsync(fch, RpcReply);
             }
             else if (action.Equals(ETransferType.Logoff.ToString()))
             {
-                Sys.GetClient(message).IsOnline = false;
+                MessageReply reply = await client.LogoffAsync(
+                    new MessageRequest
+                    {
+                        Message = message
+                    });
+                string RpcReply = reply.Message;
             }
             else if (action.Equals(ETransferType.Publish.ToString()))
             {
-                Game game = Logic.DecodeGame(message);
-                Sys.AddGame(game);
-                await ReceiveFileAsync(fch, game.Id + ".jpg");
+                PublishReply reply = await client.PublishAsync(
+                    new MessageRequest
+                    {
+                        Message = message
+                    });
+                string gameId = reply.Id;
+                string gameTitle = reply.Title;
+
+                await ReceiveFileAsync(fch, gameId + ".jpg");
+                //TODO: change old file transference methods to not create files under Server (must be created under AdminServer)
+
+                byte[] fileData = await File.ReadAllBytesAsync(ServerPosterFolder + gameId + ".jpg");
+                MessageReply fileReply = await client.ReceiveFileAsync(
+                    new FileExchange
+                    {
+                        FileName = gameId,
+                        FileData = Google.Protobuf.ByteString.CopyFrom(fileData)
+                    });
+                string RpcFileReply = fileReply.Message;
             }
             else if (action.Equals(ETransferType.List.ToString()))
             {
-                List<Game> list = Sys.GetGames();
-                await SendMessageAsync(fch, Logic.EncodeListGames(list));
+                MessageReply reply = await client.ListAsync(
+                    new MessageRequest
+                    {
+                        Message = message
+                    });
+                string RpcReply = reply.Message;
+                //    List<Game> list = Sys.GetGames();
+                await SendMessageAsync(fch, RpcReply);
             }
             else if (action.Equals(ETransferType.Owned.ToString()))
             {
-                Client c = Sys.GetClient(message);
-                await SendMessageAsync(fch, Logic.EncodeOwnedGames(c.OwnedGames));
+                MessageReply reply = await client.OwnedAsync(
+                    new MessageRequest
+                    {
+                        Message = message
+                    });
+                string RpcReply = reply.Message;
+                await SendMessageAsync(fch, RpcReply);
             }
             else if (action.Equals(ETransferType.Edit.ToString()))
             {
-                Game game = Logic.DecodeGame(message);
-                Sys.ReplaceGame(game);
+                MessageReply reply = await client.EditAsync(
+                    new MessageRequest
+                    {
+                        Message = message
+                    });
+                string RpcReply = reply.Message;
             }
             else if (action.Equals(ETransferType.Delete.ToString()))
             {
-                Game game = Logic.DecodeGame(message);
-                Sys.DeleteGame(game);
+                MessageReply reply = await client.DeleteAsync(
+                    new MessageRequest
+                    {
+                        Message = message
+                    });
+                string RpcReply = reply.Message;
             }
             else if (action.Equals(ETransferType.Review.ToString()))
             {
-                string[] arr = message.Split(Logic.GameTransferSeparator);
-                int id = int.Parse(arr[0]);
-                Review r = Logic.DecodeReview(arr[1]);
-                Sys.AddReview(id, r);
+                MessageReply reply = await client.ReviewAsync(
+                    new MessageRequest
+                    {
+                        Message = message
+                    });
+                string RpcReply = reply.Message;
             }
             else if (action.Equals(ETransferType.Download.ToString()))
             {
-                Game game = Logic.DecodeGame(message);
-                int id = game.Id;
-                await SendFile(fch, ServerPosterFolder + id + ".jpg", game.Title + ".jpg");
+                FileExchange reply = await client.DownloadAsync(
+                    new MessageRequest
+                    {
+                        Message = message
+                    });
+                string fileId = reply.FileId;
+                string fileName = reply.FileName;
+                byte[] fileData = reply.FileData.ToByteArray();
+                //TODO: change old file transference methods to not create files under Server (must be created under AdminServer)
+                await SendFile(fch, ServerPosterFolder + fileId + ".jpg", fileName + ".jpg");
             }
             else if (action.Equals(ETransferType.BuyGame.ToString()))
             {
-                string[] arr = message.Split(Logic.GameTransferSeparator);
-                int gameId = int.Parse(arr[0]);
-                string username = arr[1];
-                bool response = Sys.BuyGame(username, gameId);
-                await SendMessageAsync(fch, response + "");
-                //if (response)
-                //{
-                //    await SendMessageAsync(fch, Logic.EncodeOwnedGames(Sys.GetClient(username).OwnedGames));
-                //}
+                MessageReply reply = await client.BuyGameAsync(
+                    new MessageRequest
+                    {
+                        Message = message
+                    });
+                string RpcReply = reply.Message;
+                await SendMessageAsync(fch, RpcReply);
             }
             else if (action.Equals(ETransferType.Disconnect.ToString()))
             {
@@ -234,7 +278,7 @@ namespace Server
         {
             foreach (var c in clients)
             {
-                if (c.Value.Username.Equals(client.Username))
+                if (c.Value.Equals(client.Username))
                 {
                     c.Key.GetStream().Close();
                     //clients.Remove(c.Key);
