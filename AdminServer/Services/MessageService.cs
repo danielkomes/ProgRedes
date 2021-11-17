@@ -153,9 +153,8 @@ namespace AdminServer.Services
         {
             string message = request.Message;
             Game game = Logic.DecodeGame(message);
-            Sys.ReplaceGame(game);
-            string reply = "";
-
+            string reply = Sys.ReplaceGame(game).ToString();
+            
             //await SendMessageAsync(fch, Logic.EncodeListGames(list));
 
             return Task.FromResult(new MessageReply

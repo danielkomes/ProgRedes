@@ -52,7 +52,7 @@ namespace WebApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Game>> GetGameById(int id)
         {
-            Game game = await gameService.GetGameById(id);
+            Game game = await gameService.GetGameByIdAsync(id);
             if (game != null)
             {
                 return Ok(game);
@@ -63,28 +63,36 @@ namespace WebApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Game>> PublishGameAsync(Game game)
         {
-            var responseGame = await gameService.PublishGameAsync(game);
+            Game responseGame = await gameService.PublishGameAsync(game);
             return new CreatedResult(string.Empty, responseGame);
         }
 
-        //[HttpPut]
-        //public async Task<ActionResult<Student>> UpdateStudentAsync(Student student)
-        //{
-        //    var responseStudent = await _studentService.UpdateStudentAsync(student);
-        //    return Ok(responseStudent);
-        //}
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Game>> UpdateGameAsync(int id, Game game)
+        {
+            Game responseGame = await gameService.UpdateGameAsync(id, game);
+            if (responseGame != null)
+            {
+                return Ok(responseGame);
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
 
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteStudentAsync(int id)
-        //{
-        //    var student = await _studentService.GetStudentByIdAsync(id);
-        //    if (student == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    await _studentService.DeleteStudentAsync(student);
-        //    return NoContent();
-        //}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteGameAsync(int id)
+        {
+            bool result = await gameService.DeleteGameAsync(id);
+            if (result)
+            {
+                return NoContent();
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
     }
 }

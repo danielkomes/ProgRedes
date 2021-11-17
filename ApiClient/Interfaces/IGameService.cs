@@ -10,9 +10,9 @@ namespace WebApi.Interfaces
     {
         IEnumerable<Game> GetGames();
         Task<PaginatedResponse<Game>> GetGames(int page, int pageSize);
-        Task<Game> GetGameById(int id);
+        Task<Game> GetGameByIdAsync(int id);
         Task<Game> PublishGameAsync(Game game);
-        //Task<Game> UpdateGameAsync(Game game);
-        //Task DeleteGameAsync(Game game);
+        Task<Game> UpdateGameAsync(int id, Game game);
+        Task<bool> DeleteGameAsync(int id);
     }
 }

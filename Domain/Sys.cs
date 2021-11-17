@@ -145,7 +145,7 @@ namespace Domain
             Client c = GetClient(username);
             c.OwnedGames.Clear();
         }
-        public static void ReplaceGame(Game game)
+        public static bool ReplaceGame(Game game)
         {
             lock (gamesLocker)
             {
@@ -154,9 +154,10 @@ namespace Domain
                     if (Games[i].Equals(game))
                     {
                         Games[i] = game;
-                        return;
+                        return true;
                     }
                 }
+                return false;
             }
         }
         public static void AddReview(int id, Review review)

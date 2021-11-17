@@ -49,7 +49,7 @@ namespace WebApi.Services
             return PaginationHelper<Game>.GeneratePaginatedResponse(pageSize, totalGames, games);
         }
 
-        public async Task<Game> GetGameById(int id)
+        public async Task<Game> GetGameByIdAsync(int id)
         {
             MessageReply reply = await client.GetGameByIdAsync(
                 new MessageRequest
@@ -74,18 +74,43 @@ namespace WebApi.Services
             return game;
         }
 
-        //public async Task<Student> UpdateStudentAsync(Student student)
-        //{
-        //    StudentDto studentDto = MapStudentDomainToDto(student);
-        //    var responseStudentDto = await _studentRepository.UpdateStudentAsync(studentDto);
-        //    return MapStudentDtoToDomain(responseStudentDto);
-        //}
+        public async Task<Game> UpdateGameAsync(int id, Game game)
+        {
+            game.Id = id;
+            MessageReply reply = await client.EditAsync(
+                new MessageRequest
+                {
+                    Message = Logic.EncodeGame(game)
+                });
+            bool success = bool.Parse(reply.Message);
+            if (success)
+            {
+                return game;
+            }
+            else
+            {
+                return null;
+            }
+        }
 
-        //public async Task DeleteStudentAsync(Student student)
-        //{
-        //    StudentDto studentDto = MapStudentDomainToDto(student);
-        //    await _studentRepository.DeleteStudentAsync(studentDto);
-        //}
+        public async Task<bool> DeleteGameAsync(int id)
+        {
+            //StudentDto studentDto = MapStudentDomainToDto(student);
+            Game game = await GetGameByIdAsync(id);
+            if (game != null)
+            {
+                MessageReply reply = await client.DeleteAsync(
+                    new MessageRequest
+                    {
+                        Message = Logic.EncodeGame(game)
+                    });
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
         //private StudentDto MapStudentDomainToDto(Student student)
         //{
