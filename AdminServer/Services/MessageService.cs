@@ -78,18 +78,16 @@ namespace AdminServer.Services
         public override Task<PublishReply> Publish(MessageRequest request, ServerCallContext context)
         {
             string message = request.Message;
-            string reply = "";
 
             Game game = Logic.DecodeGame(message);
             Sys.AddGame(game);
 
-            reply = game.Id + "";
 
             //await ReceiveFileAsync(fch, game.Id + ".jpg");
 
             return Task.FromResult(new PublishReply
             {
-                Id = reply,
+                Id = game.Id,
                 Title = game.Title
             });
         }
@@ -120,6 +118,17 @@ namespace AdminServer.Services
         public override Task<MessageReply> List(MessageRequest request, ServerCallContext context)
         {
             List<Game> list = Sys.GetGames();
+            string reply = Logic.EncodeListGames(list);
+            //await SendMessageAsync(fch, Logic.EncodeListGames(list));
+
+            return Task.FromResult(new MessageReply
+            {
+                Message = reply
+            });
+        }
+        public override Task<MessageReply> ListPaged(PagedListRequest request, ServerCallContext context)
+        {
+            List<Game> list = Sys.GetGames(request.Page, request.PageSize);
             string reply = Logic.EncodeListGames(list);
             //await SendMessageAsync(fch, Logic.EncodeListGames(list));
 
@@ -252,6 +261,20 @@ namespace AdminServer.Services
             Sys.DeleteClient(request.Message);
             string reply = "";
 
+            return Task.FromResult(new MessageReply
+            {
+                Message = reply
+            });
+        }
+
+        public override Task<MessageReply> GetGameById(MessageRequest request, ServerCallContext context)
+        {
+            Game game = Sys.GetGame(int.Parse(request.Message));
+            string reply = "";
+            if (game != null)
+            {
+                reply = Logic.EncodeGame(game);
+            }
             return Task.FromResult(new MessageReply
             {
                 Message = reply

@@ -1,20 +1,26 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AdminServer;
 using Domain;
 using Domain.Helpers;
 using Domain.Responses;
+using Grpc.Net.Client;
 using WebApi.Interfaces;
+using static AdminServer.MessageExchanger;
 
 namespace WebApi.Services
 {
     public class GameService : IGameService
     {
         //private readonly IStudentRepository _studentRepository;
+        private readonly MessageExchangerClient client;
 
         public GameService(/*IStudentRepository studentRepository*/)
         {
             //_studentRepository = studentRepository;
+            GrpcChannel channel = GrpcChannel.ForAddress("https://localhost:5001"); //TODO: move to ServerConfig.json
+            client = new MessageExchangerClient(channel);
         }
 
 
@@ -25,59 +31,48 @@ namespace WebApi.Services
             return Sys.GetGames();
         }
 
-        public PaginatedResponse<Game> GetGames(int page, int pageSize)
+        public async Task<PaginatedResponse<Game>> GetGames(int page, int pageSize)
         {
             if (page <= 0 || pageSize <= 0)
             {
                 return null;
             }
 
-            //int totalStudents = await _studentRepository.GetTotalStudentsAsync();
-            int totalGames = Sys.Games.Count;
-            if (totalGames > 0)
-            {
-                //IEnumerable<StudentDto> repoStudents = await _studentRepository.GetStudentsAsync(page, pageSize);
-                //if (repoStudents == null || !repoStudents.Any())
-                //{
-                //    return null;
-                //}
-
-                //var students = new List<Student>();
-                //foreach (var studentDto in repoStudents)
-                //{
-                //    students.Add(MapStudentDtoToDomain(studentDto));
-                //}
-
-                //return PaginationHelper<Student>.GeneratePaginatedResponse(pageSize, totalGames, students);
-                List<Game> games = Sys.GetGames(page, pageSize);
-                return PaginationHelper<Game>.GeneratePaginatedResponse(pageSize, totalGames, games);
-            }
-
-            return null;
+            MessageReply reply = await client.ListPagedAsync(
+                new PagedListRequest
+                {
+                    Page = page,
+                    PageSize = pageSize
+                });
+            List<Game> games = Logic.DecodeListGames(reply.Message);
+            int totalGames = games.Count;
+            return PaginationHelper<Game>.GeneratePaginatedResponse(pageSize, totalGames, games);
         }
 
-        public Game GetGameById(int id)
+        public async Task<Game> GetGameById(int id)
         {
-            return Sys.GetGame(id);
+            MessageReply reply = await client.GetGameByIdAsync(
+                new MessageRequest
+                {
+                    Message = id.ToString()
+                });
+            Game game = null;
+            if (!string.IsNullOrEmpty(reply.Message))
+            {
+                game = Logic.DecodeGame(reply.Message);
+            }
+            return game;
         }
-
-        //public async Task<Student> GetStudentByIdAsync(int id)
-        //{
-        //    StudentDto studentDto = await _studentRepository.GetStudentByIdAsync(id);
-        //    if (studentDto != null)
-        //    {
-        //        return MapStudentDtoToDomain(studentDto);
-        //    }
-
-        //    return null;
-        //}
-
-        //public async Task<Student> SaveStudentAsync(Student student)
-        //{
-        //    StudentDto studentDto = MapStudentDomainToDto(student);
-        //    var responseStudentDto = await _studentRepository.SaveStudentAsync(studentDto);
-        //    return MapStudentDtoToDomain(responseStudentDto);
-        //}
+        public async Task<Game> PublishGameAsync(Game game)
+        {
+            PublishReply reply = await client.PublishAsync(
+                new MessageRequest
+                {
+                    Message = Logic.EncodeGame(game)
+                });
+            game.Id = reply.Id;
+            return game;
+        }
 
         //public async Task<Student> UpdateStudentAsync(Student student)
         //{

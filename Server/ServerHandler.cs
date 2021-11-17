@@ -18,7 +18,7 @@ namespace Server
     {
         private readonly TcpListener tcpListener;
         private readonly IPEndPoint _serverIpEndPoint;
-        MessageExchangerClient client;
+        private readonly MessageExchangerClient client;
 
         private string ServerPosterFolder;
         private int ServerPort;
@@ -34,25 +34,12 @@ namespace Server
 
             serverRunning = true;
             clients = new Dictionary<TcpClient, string>();
-            GrpcSetup();
-            Task.Run(async () => await AcceptClientsAsync());
-        }
-        private void GrpcSetup()
-        {
+
             GrpcChannel channel = GrpcChannel.ForAddress("https://localhost:5001"); //TODO: move to ServerConfig.json
             client = new MessageExchangerClient(channel);
-            //while (true)
-            //{
-            //    string input = Console.ReadLine();
-            //    HelloReply response = await client.SayHelloAsync(
-            //        new HelloRequest
-            //        {
-            //            Name = input
-            //        });
-            //    Console.WriteLine(response.Message);
-            //}
-        }
 
+            Task.Run(async () => await AcceptClientsAsync());
+        }
         private void ReadJson()
         {
             string filepath = "ServerConfig.json";
@@ -141,7 +128,7 @@ namespace Server
             else if (action.Equals(ETransferType.Publish.ToString()))
             {
                 PublishReply reply = await PublishAsync(message);
-                string gameId = reply.Id;
+                int gameId = reply.Id;
                 string gameTitle = reply.Title;
 
                 await ReceiveFileAsync(fch, gameId + ".jpg");
@@ -151,7 +138,7 @@ namespace Server
                 MessageReply fileReply = await client.ReceiveFileAsync(
                     new FileExchange
                     {
-                        FileName = gameId,
+                        FileName = gameId.ToString(),
                         FileData = Google.Protobuf.ByteString.CopyFrom(fileData)
                     });
                 string RpcFileReply = fileReply.Message;

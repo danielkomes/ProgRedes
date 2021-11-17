@@ -28,14 +28,12 @@ service MessageExchanger {
 	rpc RemoveAllGamesFromClient (MessageRequest) returns (MessageReply);
 	rpc DeleteClient(MessageRequest) returns (MessageReply);
 
+	rpc ListPaged(PagedListRequest) returns (MessageReply);
+	rpc GetGameById(MessageRequest) returns (MessageReply);
 }
 
 message MessageRequest{
 	string message = 1;
-}
-message RemoveGameFromClientRequest{
-	string username = 1;
-	int32 gameId = 2;
 }
 message MessageReply {
 	string message = 1;
@@ -47,6 +45,15 @@ message FileExchange {
 	bytes fileData = 3;
 }
 message PublishReply {
-	string id = 1;
+	int32 id = 1;
 	string title = 2;
+}
+
+message RemoveGameFromClientRequest{
+	string username = 1;
+	int32 gameId = 2;
+}
+message PagedListRequest{
+	int32 page = 1;
+	int32 pageSize = 2;
 }

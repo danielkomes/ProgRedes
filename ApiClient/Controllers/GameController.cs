@@ -28,15 +28,15 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public ActionResult<WebPaginatedResponse<Game>> GetGamesAsync(int page = 1, int pageSize = 15)
+        public async Task<ActionResult<WebPaginatedResponse<Game>>> GetGamesAsync(int page = 1, int pageSize = 15)
         {
             if (page <= 0 || pageSize <= 0)
             {
                 return BadRequest();
             }
-            PaginatedResponse<Game> studentsPaginatedResponse =
-                gameService.GetGames(page, pageSize);
-            if (studentsPaginatedResponse == null)
+            PaginatedResponse<Game> gamesPaginatedResponse =
+                await gameService.GetGames(page, pageSize);
+            if (gamesPaginatedResponse == null)
             {
                 return NoContent();
             }
@@ -44,29 +44,28 @@ namespace WebApi.Controllers
             string route = httpContextAccessor.HttpContext.Request.Host.Value +
                            httpContextAccessor.HttpContext.Request.Path;
             WebPaginatedResponse<Game> response =
-                WebPaginationHelper<Game>.GenerateWebPaginatedResponse(studentsPaginatedResponse, page, pageSize, route);
+                WebPaginationHelper<Game>.GenerateWebPaginatedResponse(gamesPaginatedResponse, page, pageSize, route);
 
             return Ok(response);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Game> GetGameById(int id)
+        public async Task<ActionResult<Game>> GetGameById(int id)
         {
-            Game game = Sys.GetGame(id);
+            Game game = await gameService.GetGameById(id);
             if (game != null)
             {
                 return Ok(game);
             }
-
             return NotFound();
         }
 
-        //[HttpPost]
-        //public async Task<ActionResult<Student>> SaveStudentAsync(Student student)
-        //{
-        //    var responseStudent = await _studentService.SaveStudentAsync(student);
-        //    return new CreatedResult(string.Empty, responseStudent);
-        //}
+        [HttpPost]
+        public async Task<ActionResult<Game>> PublishGameAsync(Game game)
+        {
+            var responseGame = await gameService.PublishGameAsync(game);
+            return new CreatedResult(string.Empty, responseGame);
+        }
 
         //[HttpPut]
         //public async Task<ActionResult<Student>> UpdateStudentAsync(Student student)

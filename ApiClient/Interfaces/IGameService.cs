@@ -9,10 +9,10 @@ namespace WebApi.Interfaces
     public interface IGameService
     {
         IEnumerable<Game> GetGames();
-        PaginatedResponse<Game> GetGames(int page, int pageSize);
-        Game GetGameById(int id);
-        //Game SaveGameAsync(Game game);
-        //Game UpdateGameAsync(Game game);
-        //void DeleteGameAsync(Game game);
+        Task<PaginatedResponse<Game>> GetGames(int page, int pageSize);
+        Task<Game> GetGameById(int id);
+        Task<Game> PublishGameAsync(Game game);
+        //Task<Game> UpdateGameAsync(Game game);
+        //Task DeleteGameAsync(Game game);
     }
 }

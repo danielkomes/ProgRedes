@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Domain
 {
@@ -33,8 +34,8 @@ namespace Domain
                 {
                     int count = Games.Count;
                     int start = page * pageSize - pageSize;
-                    int end = start + pageSize;
-                    if (start >= 0 && start < Games.Count && end < Games.Count)
+                    int end = Math.Min(start + pageSize, Games.Count);
+                    if (start >= 0 && start < Games.Count)
                     {
                         for (int i = start; i < end; i++)
                         {
@@ -42,7 +43,7 @@ namespace Domain
                         }
                     }
                 }
-                return Games;
+                return ret;
             }
         }
         public static Game GetGame(int id)
