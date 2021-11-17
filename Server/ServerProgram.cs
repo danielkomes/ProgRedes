@@ -1,13 +1,14 @@
 ﻿using Domain;
+using System.Threading.Tasks;
 
 namespace Server
 {
     class ServerProgram
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             ServerHandler sh = new ServerHandler();
-            new ServerConsole(sh);
+            await ServerConsole.ServerConsoleAsync(sh);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using Domain;
+using System.Threading.Tasks;
 
 namespace Client
 {

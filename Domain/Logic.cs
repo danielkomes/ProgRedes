@@ -188,21 +188,42 @@ namespace Domain
             return ret;
         }
 
-        public static string ListClients(List<Client> list)
+        public static string ListClients(List<string> list)
         {
             string ret = "";
             int index = indexStart;
-            foreach (Client c in list)
+            foreach (string c in list)
             {
-                ret += "\r\n" + index + " " + c.Username;
+                ret += "\r\n" + index + " " + c;
+                index++;
+            }
+            return ret;
+        }
+        public static string EncodeListClients(List<Client> list)
+        {
+            string ret = "";
+            foreach (Client client in list)
+            {
+                ret += string.Format(",{0}", client.Username);
+            }
+            ret = ret.Substring(1);
+            return ret;
+        }
+        public static List<string> DecodeListClients(string s)
+        {
+            List<string> ret = new List<string>();
+            string[] arr = s.Split(",");
+            foreach(string client in arr)
+            {
+                ret.Add(client);
             }
             return ret;
         }
 
-        public static Client GetClientByIndex(int input, List<Client> list)
+        public static string GetClientByIndex(int input, List<string> list)
         {
             int index = input - indexStart;
-            Client ret = null;
+            string ret = null;
             if (index >= 0 && index < list.Count)
             {
                 ret = list[index];

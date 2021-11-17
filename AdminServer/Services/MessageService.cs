@@ -10,7 +10,7 @@ namespace AdminServer.Services
 {
     public class MessageService : MessageExchanger.MessageExchangerBase
     {
-
+        private const string POSTERS = "bin/Debug/netcoreapp3.1/Posters/";
         public override Task<MessageReply> Login(MessageRequest request, ServerCallContext context)
         {
             string message = request.Message;
@@ -99,8 +99,15 @@ namespace AdminServer.Services
             byte[] fileData = request.FileData.ToByteArray();
             string reply = "";
 
-            await using FileStream fileStream = new FileStream("Posters/" + fileName + ".jpg", FileMode.Create);
-            await fileStream.WriteAsync(fileData, 0, fileData.Length);
+            try
+            {
+                await using FileStream fileStream = new FileStream(POSTERS + fileName + ".jpg", FileMode.Create);
+                await fileStream.WriteAsync(fileData, 0, fileData.Length);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+            }
 
             //await ReceiveFileAsync(fch, game.Id + ".jpg");
 
@@ -185,7 +192,7 @@ namespace AdminServer.Services
 
             Game game = Logic.DecodeGame(message);
             int gameId = game.Id;
-            byte[] fileData = await File.ReadAllBytesAsync("Posters/" + gameId + ".jpg");
+            byte[] fileData = await File.ReadAllBytesAsync(POSTERS + gameId + ".jpg");
             //await SendFile(fch, ServerPosterFolder + id + ".jpg", game.Title + ".jpg");
 
             return await Task.FromResult(new FileExchange
@@ -207,6 +214,47 @@ namespace AdminServer.Services
             return Task.FromResult(new MessageReply
             {
                 Message = response.ToString()
+            });
+        }
+
+        public override Task<MessageReply> ListClients(MessageRequest request, ServerCallContext context)
+        {
+            List<Client> list = Sys.GetClients();
+            string reply = Logic.EncodeListClients(list);
+
+            return Task.FromResult(new MessageReply
+            {
+                Message = reply
+            });
+        }
+        public override Task<MessageReply> RemoveGameFromClient(RemoveGameFromClientRequest request, ServerCallContext context)
+        {
+            Sys.RemoveGameFromClient(request.Username, request.GameId);
+            string reply = "";
+
+            return Task.FromResult(new MessageReply
+            {
+                Message = reply
+            });
+        }
+        public override Task<MessageReply> RemoveAllGamesFromClient(MessageRequest request, ServerCallContext context)
+        {
+            Sys.RemoveAllGamesFromClient(request.Message);
+            string reply = "";
+
+            return Task.FromResult(new MessageReply
+            {
+                Message = reply
+            });
+        }
+        public override Task<MessageReply> DeleteClient(MessageRequest request, ServerCallContext context)
+        {
+            Sys.DeleteClient(request.Message);
+            string reply = "";
+
+            return Task.FromResult(new MessageReply
+            {
+                Message = reply
             });
         }
     }

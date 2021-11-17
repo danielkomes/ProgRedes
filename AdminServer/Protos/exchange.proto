@@ -21,10 +21,21 @@ service MessageExchanger {
 	rpc Download (MessageRequest) returns (FileExchange);
 
 	rpc BuyGame (MessageRequest) returns (MessageReply);
+	rpc ListClients (MessageRequest) returns (MessageReply);
+
+	rpc RemoveGameFromClient (RemoveGameFromClientRequest) returns (MessageReply);
+
+	rpc RemoveAllGamesFromClient (MessageRequest) returns (MessageReply);
+	rpc DeleteClient(MessageRequest) returns (MessageReply);
+
 }
 
 message MessageRequest{
 	string message = 1;
+}
+message RemoveGameFromClientRequest{
+	string username = 1;
+	int32 gameId = 2;
 }
 message MessageReply {
 	string message = 1;

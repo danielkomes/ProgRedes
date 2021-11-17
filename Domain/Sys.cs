@@ -24,11 +24,43 @@ namespace Domain
                 return Games;
             }
         }
+        public static List<Game> GetGames(int page, int pageSize)
+        {
+            lock (gamesLocker)
+            {
+                List<Game> ret = new List<Game>();
+                if (pageSize > 0 && page > 0)
+                {
+                    int count = Games.Count;
+                    int start = page * pageSize - pageSize;
+                    int end = start + pageSize;
+                    if (start >= 0 && start < Games.Count && end < Games.Count)
+                    {
+                        for (int i = start; i < end; i++)
+                        {
+                            ret.Add(Games[i]);
+                        }
+                    }
+                }
+                return Games;
+            }
+        }
+        public static Game GetGame(int id)
+        {
+            return Games.Find(g => g.Id == id);
+        }
         public static Client GetClient(string username)
         {
             lock (clientsLocker)
             {
                 return Clients.Find(c => c.Username.Equals(username));
+            }
+        }
+        public static List<Client> GetClients()
+        {
+            lock (clientsLocker)
+            {
+                return Clients;
             }
         }
         public static bool AddClient(string username)

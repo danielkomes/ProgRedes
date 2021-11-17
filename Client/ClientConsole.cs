@@ -265,6 +265,7 @@ namespace Client
                     GameToPublish.Genre = EGenre.Action;
                     GameToPublish.AgeRating = 999;
                     GameToPublish.Description = "TEST DESCRIPTION";
+                    GameToPublish.Poster = "C:\\Users\\danie\\Pictures\\Warframe\\Warframe0002.jpg";
                 }
                 else
                 {

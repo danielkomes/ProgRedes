@@ -17,7 +17,11 @@ namespace AdminServer
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddGrpc();
+            services.AddGrpc(options =>
+            {
+                options.MaxReceiveMessageSize = null; // 2 GB
+                options.MaxSendMessageSize = null; // 5 MB
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

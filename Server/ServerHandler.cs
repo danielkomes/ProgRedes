@@ -92,26 +92,16 @@ namespace Server
                 {
                     string msg = await fch.ReceiveMessageAsync();
 
-                    //MessageReply reply = await client.ExchangeMessageAsync(
-                    //    new MessageRequest
-                    //    {
-                    //        Message = msg
-                    //    });
-                    //string RpcResponse = reply.Message;
-                    //Console.WriteLine("ADMIN: " + RcpResponse);
-                    //if (RpcResponse.Equals(Logic.GameSeparator))
-                    //{
-                    //    //await SendMessageAsync(fch, "");
-                    //}
-                    //else
-                    //{
-                    //    await SendMessageAsync(fch, RcpResponse);
-                    //}
                     loop = await ProcessMessageAsync(tcpClient, fch, msg);
                 }
                 catch (Exception)
                 {
                     //tcpClient.GetStream().Close();
+                    MessageReply reply = await client.LogoffAsync(
+                        new MessageRequest
+                        {
+                            Message = clients[tcpClient]
+                        });
                     clients.Remove(tcpClient);
                     Console.WriteLine("Client disconnected. Total: " + clients.Count);
                     loop = false;
@@ -125,11 +115,7 @@ namespace Server
             bool ret = true;
             if (action.Equals(ETransferType.Login.ToString()))
             {
-                MessageReply reply = await client.LoginAsync(
-                    new MessageRequest
-                    {
-                        Message = message
-                    });
+                MessageReply reply = await LoginAsync(message);
                 string RpcReply = reply.Message;
                 if (bool.Parse(RpcReply))
                 {
@@ -139,11 +125,7 @@ namespace Server
             }
             else if (action.Equals(ETransferType.Signup.ToString()))
             {
-                MessageReply reply = await client.SignupAsync(
-                    new MessageRequest
-                    {
-                        Message = message
-                    });
+                MessageReply reply = await SignupAsync(message);
                 string RpcReply = reply.Message;
                 if (bool.Parse(RpcReply))
                 {
@@ -153,20 +135,12 @@ namespace Server
             }
             else if (action.Equals(ETransferType.Logoff.ToString()))
             {
-                MessageReply reply = await client.LogoffAsync(
-                    new MessageRequest
-                    {
-                        Message = message
-                    });
+                MessageReply reply = await LogoffAsync(message);
                 string RpcReply = reply.Message;
             }
             else if (action.Equals(ETransferType.Publish.ToString()))
             {
-                PublishReply reply = await client.PublishAsync(
-                    new MessageRequest
-                    {
-                        Message = message
-                    });
+                PublishReply reply = await PublishAsync(message);
                 string gameId = reply.Id;
                 string gameTitle = reply.Title;
 
@@ -184,59 +158,35 @@ namespace Server
             }
             else if (action.Equals(ETransferType.List.ToString()))
             {
-                MessageReply reply = await client.ListAsync(
-                    new MessageRequest
-                    {
-                        Message = message
-                    });
+                MessageReply reply = await ListAsync(message);
                 string RpcReply = reply.Message;
                 //    List<Game> list = Sys.GetGames();
                 await SendMessageAsync(fch, RpcReply);
             }
             else if (action.Equals(ETransferType.Owned.ToString()))
             {
-                MessageReply reply = await client.OwnedAsync(
-                    new MessageRequest
-                    {
-                        Message = message
-                    });
+                MessageReply reply = await OwnedAsync(message);
                 string RpcReply = reply.Message;
                 await SendMessageAsync(fch, RpcReply);
             }
             else if (action.Equals(ETransferType.Edit.ToString()))
             {
-                MessageReply reply = await client.EditAsync(
-                    new MessageRequest
-                    {
-                        Message = message
-                    });
+                MessageReply reply = await EditAsync(message);
                 string RpcReply = reply.Message;
             }
             else if (action.Equals(ETransferType.Delete.ToString()))
             {
-                MessageReply reply = await client.DeleteAsync(
-                    new MessageRequest
-                    {
-                        Message = message
-                    });
+                MessageReply reply = await DeleteAsync(message);
                 string RpcReply = reply.Message;
             }
             else if (action.Equals(ETransferType.Review.ToString()))
             {
-                MessageReply reply = await client.ReviewAsync(
-                    new MessageRequest
-                    {
-                        Message = message
-                    });
+                MessageReply reply = await ReviewAsync(message);
                 string RpcReply = reply.Message;
             }
             else if (action.Equals(ETransferType.Download.ToString()))
             {
-                FileExchange reply = await client.DownloadAsync(
-                    new MessageRequest
-                    {
-                        Message = message
-                    });
+                FileExchange reply = await DownloadAsync(message);
                 string fileId = reply.FileId;
                 string fileName = reply.FileName;
                 byte[] fileData = reply.FileData.ToByteArray();
@@ -245,11 +195,7 @@ namespace Server
             }
             else if (action.Equals(ETransferType.BuyGame.ToString()))
             {
-                MessageReply reply = await client.BuyGameAsync(
-                    new MessageRequest
-                    {
-                        Message = message
-                    });
+                MessageReply reply = await BuyGameAsync(message);
                 string RpcReply = reply.Message;
                 await SendMessageAsync(fch, RpcReply);
             }
@@ -262,6 +208,145 @@ namespace Server
             }
             return ret;
         }
+
+        public async Task<MessageReply> LoginAsync(string message)
+        {
+            MessageReply reply = await client.LoginAsync(
+                new MessageRequest
+                {
+                    Message = message
+                });
+            return reply;
+        }
+        public async Task<MessageReply> SignupAsync(string message)
+        {
+            MessageReply reply = await client.SignupAsync(
+                new MessageRequest
+                {
+                    Message = message
+                });
+            return reply;
+        }
+        public async Task<MessageReply> LogoffAsync(string message)
+        {
+            MessageReply reply = await client.LogoffAsync(
+                new MessageRequest
+                {
+                    Message = message
+                });
+            return reply;
+        }
+        public async Task<PublishReply> PublishAsync(string message)
+        {
+            PublishReply reply = await client.PublishAsync(
+                new MessageRequest
+                {
+                    Message = message
+                });
+            return reply;
+        }
+        public async Task<MessageReply> ListAsync(string message)
+        {
+            MessageReply reply = await client.ListAsync(
+                new MessageRequest
+                {
+                    Message = message
+                });
+            return reply;
+        }
+        public async Task<MessageReply> OwnedAsync(string message)
+        {
+            MessageReply reply = await client.OwnedAsync(
+                new MessageRequest
+                {
+                    Message = message
+                });
+            return reply;
+        }
+        public async Task<MessageReply> EditAsync(string message)
+        {
+            MessageReply reply = await client.EditAsync(
+                new MessageRequest
+                {
+                    Message = message
+                });
+            return reply;
+        }
+        public async Task<MessageReply> DeleteAsync(string message)
+        {
+            MessageReply reply = await client.DeleteAsync(
+                new MessageRequest
+                {
+                    Message = message
+                });
+            return reply;
+        }
+        public async Task<MessageReply> ReviewAsync(string message)
+        {
+            MessageReply reply = await client.ReviewAsync(
+                new MessageRequest
+                {
+                    Message = message
+                });
+            return reply;
+        }
+        public async Task<FileExchange> DownloadAsync(string message)
+        {
+            FileExchange reply = await client.DownloadAsync(
+                new MessageRequest
+                {
+                    Message = message
+                });
+            return reply;
+        }
+        public async Task<MessageReply> BuyGameAsync(string message)
+        {
+            MessageReply reply = await client.BuyGameAsync(
+                new MessageRequest
+                {
+                    Message = message
+                });
+            return reply;
+        }
+
+        public async Task<MessageReply> ListClientsAsync(string message)
+        {
+            MessageReply reply = await client.ListClientsAsync(
+                new MessageRequest
+                {
+                    Message = message
+                });
+            return reply;
+        }
+        public async Task<MessageReply> RemoveGameFromClientAsync(string username, int gameId)
+        {
+            MessageReply reply = await client.RemoveGameFromClientAsync(
+                new RemoveGameFromClientRequest
+                {
+                    Username = username,
+                    GameId = gameId
+                });
+            return reply;
+        }
+        public async Task<MessageReply> RemoveAllGamesFromClientAsync(string message)
+        {
+            MessageReply reply = await client.RemoveAllGamesFromClientAsync(
+                new MessageRequest
+                {
+                    Message = message
+                });
+            return reply;
+        }
+        public async Task<MessageReply> DeleteClientAsync(string message)
+        {
+            MessageReply reply = await client.DeleteClientAsync(
+                new MessageRequest
+                {
+                    Message = message
+                });
+            return reply;
+        }
+
         public async Task ReceiveFileAsync(FileCommunicationHandler fch, string newName)
         {
             await fch.ReceiveFileAsync(ServerPosterFolder, newName);
@@ -274,11 +359,11 @@ namespace Server
         {
             await fch.SendMessageAsync(message);
         }
-        public void KickClient(Client client)
+        public void KickClient(string client)
         {
             foreach (var c in clients)
             {
-                if (c.Value.Equals(client.Username))
+                if (c.Value.Equals(client))
                 {
                     c.Key.GetStream().Close();
                     //clients.Remove(c.Key);
