@@ -94,7 +94,7 @@ namespace Server
 
                     loop = await ProcessMessageAsync(tcpClient, fch, msg);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     //tcpClient.GetStream().Close();
                     MessageReply reply = await client.LogoffAsync(

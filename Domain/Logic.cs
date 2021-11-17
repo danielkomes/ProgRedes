@@ -15,8 +15,9 @@ namespace Domain
         {
         }
 
-        public static void TestGames()
+        public static List<Game> TestGames()
         {
+            List<Game> ret = new List<Game>();
             Game batman = new Game
             {
                 Title = "Batman",
@@ -25,7 +26,7 @@ namespace Domain
                 Description = "mentally unstable man dresses up at nights, beats up people into near comma state, lets other people die in his quest to never kill anyone",
                 Poster = "batman poster"
             };
-            Sys.AddGame(batman);
+            ret.Add(batman);
             Game warframe = new Game
             {
                 Title = "Warframe",
@@ -34,7 +35,7 @@ namespace Domain
                 Description = "children with ninja complex with dysfunctional family find another dysfunctional family, fix it and get adopted by them, and then try to kill their original family",
                 Poster = "warframe poster"
             };
-            Sys.AddGame(warframe);
+            ret.Add(warframe);
 
             Game mario = new Game
             {
@@ -44,7 +45,7 @@ namespace Domain
                 Description = "plumber with dead carreer almost gets killed, is saved by alien who then helps him overtake the mind of creatures against their will, all to get a girl",
                 Poster = "mario poster"
             };
-            Sys.AddGame(mario);
+            ret.Add(mario);
             Game kirby = new Game
             {
                 Title = "Kirby",
@@ -53,7 +54,7 @@ namespace Domain
                 Description = "amorphous god lands on planet and then eats its inhabitants whole",
                 Poster = "kirby poster"
             };
-            Sys.AddGame(kirby);
+            ret.Add(kirby);
 
             Game bubsy = new Game
             {
@@ -63,7 +64,7 @@ namespace Domain
                 Description = "mutant feline-flying squirrel trying too hard to be funny gets teleported to different universes (i guess?) where almost every mundane thing is deadly",
                 Poster = "bubsy poster"
             };
-            Sys.AddGame(bubsy);
+            ret.Add(bubsy);
             Game amnesia = new Game
             {
                 Title = "Amnesia",
@@ -72,7 +73,7 @@ namespace Domain
                 Description = "i can't remember",
                 Poster = "amnesia poster"
             };
-            Sys.AddGame(amnesia);
+            ret.Add(amnesia);
 
             Game minecraft = new Game
             {
@@ -82,7 +83,7 @@ namespace Domain
                 Description = "alien humanoids appear in a world and proceed to exhaust natural resources and ravage the land, and then kill the last member of a protected species",
                 Poster = "minecraft poster"
             };
-            Sys.AddGame(minecraft);
+            ret.Add(minecraft);
             Game terraria = new Game
             {
                 Title = "Terraria",
@@ -91,7 +92,7 @@ namespace Domain
                 Description = "minecraft but 2d and more fun and less feelings of regret",
                 Poster = "terraria poster"
             };
-            Sys.AddGame(terraria);
+            ret.Add(terraria);
 
             Game gta = new Game
             {
@@ -101,7 +102,7 @@ namespace Domain
                 Description = "2 psychopaths with plot armor ruin even more a young black man's future",
                 Poster = "gta poster"
             };
-            Sys.AddGame(gta);
+            ret.Add(gta);
             Game tera = new Game
             {
                 Title = "Tera",
@@ -110,7 +111,17 @@ namespace Domain
                 Description = "experience getting catfished by men playing as girls in unnecesarily revealing outfits at 20fps because your gpu is busy calculating all the 'jiggle' physics",
                 Poster = "tera poster"
             };
-            Sys.AddGame(tera);
+            ret.Add(tera);
+            return ret;
+        }
+        public static List<string> TestGamesEncoded()
+        {
+            List<string> ret = new List<string>();
+            foreach(Game game in TestGames())
+            {
+                ret.Add(EncodeGame(game));
+            }
+            return ret;
         }
 
         public static List<Game> FilterByTitle(List<Game> list, string title)

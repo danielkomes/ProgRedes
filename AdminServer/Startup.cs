@@ -19,8 +19,8 @@ namespace AdminServer
         {
             services.AddGrpc(options =>
             {
-                options.MaxReceiveMessageSize = null; // 2 GB
-                options.MaxSendMessageSize = null; // 5 MB
+                options.MaxReceiveMessageSize = null;
+                options.MaxSendMessageSize = null;
             });
         }
 

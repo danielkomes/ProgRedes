@@ -14,12 +14,15 @@ namespace Server
 
         private ServerConsole(ServerHandler sh)
         {
-            Logic.TestGames();
             this.sh = sh;
         }
         public static async Task ServerConsoleAsync(ServerHandler sh)
         {
             ServerConsole sc = new ServerConsole(sh);
+            foreach (string game in Logic.TestGamesEncoded())
+            {
+                await sh.PublishAsync(game);
+            }
             await sc.Menu0();
         }
         private async Task Menu0()
