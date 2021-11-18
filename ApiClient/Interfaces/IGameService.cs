@@ -15,5 +15,6 @@ namespace WebApi.Interfaces
         Task<Game> UpdateGameAsync(int id, Game game);
         Task<bool> DeleteGameAsync(int id);
         Task<PaginatedResponse<Review>> GetReviews(int id, int page, int pageSize);
+        Task<Review> ReviewGameAsync(int id, Review review);
     }
 }

@@ -182,7 +182,7 @@ namespace Domain
                 return false;
             }
         }
-        public static void AddReview(int id, Review review)
+        public static bool AddReview(int id, Review review)
         {
             lock (gamesLocker)
             {
@@ -190,7 +190,9 @@ namespace Domain
                 if (g != null)
                 {
                     g.Reviews.Add(review);
+                    return true;
                 }
+                return false;
             }
         }
     }

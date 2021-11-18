@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AdminServer;
@@ -133,6 +134,15 @@ namespace WebApi.Services
                 return null;
             }
             return PaginationHelper<Review>.GeneratePaginatedResponse(pageSize, totalReviews, reviews);
+        }
+        public async Task<Review> ReviewGameAsync(int id, Review review)
+        {
+            MessageReply reply = await client.ReviewAsync(
+                new MessageRequest
+                {
+                    Message = id + Logic.GameTransferSeparator + Logic.EncodeReview(review)
+                });
+            return review;
         }
 
     }

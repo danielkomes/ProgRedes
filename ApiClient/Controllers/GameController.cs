@@ -64,7 +64,7 @@ namespace WebApi.Controllers
         public async Task<ActionResult<Game>> PublishGameAsync(Game game)
         {
             Game responseGame = await gameService.PublishGameAsync(game);
-            return new CreatedResult(string.Empty, responseGame);
+            return new CreatedResult(responseGame.Id.ToString(), responseGame);
         }
 
         [HttpPut("{id}")]
@@ -114,6 +114,12 @@ namespace WebApi.Controllers
                 WebPaginationHelper<Review>.GenerateWebPaginatedResponse(reviewsPaginatedResponse, page, pageSize, route);
 
             return Ok(response);
+        }
+        [HttpPost("{id}/reviews")]
+        public async Task<ActionResult<Game>> PublishReviewAsync(int id, Review review)
+        {
+            Review responseReview = await gameService.ReviewGameAsync(id, review);
+            return new CreatedResult(id+"/reviews", responseReview);
         }
     }
 }
