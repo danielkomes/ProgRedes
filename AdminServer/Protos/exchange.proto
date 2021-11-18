@@ -28,8 +28,9 @@ service MessageExchanger {
 	rpc RemoveAllGamesFromClient (MessageRequest) returns (MessageReply);
 	rpc DeleteClient(MessageRequest) returns (MessageReply);
 
-	rpc ListPaged(PagedListRequest) returns (MessageReply);
+	rpc ListPaged(PagedListRequest) returns (PagedListReply);
 	rpc GetGameById(MessageRequest) returns (MessageReply);
+	rpc ReviewsPaged(PagedListRequest) returns (PagedListReply);
 }
 
 message MessageRequest{
@@ -56,4 +57,9 @@ message RemoveGameFromClientRequest{
 message PagedListRequest{
 	int32 page = 1;
 	int32 pageSize = 2;
+	int32 id = 3;
+}
+message PagedListReply{
+	string list = 1;
+	int32 totalCount = 2;
 }

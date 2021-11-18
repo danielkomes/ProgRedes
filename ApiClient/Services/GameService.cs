@@ -38,14 +38,14 @@ namespace WebApi.Services
                 return null;
             }
 
-            MessageReply reply = await client.ListPagedAsync(
+            PagedListReply reply = await client.ListPagedAsync(
                 new PagedListRequest
                 {
                     Page = page,
                     PageSize = pageSize
                 });
-            List<Game> games = Logic.DecodeListGames(reply.Message);
-            int totalGames = games.Count;
+            List<Game> games = Logic.DecodeListGames(reply.List);
+            int totalGames = reply.TotalCount;
             return PaginationHelper<Game>.GeneratePaginatedResponse(pageSize, totalGames, games);
         }
 
@@ -112,24 +112,28 @@ namespace WebApi.Services
             }
         }
 
-        //private StudentDto MapStudentDomainToDto(Student student)
-        //{
-        //    return new StudentDto
-        //    {
-        //        Email = student.Email,
-        //        Id = student.Id,
-        //        Name = student.Name
-        //    };
-        //}
+        public async Task<PaginatedResponse<Review>> GetReviews(int id, int page, int pageSize)
+        {
+            if (page <= 0 || pageSize <= 0)
+            {
+                return null;
+            }
 
-        //private Student MapStudentDtoToDomain(StudentDto studentDto)
-        //{
-        //    return new Student
-        //    {
-        //        Email = studentDto.Email,
-        //        Id = studentDto.Id,
-        //        Name = studentDto.Name
-        //    };
-        //}
+            PagedListReply reply = await client.ReviewsPagedAsync(
+                new PagedListRequest
+                {
+                    Page = page,
+                    PageSize = pageSize,
+                    Id = id
+                });
+            List<Review> reviews = Logic.DecodeReviews(reply.List);
+            int totalReviews = reply.TotalCount;
+            if (totalReviews == 0)
+            {
+                return null;
+            }
+            return PaginationHelper<Review>.GeneratePaginatedResponse(pageSize, totalReviews, reviews);
+        }
+
     }
 }

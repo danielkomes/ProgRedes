@@ -117,7 +117,7 @@ namespace Domain
         public static List<string> TestGamesEncoded()
         {
             List<string> ret = new List<string>();
-            foreach(Game game in TestGames())
+            foreach (Game game in TestGames())
             {
                 ret.Add(EncodeGame(game));
             }
@@ -224,7 +224,7 @@ namespace Domain
         {
             List<string> ret = new List<string>();
             string[] arr = s.Split(",");
-            foreach(string client in arr)
+            foreach (string client in arr)
             {
                 ret.Add(client);
             }
@@ -348,7 +348,7 @@ namespace Domain
             return ret;
         }
 
-        private static List<Review> DecodeReviews(string s)
+        public static List<Review> DecodeReviews(string s)
         {
             List<Review> ret = new List<Review>();
             string[] arr = s.Split(ReviewTransferSeparator);

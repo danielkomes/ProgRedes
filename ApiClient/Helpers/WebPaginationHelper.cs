@@ -20,11 +20,11 @@ namespace WebApi.Helpers
                 CurrentPageNumber = page,
                 CurrentPageUrl = route + PageParameter + page + PageSizeParameter + pageSize,
                 PreviousPageUrl =
-                    page == 1
+                    page <= 1
                         ? string.Empty
                         : route + PageParameter + (page - 1) + PageSizeParameter + pageSize,
                 NextPageUrl =
-                    page == paginatedResponse.TotalPages
+                    page >= paginatedResponse.TotalPages
                         ? string.Empty
                         : route + PageParameter + (page + 1) + PageSizeParameter + pageSize
             };

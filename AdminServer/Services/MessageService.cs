@@ -115,6 +115,7 @@ namespace AdminServer.Services
             });
         }
 
+
         public override Task<MessageReply> List(MessageRequest request, ServerCallContext context)
         {
             List<Game> list = Sys.GetGames();
@@ -126,15 +127,16 @@ namespace AdminServer.Services
                 Message = reply
             });
         }
-        public override Task<MessageReply> ListPaged(PagedListRequest request, ServerCallContext context)
+        public override Task<PagedListReply> ListPaged(PagedListRequest request, ServerCallContext context)
         {
             List<Game> list = Sys.GetGames(request.Page, request.PageSize);
             string reply = Logic.EncodeListGames(list);
             //await SendMessageAsync(fch, Logic.EncodeListGames(list));
 
-            return Task.FromResult(new MessageReply
+            return Task.FromResult(new PagedListReply
             {
-                Message = reply
+                List = reply,
+                TotalCount = Sys.Games.Count
             });
         }
         public override Task<MessageReply> Owned(MessageRequest request, ServerCallContext context)
@@ -154,7 +156,7 @@ namespace AdminServer.Services
             string message = request.Message;
             Game game = Logic.DecodeGame(message);
             string reply = Sys.ReplaceGame(game).ToString();
-            
+
             //await SendMessageAsync(fch, Logic.EncodeListGames(list));
 
             return Task.FromResult(new MessageReply
@@ -192,6 +194,16 @@ namespace AdminServer.Services
             return Task.FromResult(new MessageReply
             {
                 Message = reply
+            });
+        }
+        public override Task<PagedListReply> ReviewsPaged(PagedListRequest request, ServerCallContext context)
+        {
+            List<Review> reviews = Sys.GetReviews(request.Id, request.Page, request.PageSize);
+            string reply = Logic.EncodeReviews(reviews);
+            return Task.FromResult(new PagedListReply
+            {
+                List = reply,
+                TotalCount = Sys.GetGame(request.Id).Reviews.Count
             });
         }
         public override async Task<FileExchange> Download(MessageRequest request, ServerCallContext context)

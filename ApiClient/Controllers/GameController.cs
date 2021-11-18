@@ -94,5 +94,26 @@ namespace WebApi.Controllers
                 return NotFound();
             }
         }
+        [HttpGet("{id}/reviews")]
+        public async Task<ActionResult<WebPaginatedResponse<Game>>> GetReviewsAsync(int id, int page = 1, int pageSize = 15)
+        {
+            if (page <= 0 || pageSize <= 0)
+            {
+                return BadRequest();
+            }
+            PaginatedResponse<Review> reviewsPaginatedResponse =
+                await gameService.GetReviews(id, page, pageSize);
+            if (reviewsPaginatedResponse == null)
+            {
+                return NoContent();
+            }
+
+            string route = httpContextAccessor.HttpContext.Request.Host.Value +
+                           httpContextAccessor.HttpContext.Request.Path;
+            WebPaginatedResponse<Review> response =
+                WebPaginationHelper<Review>.GenerateWebPaginatedResponse(reviewsPaginatedResponse, page, pageSize, route);
+
+            return Ok(response);
+        }
     }
 }

@@ -46,6 +46,28 @@ namespace Domain
                 return ret;
             }
         }
+        public static List<Review> GetReviews(int id, int page, int pageSize)
+        {
+            lock (gamesLocker)
+            {
+                List<Review> ret = new List<Review>();
+                if (pageSize > 0 && page > 0)
+                {
+                    List<Review> list = GetGame(id).Reviews;
+                    int count = list.Count;
+                    int start = page * pageSize - pageSize;
+                    int end = Math.Min(start + pageSize, list.Count);
+                    if (start >= 0 && start < list.Count)
+                    {
+                        for (int i = start; i < end; i++)
+                        {
+                            ret.Add(list[i]);
+                        }
+                    }
+                }
+                return ret;
+            }
+        }
         public static Game GetGame(int id)
         {
             return Games.Find(g => g.Id == id);
@@ -170,7 +192,6 @@ namespace Domain
                     g.Reviews.Add(review);
                 }
             }
-
         }
     }
 }
