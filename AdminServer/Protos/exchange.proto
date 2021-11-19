@@ -35,6 +35,7 @@ service MessageExchanger {
 
 message MessageRequest{
 	string message = 1;
+	string username = 2;
 }
 message MessageReply {
 	string message = 1;

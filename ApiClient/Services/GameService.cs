@@ -20,7 +20,7 @@ namespace WebApi.Services
         public GameService(/*IStudentRepository studentRepository*/)
         {
             //_studentRepository = studentRepository;
-            GrpcChannel channel = GrpcChannel.ForAddress("https://localhost:5001"); //TODO: move to ServerConfig.json
+            GrpcChannel channel = GrpcChannel.ForAddress("https://localhost:4001"); //TODO: move to ServerConfig.json
             client = new MessageExchangerClient(channel);
         }
 

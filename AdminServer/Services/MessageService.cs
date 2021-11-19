@@ -1,5 +1,7 @@
 ﻿using Domain;
 using Grpc.Core;
+using LogServer;
+using RoutedPublisher;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -81,7 +83,15 @@ namespace AdminServer.Services
 
             Game game = Logic.DecodeGame(message);
             Sys.AddGame(game);
-
+            LogEntry log = new LogEntry()
+            {
+                Date = DateTime.Now,
+                Action = ETransferType.Publish,
+                ClientName = request.Username,
+                AGame = game,
+                AReview = null
+            };
+            Logs.Add(log);
 
             //await ReceiveFileAsync(fch, game.Id + ".jpg");
 
