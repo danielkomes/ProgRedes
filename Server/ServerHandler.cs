@@ -127,7 +127,8 @@ namespace Server
             }
             else if (action.Equals(ETransferType.Publish.ToString()))
             {
-                PublishReply reply = await PublishAsync(message);
+                string userName = clients[tcpClient];
+                PublishReply reply = await PublishAsync(userName, message);
                 int gameId = reply.Id;
                 string gameTitle = reply.Title;
 
@@ -223,12 +224,13 @@ namespace Server
                 });
             return reply;
         }
-        public async Task<PublishReply> PublishAsync(string message)
+        public async Task<PublishReply> PublishAsync(string username, string message)
         {
             PublishReply reply = await client.PublishAsync(
                 new MessageRequest
                 {
-                    Message = message
+                    Message = message,
+                    Username = username
                 });
             return reply;
         }
