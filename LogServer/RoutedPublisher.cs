@@ -11,7 +11,7 @@ namespace RoutedPublisher
         private const string EvenRoutingKey = "even";
         private const string UnEvenRoutingKey = "unEven";
 
-        static void Main(string[] args)
+        static void MainAux(string[] args)
         {
             ConnectionFactory factory = new ConnectionFactory { HostName = "localhost" };
             using IConnection connection = factory.CreateConnection();
