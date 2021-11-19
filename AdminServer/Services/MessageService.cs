@@ -122,7 +122,7 @@ namespace AdminServer.Services
                 AGame = game,
                 AReview = null
             };
-            Logs.Add(log);
+            Publisher.PublishMessage(log);
 
             //await ReceiveFileAsync(fch, game.Id + ".jpg");
 

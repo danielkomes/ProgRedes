@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using Domain;
 using LogServer;
 using RabbitMQ.Client;
 
@@ -44,10 +45,11 @@ namespace RoutedPublisher
         {
             string date = entry.Date.ToString();
             string action = entry.Action.ToString();
-            string clientName = entry.ClientName.ToString();
-            string game = Domain.Logic.EncodeGame(entry.AGame);
-            string review = entry.AReview.ToString();
-            string log = date + "@" + action + "@" + clientName + "@" + game + "@" + review;
+            string clientName = entry.ClientName;
+            string game = entry.AGame != null ? Logic.EncodeGame(entry.AGame) : "";
+
+            string review = entry.AReview != null ? Logic.EncodeReview(entry.AReview) : "";
+            string log = date + "@" + action + "@" + clientName + "@" + game + "@" + review; //To do: const string separator
             return log;
         }
 
