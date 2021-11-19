@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdminServer", "AdminServer\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi", "ApiClient\WebApi.csproj", "{17494405-15B1-473C-82C7-DE086752A1D3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogServer", "LogServer\LogServer.csproj", "{57883FBF-E0F2-4CB0-9958-2AE2F63D20F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogServer", "LogServer\LogServer.csproj", "{57883FBF-E0F2-4CB0-9958-2AE2F63D20F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoutedPublisher", "RoutedPublisher\RoutedPublisher.csproj", "{09A4A43E-ADBA-454C-86CF-3F0E5E63D309}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{57883FBF-E0F2-4CB0-9958-2AE2F63D20F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57883FBF-E0F2-4CB0-9958-2AE2F63D20F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57883FBF-E0F2-4CB0-9958-2AE2F63D20F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09A4A43E-ADBA-454C-86CF-3F0E5E63D309}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09A4A43E-ADBA-454C-86CF-3F0E5E63D309}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09A4A43E-ADBA-454C-86CF-3F0E5E63D309}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09A4A43E-ADBA-454C-86CF-3F0E5E63D309}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
