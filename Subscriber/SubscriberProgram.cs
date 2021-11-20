@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using LogServer;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -45,6 +46,7 @@ namespace Subscriber
                 byte[] body = ea.Body.ToArray();
                 string message = Encoding.UTF8.GetString(body);
                 Console.WriteLine("Received message : " + message);
+                Logs.Add(LogEntry.DecodeLogEntry(message));
             };
 
             channel.BasicConsume(
