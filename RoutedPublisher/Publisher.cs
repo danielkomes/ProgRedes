@@ -11,19 +11,18 @@ namespace RoutedPublisher
         private const string ExchangeName = "RoutedExchange";
         private const string RoutingKey = "LogServer";
 
-        static void Main(string[] args)
+        //static void Main(string[] args)
+        //{
+        //    PublishMessage(new LogEntry());
+        //}
+        static void Main()
         {
-
-        }
-        static IModel CreateConnection()
-        {
-            ConnectionFactory factory = new ConnectionFactory { HostName = "localhost" };
-            using IConnection connection = factory.CreateConnection();
-            using IModel channel = connection.CreateModel();
-            DeclareExchange(channel);
+            //ConnectionFactory factory = new ConnectionFactory { HostName = "localhost" };
+            //using IConnection connection = factory.CreateConnection();
+            //using IModel channel = connection.CreateModel();
+            //DeclareExchange(channel);
             //Console.WriteLine("Enter messages to send or type exit to finish");
             //SendMessages(channel);
-            return channel;
         }
 
         private static void DeclareExchange(IModel channel)
@@ -31,16 +30,16 @@ namespace RoutedPublisher
             channel.ExchangeDeclare(exchange: ExchangeName, type: ExchangeType.Direct);
         }
 
-        //private static void SendMessages(IModel channel)
-        //{
-        //    string message = string.Empty;
-        //    while (!message.Equals(ExitMessage, StringComparison.InvariantCultureIgnoreCase))
-        //    {
-        //        message = Console.ReadLine();
-        //        if (!string.IsNullOrEmpty(message) || !message.Equals(ExitMessage, StringComparison.InvariantCultureIgnoreCase))
-        //            PublishMessage(channel, message);
-        //    }
-        //}
+        private static void SendMessages(IModel channel)
+        {
+            string message = string.Empty;
+            while (true)
+            {
+                message = Console.ReadLine();
+                //if (!string.IsNullOrEmpty(message) || !message.Equals(ExitMessage, StringComparison.InvariantCultureIgnoreCase))
+                //PublishMessage(channel, message);
+            }
+        }
         private static string EncodeLogEntry(LogEntry entry)
         {
             string date = entry.Date.ToString();
@@ -55,9 +54,13 @@ namespace RoutedPublisher
 
         public static void PublishMessage(LogEntry entry)
         {
-            string LogEntry = EncodeLogEntry(entry);
-            IModel channel = CreateConnection();
-            byte[] body = Encoding.UTF8.GetBytes(LogEntry);
+            ConnectionFactory factory = new ConnectionFactory { HostName = "localhost" };
+            using IConnection connection = factory.CreateConnection();
+            using IModel channel = connection.CreateModel();
+            DeclareExchange(channel);
+
+            string entryString = EncodeLogEntry(entry);
+            byte[] body = Encoding.UTF8.GetBytes(entryString);
             string routingKey = RoutingKey;
 
             channel.BasicPublish(

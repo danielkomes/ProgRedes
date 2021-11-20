@@ -7,8 +7,8 @@ namespace Subscriber
 {
     class SubscriberProgram
     {
-        private const string ExchangeName = "n6aRoutedExchange";
-        private const string RoutingKey = "even";
+        private const string ExchangeName = "RoutedExchange";
+        private const string RoutingKey = "LogServer";
 
         static void Main(string[] args)
         {
