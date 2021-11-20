@@ -34,8 +34,8 @@ namespace Domain
                 {
                     int count = Games.Count;
                     int start = page * pageSize - pageSize;
-                    int end = Math.Min(start + pageSize, Games.Count);
-                    if (start >= 0 && start < Games.Count)
+                    int end = Math.Min(start + pageSize, count);
+                    if (start >= 0 && start < count)
                     {
                         for (int i = start; i < end; i++)
                         {

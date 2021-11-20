@@ -40,17 +40,17 @@ namespace RoutedPublisher
                 //PublishMessage(channel, message);
             }
         }
-        private static string EncodeLogEntry(LogEntry entry)
-        {
-            string date = entry.Date.ToString();
-            string action = entry.Action.ToString();
-            string clientName = entry.ClientName;
-            string game = entry.AGame != null ? Logic.EncodeGame(entry.AGame) : "";
+        //private static string EncodeLogEntry(LogEntry entry)
+        //{
+        //    string date = entry.Date.ToString();
+        //    string action = entry.Action.ToString();
+        //    string clientName = entry.ClientName;
+        //    string game = entry.AGame != null ? Logic.EncodeGame(entry.AGame) : "";
 
-            string review = entry.AReview != null ? Logic.EncodeReview(entry.AReview) : "";
-            string log = date + "@" + action + "@" + clientName + "@" + game + "@" + review; //To do: const string separator
-            return log;
-        }
+        //    string review = entry.AReview != null ? Logic.EncodeReview(entry.AReview) : "";
+        //    string log = date + "@" + action + "@" + clientName + "@" + game + "@" + review; //To do: const string separator
+        //    return log;
+        //}
 
         public static void PublishMessage(LogEntry entry)
         {
@@ -59,7 +59,8 @@ namespace RoutedPublisher
             using IModel channel = connection.CreateModel();
             DeclareExchange(channel);
 
-            string entryString = EncodeLogEntry(entry);
+            //string entryString = EncodeLogEntry(entry);
+            string entryString = entry.EncodeLogEntry();
             byte[] body = Encoding.UTF8.GetBytes(entryString);
             string routingKey = RoutingKey;
 

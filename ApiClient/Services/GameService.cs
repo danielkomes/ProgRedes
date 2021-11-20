@@ -26,6 +26,7 @@ namespace WebApi.Services
 
         public IEnumerable<Game> GetGames()
         {
+            //TODO: delete?
             //IEnumerable<StudentDto> studentsDto = await _studentRepository.GetStudentsAsync();
             //return studentsDto.Select(studentDto => MapStudentDtoToDomain(studentDto)).ToList();
             return Sys.GetGames();
