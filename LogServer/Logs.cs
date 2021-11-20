@@ -13,6 +13,7 @@ namespace LogServer
         static Logs()
         {
             LogList = new List<LogEntry>();
+            logsLocker = new object();
         }
 
         public static void Add(LogEntry log)
