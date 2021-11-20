@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogServer", "LogServer\LogS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoutedPublisher", "RoutedPublisher\RoutedPublisher.csproj", "{09A4A43E-ADBA-454C-86CF-3F0E5E63D309}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Subscriber", "Subscriber\Subscriber.csproj", "{978A887A-BBB3-4DA8-A442-2D3809BFE56E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Subscriber", "Subscriber\Subscriber.csproj", "{978A887A-BBB3-4DA8-A442-2D3809BFE56E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pagination", "Pagination\Pagination.csproj", "{687EDF0D-75CC-48D3-8396-1F5BEC98B587}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{978A887A-BBB3-4DA8-A442-2D3809BFE56E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{978A887A-BBB3-4DA8-A442-2D3809BFE56E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{978A887A-BBB3-4DA8-A442-2D3809BFE56E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{687EDF0D-75CC-48D3-8396-1F5BEC98B587}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{687EDF0D-75CC-48D3-8396-1F5BEC98B587}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{687EDF0D-75CC-48D3-8396-1F5BEC98B587}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{687EDF0D-75CC-48D3-8396-1F5BEC98B587}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

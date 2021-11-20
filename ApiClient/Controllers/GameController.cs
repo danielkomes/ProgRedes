@@ -1,8 +1,5 @@
-﻿using WebApi.Helpers;
-using WebApi.Responses;
-using WebApi.Services;
-using Domain;
-using Domain.Responses;
+﻿using Domain;
+using Pagination;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;

@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Domain;
-using Domain.Helpers;
-using Domain.Responses;
+using Pagination;
 
 namespace WebApi.Interfaces
 {

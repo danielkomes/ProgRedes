@@ -4,9 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using AdminServer;
 using Domain;
-using Domain.Helpers;
-using Domain.Responses;
 using Grpc.Net.Client;
+using Pagination;
 using WebApi.Interfaces;
 using static AdminServer.MessageExchanger;
 
