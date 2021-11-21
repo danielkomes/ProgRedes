@@ -1,0 +1,46 @@
+using Domain;
+using Grpc.Core;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace LogHandler
+{
+    public class LogServiceRpc : LogExchange.LogExchangeBase
+    {
+        private readonly ILogger<LogServiceRpc> _logger;
+        public LogServiceRpc(ILogger<LogServiceRpc> logger)
+        {
+            _logger = logger;
+        }
+
+        public override Task<GetLogsReply> GetLogs(GetLogsRequest request, ServerCallContext context)
+        {
+            return Task.FromResult(new GetLogsReply
+            {
+                List = Logs.EncodeLogList(Logs.GetLogs(request.Page, request.PageSize))
+            });
+        }
+
+        public override Task<SaveLogReply> SaveLog(SaveLogRequest request, ServerCallContext context)
+        {
+            LogEntry entry = new LogEntry
+            {
+                Date = DateTime.Parse(request.Date),
+                ClientName = request.Username,
+                Action = (ETransferType)Enum.Parse(typeof(ETransferType),request.Action),
+                AGame = !string.IsNullOrEmpty(request.Game) ? Logic.DecodeGame(request.Game) : null,
+                AReview = !string.IsNullOrEmpty(request.Review) ? Logic.DecodeReview (request.Review) : null
+            };
+
+            Logs.Add(entry);
+
+            return Task.FromResult(new SaveLogReply
+            {
+                Message = true
+            });
+        }
+    }
+}

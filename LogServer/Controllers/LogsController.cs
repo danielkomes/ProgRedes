@@ -1,4 +1,5 @@
-﻿using LogServer.Interfaces;
+﻿using LogHandler;
+using LogServer.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -10,8 +11,8 @@ using System.Threading.Tasks;
 
 namespace LogServer.Controllers
 {
-    [ApiController]
     [Route("logs")]
+    [ApiController]
     public class LogsController : ControllerBase
     {
         private readonly ILogService logService;
@@ -25,13 +26,13 @@ namespace LogServer.Controllers
         }
 
         [HttpGet]
-        public ActionResult<WebPaginatedResponse<LogEntry>> GetLogs(int page = 1, int pageSize = 15)
+        public async Task<ActionResult<WebPaginatedResponse<LogEntry>>> GetLogs(int page = 1, int pageSize = 15)
         {
             if (page <= 0 || pageSize <= 0)
             {
                 return BadRequest();
             }
-            PaginatedResponse<LogEntry> logsPaginatedResponse = logService.GetLogs(page, pageSize);
+            PaginatedResponse<LogEntry> logsPaginatedResponse = await logService.GetLogsAsync(page, pageSize);
             if (logsPaginatedResponse == null) //TODO: nunca va a ser nul
             {
                 return NoContent();

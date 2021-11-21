@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using Domain;
+using LogHandler;
 using LogServer;
 using RabbitMQ.Client;
 

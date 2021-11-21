@@ -1,4 +1,5 @@
-﻿using Pagination;
+﻿using LogHandler;
+using Pagination;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,6 @@ namespace LogServer.Interfaces
 {
     public interface ILogService
     {
-        Task <PaginatedResponse<LogEntry>> GetLogs(int page, int pageSize);
+        Task <PaginatedResponse<LogEntry>> GetLogsAsync(int page, int pageSize);
     }
 }

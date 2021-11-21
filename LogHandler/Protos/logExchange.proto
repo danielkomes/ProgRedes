@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+option csharp_namespace = "LogHandler";
+
+package log;
+
+// The greeting service definition.
+service LogExchange {
+  // Sends a greeting
+  rpc GetLogs (GetLogsRequest) returns (GetLogsReply);
+  rpc SaveLog (SaveLogRequest) returns (SaveLogReply);
+}
+
+// The request message containing the user's name.
+message GetLogsRequest {
+  int32 page = 1;
+  int32 pageSize = 2;
+}
+
+message GetLogsReply {
+  string list = 1;
+}
+
+message SaveLogRequest {
+  string date = 1;
+  string username = 2;
+  string action = 3;
+  string game = 4;
+  string review = 5;
+}
+
+message SaveLogReply {
+  bool message = 1;
+}
+

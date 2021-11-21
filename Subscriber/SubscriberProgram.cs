@@ -3,10 +3,9 @@ using System.Text;
 using Domain;
 using Grpc.Net.Client;
 using LogHandler;
-using LogServer;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using static LogHandler.Logger;
+using static LogHandler.LogExchange;
 
 namespace Subscriber
 {
@@ -15,11 +14,11 @@ namespace Subscriber
         private const string ExchangeName = "RoutedExchange";
         private const string RoutingKey = "LogServer";
 
-        private readonly LoggerClient loggerClient;
-        public SubscriberProgram()
+        private static readonly LogExchangeClient loggerClient;
+        static SubscriberProgram()
         {
             GrpcChannel channel = GrpcChannel.ForAddress("https://localhost:8001");
-            loggerClient = new LoggerClient(channel);
+            loggerClient = new LogExchangeClient(channel);
         }
 
         static void Main(string[] args)
@@ -49,7 +48,7 @@ namespace Subscriber
                 routingKey: RoutingKey);
         }
 
-        private async static void ReceiveMessages(IModel channel, string queueName)
+        private static void ReceiveMessages(IModel channel, string queueName)
         {
             var consumer = new EventingBasicConsumer(channel);
             consumer.Received += async (model, ea) =>
@@ -69,7 +68,7 @@ namespace Subscriber
                         Review = entry.AReview != null ? Logic.EncodeReview(entry.AReview) : ""
 
                     }
-                ); 
+                );
                 //Logs.Add(LogEntry.DecodeLogEntry(message));
             };
 

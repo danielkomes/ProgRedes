@@ -1,5 +1,6 @@
 ﻿using Domain;
 using Grpc.Core;
+using LogHandler;
 using LogServer;
 using RoutedPublisher;
 using System;
