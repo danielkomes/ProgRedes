@@ -18,7 +18,7 @@ namespace LogHandler
         {
             return Task.FromResult(new GetLogsReply
             {
-                List = Logs.EncodeLogList(Logs.GetLogs(request.Page, request.PageSize))
+                List = Logs.EncodeLogList(Logs.GetLogs(request.GameId, request.Username, request.MinDate, request.MaxDate, request.Page, request.PageSize))
             });
         }
 

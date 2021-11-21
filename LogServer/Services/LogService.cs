@@ -17,7 +17,7 @@ namespace LogServer.Services
             loggerClient = new LogExchangeClient(channel);
         }
 
-        public async Task<PaginatedResponse<LogEntry>> GetLogsAsync(int page, int pageSize)
+        public async Task<PaginatedResponse<LogEntry>> GetLogsAsync(int gameId, string username, string minDate, string maxDate, int page, int pageSize)
         {
             if (page <= 0 || pageSize <= 0)
             {
@@ -26,6 +26,10 @@ namespace LogServer.Services
             GetLogsReply reply = await loggerClient.GetLogsAsync(
                 new GetLogsRequest
                 {
+                    GameId = gameId,
+                    Username = username,
+                    MinDate = minDate,
+                    MaxDate = maxDate,
                     Page = page,
                     PageSize = pageSize
                 }

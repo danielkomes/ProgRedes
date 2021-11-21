@@ -3,6 +3,7 @@ using LogServer.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Pagination;
+using System;
 using System.Threading.Tasks;
 
 namespace LogServer.Controllers
@@ -22,13 +23,13 @@ namespace LogServer.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<WebPaginatedResponse<LogEntry>>> GetLogs(int page = 1, int pageSize = 15)
+        public async Task<ActionResult<WebPaginatedResponse<LogEntry>>> GetLogs(int gameId = -1, string user = "", string minDate = "", string maxDate = "", int page = 1, int pageSize = 15)
         {
             if (page <= 0 || pageSize <= 0)
             {
                 return BadRequest();
             }
-            PaginatedResponse<LogEntry> logsPaginatedResponse = await logService.GetLogsAsync(page, pageSize);
+            PaginatedResponse<LogEntry> logsPaginatedResponse = await logService.GetLogsAsync(gameId, user, minDate, maxDate, page, pageSize);
             if (logsPaginatedResponse.Elements == null) //TODO: coordinar con GameService
             {
                 return NoContent();

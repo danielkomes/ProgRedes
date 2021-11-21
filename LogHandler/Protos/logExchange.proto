@@ -10,8 +10,12 @@ service LogExchange {
 }
 
 message GetLogsRequest {
-  int32 page = 1;
-  int32 pageSize = 2;
+  int32 gameId = 1;
+  string username = 2;
+  string minDate = 3;
+  string maxDate = 4;
+  int32 page = 5;
+  int32 pageSize = 6;
 }
 
 message GetLogsReply {

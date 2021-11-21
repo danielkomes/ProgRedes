@@ -22,7 +22,7 @@ namespace LogHandler
                 LogList.Add(log);
             }
         }
-        public static List<LogEntry> GetLogs(int page, int pageSize)
+        public static List<LogEntry> GetLogs(int gameId, string username, string minDate, string maxDate, int page, int pageSize)
         {
             lock (logsLocker)
             {
@@ -36,7 +36,63 @@ namespace LogHandler
                     {
                         for (int i = start; i < end; i++)
                         {
-                            ret.Add(LogList[i]);
+                            LogEntry entry = LogList[i];
+                            bool add = true;
+
+                            if (add && gameId >= 0)
+                            {
+                                if (entry.Game != null && entry.Game.Id == gameId)
+                                {
+                                    add &= true;
+                                }
+                                else
+                                {
+                                    add &= false;
+                                }
+                            }
+                            if (add && !string.IsNullOrEmpty(username))
+                            {
+                                if (entry.Username.Equals(username))
+                                {
+                                    add &= true;
+                                }
+                                else
+                                {
+                                    add &= false;
+                                }
+                            }
+                            if (add && !string.IsNullOrEmpty(minDate))
+                            {
+                                if (DateTime.TryParse(minDate, out DateTime dateTime))
+                                {
+                                    if (entry.Date.CompareTo(dateTime) >= 0)
+                                    {
+                                        add &= true;
+                                    }
+                                    else
+                                    {
+                                        add &= false;
+                                    }
+                                }
+                            }
+                            if (add && !string.IsNullOrEmpty(maxDate))
+                            {
+                                if (DateTime.TryParse(maxDate, out DateTime dateTime))
+                                {
+                                    if (entry.Date.CompareTo(dateTime) <= 0)
+                                    {
+                                        add &= true;
+                                    }
+                                    else
+                                    {
+                                        add &= false;
+                                    }
+                                }
+                            }
+                            if (add)
+                            {
+                                ret.Add(entry);
+                            }
                         }
                     }
                 }
