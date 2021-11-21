@@ -1,12 +1,10 @@
 ﻿using Domain;
 using Grpc.Core;
 using LogHandler;
-using LogServer;
 using RoutedPublisher;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace AdminServer.Services
@@ -25,29 +23,25 @@ namespace AdminServer.Services
                 if (!client.IsOnline)
                 {
                     client.IsOnline = true;
-                    //clients[tcpClient] = client;
-                    //await SendMessageAsync(fch, "true");
                     reply = bool.TrueString;
 
                     LogEntry log = new LogEntry()
                     {
                         Date = DateTime.Now,
                         Action = ETransferType.Login,
-                        ClientName = request.Username,
-                        AGame = null,
-                        AReview = null
+                        Username = request.Username,
+                        Game = null,
+                        Review = null
                     };
                     Logs.Add(log);
                 }
                 else
                 {
-                    //await SendMessageAsync(fch, "false");
                     reply = bool.FalseString;
                 }
             }
             else
             {
-                //await SendMessageAsync(fch, "false");
                 reply = bool.FalseString;
             }
             return Task.FromResult(new MessageReply
@@ -72,15 +66,13 @@ namespace AdminServer.Services
                 {
                     Date = DateTime.Now,
                     Action = ETransferType.Signup,
-                    ClientName = request.Username,
-                    AGame = null,
-                    AReview = null
+                    Username = request.Username,
+                    Game = null,
+                    Review = null
                 };
                 Logs.Add(log);
 
-                //clients[tcpClient] = message;
             }
-            //await SendMessageAsync(fch, msg + "");
             return Task.FromResult(new MessageReply
             {
                 Message = reply
@@ -91,15 +83,19 @@ namespace AdminServer.Services
             string message = request.Message;
             string reply = "";
 
-            Sys.GetClient(message).IsOnline = false;
+            Client client = Sys.GetClient(message);
+            if (client != null)
+            {
+                client.IsOnline = false;
+            }
 
             LogEntry log = new LogEntry()
             {
                 Date = DateTime.Now,
                 Action = ETransferType.Logoff,
-                ClientName = request.Username,
-                AGame = null,
-                AReview = null
+                Username = request.Username,
+                Game = null,
+                Review = null
             };
             Logs.Add(log);
 
@@ -119,13 +115,11 @@ namespace AdminServer.Services
             {
                 Date = DateTime.Now,
                 Action = ETransferType.Publish,
-                ClientName = request.Username,
-                AGame = game,
-                AReview = null
+                Username = request.Username,
+                Game = game,
+                Review = null
             };
             Publisher.PublishMessage(log);
-
-            //await ReceiveFileAsync(fch, game.Id + ".jpg");
 
             return Task.FromResult(new PublishReply
             {
@@ -139,18 +133,8 @@ namespace AdminServer.Services
             byte[] fileData = request.FileData.ToByteArray();
             string reply = "";
 
-            try
-            {
-                await using FileStream fileStream = new FileStream(POSTERS + fileName + ".jpg", FileMode.Create);
-                await fileStream.WriteAsync(fileData, 0, fileData.Length);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.StackTrace);
-            }
-
-            //await ReceiveFileAsync(fch, game.Id + ".jpg");
-
+            await using FileStream fileStream = new FileStream(POSTERS + fileName + ".jpg", FileMode.Create);
+            await fileStream.WriteAsync(fileData, 0, fileData.Length);
             return await Task.FromResult(new MessageReply
             {
                 Message = reply
@@ -162,7 +146,6 @@ namespace AdminServer.Services
         {
             List<Game> list = Sys.GetGames();
             string reply = Logic.EncodeListGames(list);
-            //await SendMessageAsync(fch, Logic.EncodeListGames(list));
 
             return Task.FromResult(new MessageReply
             {
@@ -173,7 +156,6 @@ namespace AdminServer.Services
         {
             List<Game> list = Sys.GetGames(request.Page, request.PageSize);
             string reply = Logic.EncodeListGames(list);
-            //await SendMessageAsync(fch, Logic.EncodeListGames(list));
 
             return Task.FromResult(new PagedListReply
             {
@@ -186,7 +168,6 @@ namespace AdminServer.Services
             string message = request.Message;
             Client c = Sys.GetClient(message);
             string reply = Logic.EncodeOwnedGames(c.OwnedGames);
-            //await SendMessageAsync(fch, Logic.EncodeListGames(list));
 
             return Task.FromResult(new MessageReply
             {
@@ -203,13 +184,11 @@ namespace AdminServer.Services
             {
                 Date = DateTime.Now,
                 Action = ETransferType.Edit,
-                ClientName = request.Username,
-                AGame = game,
-                AReview = null
+                Username = request.Username,
+                Game = game,
+                Review = null
             };
             Logs.Add(log);
-
-            //await SendMessageAsync(fch, Logic.EncodeListGames(list));
 
             return Task.FromResult(new MessageReply
             {
@@ -227,13 +206,11 @@ namespace AdminServer.Services
             {
                 Date = DateTime.Now,
                 Action = ETransferType.Delete,
-                ClientName = request.Username,
-                AGame = game,
-                AReview = null
+                Username = request.Username,
+                Game = game,
+                Review = null
             };
             Logs.Add(log);
-
-            //await SendMessageAsync(fch, Logic.EncodeListGames(list));
 
             return Task.FromResult(new MessageReply
             {
@@ -256,13 +233,11 @@ namespace AdminServer.Services
             {
                 Date = DateTime.Now,
                 Action = ETransferType.Review,
-                ClientName = request.Username,
-                AGame = game,
-                AReview = r
+                Username = request.Username,
+                Game = game,
+                Review = r
             };
             Logs.Add(log);
-
-            //await SendMessageAsync(fch, Logic.EncodeListGames(list));
 
             return Task.FromResult(new MessageReply
             {
@@ -286,15 +261,14 @@ namespace AdminServer.Services
             Game game = Logic.DecodeGame(message);
             int gameId = game.Id;
             byte[] fileData = await File.ReadAllBytesAsync(POSTERS + gameId + ".jpg");
-            //await SendFile(fch, ServerPosterFolder + id + ".jpg", game.Title + ".jpg");
 
             LogEntry log = new LogEntry()
             {
                 Date = DateTime.Now,
                 Action = ETransferType.Download,
-                ClientName = request.Username,
-                AGame = game,
-                AReview = null
+                Username = request.Username,
+                Game = game,
+                Review = null
             };
             Logs.Add(log);
 
@@ -319,9 +293,9 @@ namespace AdminServer.Services
             {
                 Date = DateTime.Now,
                 Action = ETransferType.BuyGame,
-                ClientName = request.Username,
-                AGame = game,
-                AReview = null
+                Username = request.Username,
+                Game = game,
+                Review = null
             };
             Logs.Add(log);
 

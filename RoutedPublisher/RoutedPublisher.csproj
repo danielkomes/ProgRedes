@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LogServer\LogServer.csproj" />
+    <ProjectReference Include="..\LogHandler\LogHandler.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Common;
+using Domain;
+using Newtonsoft.Json.Linq;
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using Common;
-using Domain;
-using Newtonsoft.Json.Linq;
 
 namespace Client
 {

@@ -1,53 +1,52 @@
 using Domain;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace LogHandler
 {
     public class LogEntry
     {
+        private const string LOG_DATA_SEPARATOR = "@";
         public DateTime Date { get; set; }
         public ETransferType Action { get; set; }
-        public string ClientName { get; set; }
-        public Game AGame { get; set; }
-        public Review AReview { get; set; }
+        public string Username { get; set; }
+        public Game Game { get; set; }
+        public Review Review { get; set; }
 
         public string EncodeLogEntry()
         {
-            string date = this.Date.ToString();
-            string action = this.Action.ToString();
-            string clientName = this.ClientName;
-            string game = this.AGame != null ? Logic.EncodeGame(this.AGame) : "";
+            string date = Date.ToString();
+            string action = Action.ToString();
+            string clientName = Username;
+            string game = Game != null ? Logic.EncodeGame(Game) : "";
 
-            string review = this.AReview != null ? Logic.EncodeReview(this.AReview) : "";
-            string log = date + "@" + action + "@" + clientName + "@" + game + "@" + review; //To do: const string separator
+            string review = Review != null ? Logic.EncodeReview(Review) : "";
+            string log = date + LOG_DATA_SEPARATOR + action + LOG_DATA_SEPARATOR + clientName + LOG_DATA_SEPARATOR + game + LOG_DATA_SEPARATOR + review;
             return log;
         }
-        
+
         public static LogEntry DecodeLogEntry(string message)
         {
-            string[] log = message.Split("@");
-            string date = log[0];
-            string action = log[1];
-            string clientName = log[2];
-            string game = log[3];
-            string review = log[4];
-            LogEntry Lg = new LogEntry();
-            Lg.Date = Convert.ToDateTime(date);
-            Lg.Action = (ETransferType)Enum.Parse(typeof (ETransferType), action);
-            Lg.ClientName = clientName;
+            string[] arr = message.Split(LOG_DATA_SEPARATOR);
+            string date = arr[0];
+            string action = arr[1];
+            string clientName = arr[2];
+            string game = arr[3];
+            string review = arr[4];
+            LogEntry log = new LogEntry();
+            log.Date = Convert.ToDateTime(date);
+            log.Action = (ETransferType)Enum.Parse(typeof(ETransferType), action);
+            log.Username = clientName;
 
             if (!string.IsNullOrEmpty(game))
             {
-                Lg.AGame = Logic.DecodeGame(game);
+                log.Game = Logic.DecodeGame(game);
             }
             if (!string.IsNullOrEmpty(review))
             {
-                Lg.AReview = Logic.DecodeReview(review);
+                log.Review = Logic.DecodeReview(review);
             }
 
-            return Lg;
+            return log;
         }
     }
 }

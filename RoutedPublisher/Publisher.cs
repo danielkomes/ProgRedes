@@ -1,9 +1,7 @@
-﻿using System;
-using System.Text;
-using Domain;
-using LogHandler;
-using LogServer;
+﻿using LogHandler;
 using RabbitMQ.Client;
+using System;
+using System.Text;
 
 namespace RoutedPublisher
 {
@@ -12,10 +10,6 @@ namespace RoutedPublisher
         private const string ExchangeName = "RoutedExchange";
         private const string RoutingKey = "LogServer";
 
-        //static void Main(string[] args)
-        //{
-        //    PublishMessage(new LogEntry());
-        //}
         static void Main()
         {
             //ConnectionFactory factory = new ConnectionFactory { HostName = "localhost" };
@@ -41,17 +35,6 @@ namespace RoutedPublisher
                 //PublishMessage(channel, message);
             }
         }
-        //private static string EncodeLogEntry(LogEntry entry)
-        //{
-        //    string date = entry.Date.ToString();
-        //    string action = entry.Action.ToString();
-        //    string clientName = entry.ClientName;
-        //    string game = entry.AGame != null ? Logic.EncodeGame(entry.AGame) : "";
-
-        //    string review = entry.AReview != null ? Logic.EncodeReview(entry.AReview) : "";
-        //    string log = date + "@" + action + "@" + clientName + "@" + game + "@" + review; //To do: const string separator
-        //    return log;
-        //}
 
         public static void PublishMessage(LogEntry entry)
         {
@@ -60,7 +43,6 @@ namespace RoutedPublisher
             using IModel channel = connection.CreateModel();
             DeclareExchange(channel);
 
-            //string entryString = EncodeLogEntry(entry);
             string entryString = entry.EncodeLogEntry();
             byte[] body = Encoding.UTF8.GetBytes(entryString);
             string routingKey = RoutingKey;

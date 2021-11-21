@@ -1,10 +1,7 @@
 ﻿using Domain;
-using Pagination;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Pagination;
 using System.Threading.Tasks;
 using WebApi.Interfaces;
 
@@ -116,7 +113,7 @@ namespace WebApi.Controllers
         public async Task<ActionResult<Game>> PublishReviewAsync(int id, Review review)
         {
             Review responseReview = await gameService.ReviewGameAsync(id, review);
-            return new CreatedResult(id+"/reviews", responseReview);
+            return new CreatedResult(id + "/reviews", responseReview);
         }
     }
 }

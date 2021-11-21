@@ -2,8 +2,6 @@ using Domain;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace LogHandler
@@ -29,10 +27,10 @@ namespace LogHandler
             LogEntry entry = new LogEntry
             {
                 Date = DateTime.Parse(request.Date),
-                ClientName = request.Username,
-                Action = (ETransferType)Enum.Parse(typeof(ETransferType),request.Action),
-                AGame = !string.IsNullOrEmpty(request.Game) ? Logic.DecodeGame(request.Game) : null,
-                AReview = !string.IsNullOrEmpty(request.Review) ? Logic.DecodeReview (request.Review) : null
+                Username = request.Username,
+                Action = (ETransferType)Enum.Parse(typeof(ETransferType), request.Action),
+                Game = !string.IsNullOrEmpty(request.Game) ? Logic.DecodeGame(request.Game) : null,
+                Review = !string.IsNullOrEmpty(request.Review) ? Logic.DecodeReview(request.Review) : null
             };
 
             Logs.Add(entry);

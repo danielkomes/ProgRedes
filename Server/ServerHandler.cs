@@ -9,7 +9,6 @@ using Common;
 using Domain;
 using Grpc.Net.Client;
 using Newtonsoft.Json.Linq;
-//using static AdminServer.Greeter;
 using static AdminServer.MessageExchanger;
 
 namespace Server
@@ -81,16 +80,21 @@ namespace Server
 
                     loop = await ProcessMessageAsync(tcpClient, fch, msg);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    //tcpClient.GetStream().Close();
-                    MessageReply reply = await client.LogoffAsync(
-                        new MessageRequest
-                        {
-                            Message = clients[tcpClient]
-                        });
-                    clients.Remove(tcpClient);
-                    Console.WriteLine("Client disconnected. Total: " + clients.Count);
+                    try
+                    {
+                        MessageReply reply = await client.LogoffAsync(
+                            new MessageRequest
+                            {
+                                Message = clients[tcpClient]
+                            });
+                        clients.Remove(tcpClient);
+                        Console.WriteLine("Client disconnected. Total: " + clients.Count);
+                    }
+                    catch (Exception)
+                    {
+                    }
                     loop = false;
                 }
             }
@@ -148,7 +152,6 @@ namespace Server
             {
                 MessageReply reply = await ListAsync(message);
                 string RpcReply = reply.Message;
-                //    List<Game> list = Sys.GetGames();
                 await SendMessageAsync(fch, RpcReply);
             }
             else if (action.Equals(ETransferType.Owned.ToString()))
@@ -355,8 +358,8 @@ namespace Server
                 if (c.Value.Equals(client))
                 {
                     c.Key.GetStream().Close();
-                    //clients.Remove(c.Key);
-                    //Console.WriteLine("Client disconnected. Total: " + clients.Count);
+                    clients.Remove(c.Key);
+                    Console.WriteLine("Client disconnected. Total: " + clients.Count);
                 }
             }
         }

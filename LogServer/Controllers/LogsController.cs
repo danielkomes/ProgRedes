@@ -2,11 +2,7 @@
 using LogServer.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Pagination;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace LogServer.Controllers
@@ -33,7 +29,7 @@ namespace LogServer.Controllers
                 return BadRequest();
             }
             PaginatedResponse<LogEntry> logsPaginatedResponse = await logService.GetLogsAsync(page, pageSize);
-            if (logsPaginatedResponse == null) //TODO: nunca va a ser nul
+            if (logsPaginatedResponse == null) //TODO: coordinar con GameService
             {
                 return NoContent();
             }

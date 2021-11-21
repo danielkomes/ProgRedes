@@ -2,9 +2,7 @@
 using LogHandler;
 using LogServer.Interfaces;
 using Pagination;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using static LogHandler.LogExchange;
 
@@ -33,6 +31,10 @@ namespace LogServer.Services
                 }
             );
             List<LogEntry> logs = Logs.DecodeLogList(reply.List);
+            if (logs.Count == 0)
+            {
+                logs = null;
+            }
             int totalGames = Logs.LogList.Count;
             return PaginationHelper<LogEntry>.GeneratePaginatedResponse(pageSize, totalGames, logs);
         }

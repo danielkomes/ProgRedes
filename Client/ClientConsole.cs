@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Domain;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net.Sockets;
 using System.Threading.Tasks;
-using Domain;
 
 namespace Client
 {
@@ -107,7 +106,6 @@ namespace Client
             {
                 Client = new Domain.Client(input);
                 await RequestOwnedGamesAsync();
-                //Client.OwnedGames = Logic.DecodeOwnedGames(ch.ReceiveMessageAsync().Result);
                 Console.WriteLine("Successfully logged in");
                 await Menu0Async();
             }
@@ -806,7 +804,6 @@ namespace Client
                     {
                         Console.WriteLine("\r\n------Game bought------\r\n");
                         await RequestOwnedGamesAsync();
-                        //Client.OwnedGames = Logic.DecodeOwnedGames(ch.ReceiveMessageAsync().Result);
                     }
                     else
                     {

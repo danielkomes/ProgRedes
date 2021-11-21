@@ -1,10 +1,10 @@
-﻿using System;
-using System.Text;
-using Domain;
+﻿using Domain;
 using Grpc.Net.Client;
 using LogHandler;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using System;
+using System.Text;
 using static LogHandler.LogExchange;
 
 namespace Subscriber
@@ -61,15 +61,14 @@ namespace Subscriber
                     new SaveLogRequest
                     {
                         Date = entry.Date.ToString(),
-                        Username = entry.ClientName,
+                        Username = entry.Username,
                         Action = entry.Action.ToString(),
 
-                        Game = entry.AGame != null ? Logic.EncodeGame(entry.AGame) : "",
-                        Review = entry.AReview != null ? Logic.EncodeReview(entry.AReview) : ""
+                        Game = entry.Game != null ? Logic.EncodeGame(entry.Game) : "",
+                        Review = entry.Review != null ? Logic.EncodeReview(entry.Review) : ""
 
                     }
                 );
-                //Logs.Add(LogEntry.DecodeLogEntry(message));
             };
 
             channel.BasicConsume(

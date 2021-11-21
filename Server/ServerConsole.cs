@@ -64,7 +64,6 @@ namespace Server
         {
             Console.WriteLine("\r\nInput username for the new account");
             string input = Console.ReadLine();
-            //Client c = Sys.GetClient(input);
             MessageReply signupReply = await sh.SignupAsync(input);
             bool success = bool.Parse(signupReply.Message);
             if (!success)
@@ -73,7 +72,6 @@ namespace Server
             }
             else
             {
-                //Sys.AddClient(input);
                 await sh.LogoffAsync(input);
                 Console.WriteLine("Account created\r\n");
             }
@@ -84,7 +82,6 @@ namespace Server
             bool loop = true;
             while (loop)
             {
-                //List<Client> list = new List<Client>(Sys.Clients);
                 MessageReply listReply = await sh.ListClientsAsync("");
                 List<string> userList = Logic.DecodeListClients(listReply.Message);
 
@@ -156,7 +153,6 @@ namespace Server
             bool loop = true;
             while (loop)
             {
-                //List<Game> list = new List<Game>(Sys.Games);
                 MessageReply listReply = await sh.ListAsync("");
                 List<Game> list = Logic.DecodeListGames(listReply.Message);
                 await RemoveAlreadyOwnedGames(c, list);
@@ -175,7 +171,6 @@ namespace Server
                     Game g = Logic.GetGameByIndex(option, list);
                     if (g != null)
                     {
-                        //bool success = Sys.BuyGame(c.Username, g.Id);
                         string req = g.Id + Logic.GameTransferSeparator + c;
                         MessageReply buyReply = await sh.BuyGameAsync(req);
                         bool success = bool.Parse(buyReply.Message);
@@ -225,7 +220,6 @@ namespace Server
                     Game g = Logic.GetGameByIndex(option, list);
                     if (g != null)
                     {
-                        //Sys.RemoveGameFromClient(c, g.Id);
                         await sh.RemoveGameFromClientAsync(c, g.Id);
                         Console.WriteLine("\r\n" + g.Title + " removed from " + c + "user account\r\n");
                         loop = false;
@@ -254,7 +248,6 @@ namespace Server
                 string input = Console.ReadLine();
                 if (input.Equals("yes"))
                 {
-                    //Sys.RemoveAllGamesFromClient(c);
                     await sh.RemoveAllGamesFromClientAsync(c);
                     Console.WriteLine("\r\nDone. All removed\r\n");
                     loop = false;
@@ -281,7 +274,6 @@ namespace Server
                 string input = Console.ReadLine();
                 if (input.Equals("yes"))
                 {
-                    //Sys.DeleteClient(c);
                     await sh.DeleteClientAsync(c);
                     sh.KickClient(c);
                     Console.WriteLine(c + " account deleted and client disconnected\r\n");

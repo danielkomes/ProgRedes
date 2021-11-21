@@ -7,7 +7,6 @@ namespace WebApi.Interfaces
 {
     public interface IGameService
     {
-        IEnumerable<Game> GetGames();
         Task<PaginatedResponse<Game>> GetGames(int page, int pageSize);
         Task<Game> GetGameByIdAsync(int id);
         Task<Game> PublishGameAsync(Game game);

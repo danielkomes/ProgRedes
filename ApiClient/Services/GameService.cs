@@ -13,23 +13,12 @@ namespace WebApi.Services
 {
     public class GameService : IGameService
     {
-        //private readonly IStudentRepository _studentRepository;
         private readonly MessageExchangerClient client;
 
-        public GameService(/*IStudentRepository studentRepository*/)
+        public GameService()
         {
-            //_studentRepository = studentRepository;
             GrpcChannel channel = GrpcChannel.ForAddress("https://localhost:4001"); //TODO: move to ServerConfig.json
             client = new MessageExchangerClient(channel);
-        }
-
-
-        public IEnumerable<Game> GetGames()
-        {
-            //TODO: delete?
-            //IEnumerable<StudentDto> studentsDto = await _studentRepository.GetStudentsAsync();
-            //return studentsDto.Select(studentDto => MapStudentDtoToDomain(studentDto)).ToList();
-            return Sys.GetGames();
         }
 
         public async Task<PaginatedResponse<Game>> GetGames(int page, int pageSize)
@@ -96,7 +85,6 @@ namespace WebApi.Services
 
         public async Task<bool> DeleteGameAsync(int id)
         {
-            //StudentDto studentDto = MapStudentDomainToDto(student);
             Game game = await GetGameByIdAsync(id);
             if (game != null)
             {

@@ -1,12 +1,11 @@
-using Domain;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace LogHandler
 {
     public static class Logs
     {
+        private const string LOG_SEPARATOR = "|";
         public static List<LogEntry> LogList;
         private static object logsLocker;
 
@@ -45,12 +44,12 @@ namespace LogHandler
             }
         }
 
-        public static string EncodeLogList(List<LogEntry> list) 
+        public static string EncodeLogList(List<LogEntry> list)
         {
             string ret = "";
             foreach (LogEntry entry in list)
             {
-                ret +=  "|" + entry.EncodeLogEntry();
+                ret += LOG_SEPARATOR + entry.EncodeLogEntry();
             }
             ret = ret[1..];
             return ret;
@@ -59,8 +58,8 @@ namespace LogHandler
         public static List<LogEntry> DecodeLogList(string st)
         {
             List<LogEntry> ret = new List<LogEntry>();
-            string[] sp = st.Split("|");
-            foreach (string entry in sp) 
+            string[] sp = st.Split(LOG_SEPARATOR);
+            foreach (string entry in sp)
             {
                 if (!string.IsNullOrEmpty(entry))
                 {
