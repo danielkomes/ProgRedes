@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Text;
+using Domain;
+using Grpc.Net.Client;
+using LogHandler;
 using LogServer;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using static LogHandler.Logger;
 
 namespace Subscriber
 {
@@ -10,6 +14,13 @@ namespace Subscriber
     {
         private const string ExchangeName = "RoutedExchange";
         private const string RoutingKey = "LogServer";
+
+        private readonly LoggerClient loggerClient;
+        public SubscriberProgram()
+        {
+            GrpcChannel channel = GrpcChannel.ForAddress("https://localhost:8001");
+            loggerClient = new LoggerClient(channel);
+        }
 
         static void Main(string[] args)
         {
@@ -38,15 +49,28 @@ namespace Subscriber
                 routingKey: RoutingKey);
         }
 
-        private static void ReceiveMessages(IModel channel, string queueName)
+        private async static void ReceiveMessages(IModel channel, string queueName)
         {
             var consumer = new EventingBasicConsumer(channel);
-            consumer.Received += (model, ea) =>
+            consumer.Received += async (model, ea) =>
             {
                 byte[] body = ea.Body.ToArray();
                 string message = Encoding.UTF8.GetString(body);
                 Console.WriteLine("Received message : " + message);
-                Logs.Add(LogEntry.DecodeLogEntry(message));
+                LogEntry entry = LogEntry.DecodeLogEntry(message);
+                SaveLogReply reply = await loggerClient.SaveLogAsync(
+                    new SaveLogRequest
+                    {
+                        Date = entry.Date.ToString(),
+                        Username = entry.ClientName,
+                        Action = entry.Action.ToString(),
+
+                        Game = entry.AGame != null ? Logic.EncodeGame(entry.AGame) : "",
+                        Review = entry.AReview != null ? Logic.EncodeReview(entry.AReview) : ""
+
+                    }
+                ); 
+                //Logs.Add(LogEntry.DecodeLogEntry(message));
             };
 
             channel.BasicConsume(

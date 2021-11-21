@@ -8,6 +8,6 @@ namespace LogServer.Interfaces
 {
     public interface ILogService
     {
-        PaginatedResponse<LogEntry> GetLogs(int page, int pageSize);
+        Task <PaginatedResponse<LogEntry>> GetLogs(int page, int pageSize);
     }
 }
