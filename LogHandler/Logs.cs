@@ -47,11 +47,14 @@ namespace LogHandler
         public static string EncodeLogList(List<LogEntry> list)
         {
             string ret = "";
-            foreach (LogEntry entry in list)
+            if (list.Count > 0)
             {
-                ret += LOG_SEPARATOR + entry.EncodeLogEntry();
+                foreach (LogEntry entry in list)
+                {
+                    ret += LOG_SEPARATOR + entry.EncodeLogEntry();
+                }
+                ret = ret[1..];
             }
-            ret = ret[1..];
             return ret;
         }
 

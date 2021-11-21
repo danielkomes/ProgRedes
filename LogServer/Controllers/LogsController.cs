@@ -29,7 +29,7 @@ namespace LogServer.Controllers
                 return BadRequest();
             }
             PaginatedResponse<LogEntry> logsPaginatedResponse = await logService.GetLogsAsync(page, pageSize);
-            if (logsPaginatedResponse == null) //TODO: coordinar con GameService
+            if (logsPaginatedResponse.Elements == null) //TODO: coordinar con GameService
             {
                 return NoContent();
             }
