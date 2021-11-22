@@ -21,7 +21,7 @@ namespace Server
             ServerConsole sc = new ServerConsole(sh);
             foreach (string game in Logic.TestGamesEncoded())
             {
-                //await sh.PublishAsync("ADMIN",game);
+                await sh.PublishAsync("ADMIN", game);
             }
             await sc.Menu0();
         }

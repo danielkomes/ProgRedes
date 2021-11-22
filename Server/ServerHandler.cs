@@ -21,7 +21,7 @@ namespace Server
 
         private string ServerPosterFolder;
         private int ServerPort;
-        private string RpcAddress; 
+        private string RpcAddress;
         private int Backlog;
         private bool serverRunning;
         public Dictionary<TcpClient, string> clients;
@@ -82,7 +82,7 @@ namespace Server
 
                     loop = await ProcessMessageAsync(tcpClient, fch, msg);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     try
                     {
@@ -94,7 +94,7 @@ namespace Server
                         clients.Remove(tcpClient);
                         Console.WriteLine("Client disconnected. Total: " + clients.Count);
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
                     }
                     loop = false;
@@ -184,7 +184,11 @@ namespace Server
                 string fileName = reply.FileName;
                 byte[] fileData = reply.FileData.ToByteArray();
                 //TODO: change old file transference methods to not create files under Server (must be created under AdminServer)
-                await SendFile(fch, ServerPosterFolder + fileId + ".jpg", fileName + ".jpg");
+                await SendMessageAsync(fch, reply.Success.ToString());
+                if (reply.Success)
+                {
+                    await SendFile(fch, ServerPosterFolder + fileId + ".jpg", fileName + ".jpg");
+                }
             }
             else if (action.Equals(ETransferType.BuyGame.ToString()))
             {

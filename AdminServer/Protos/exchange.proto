@@ -47,6 +47,7 @@ message FileExchange {
 	string fileId = 1;
 	string fileName = 2;
 	bytes fileData = 3;
+	bool success = 4;
 }
 message PublishReply {
 	int32 id = 1;

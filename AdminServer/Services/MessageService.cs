@@ -12,6 +12,7 @@ namespace AdminServer.Services
     public class MessageService : MessageExchanger.MessageExchangerBase
     {
         private const string POSTERS = "bin/Debug/netcoreapp3.1/Posters/";
+        //private const string POSTERS = "Posters/";
         public override Task<MessageReply> Login(MessageRequest request, ServerCallContext context)
         {
             //string message = request.Message;
@@ -269,7 +270,12 @@ namespace AdminServer.Services
 
             Game game = Logic.DecodeGame(request.Message);
             int gameId = game.Id;
-            byte[] fileData = await File.ReadAllBytesAsync(POSTERS + gameId + ".jpg");
+            bool success = false;
+            byte[] fileData = new byte[1];
+            if (File.Exists(POSTERS + gameId + ".jpg")){
+                fileData = await File.ReadAllBytesAsync(POSTERS + gameId + ".jpg");
+                success = true;
+            }
 
             LogEntry log = new LogEntry()
             {
@@ -285,7 +291,8 @@ namespace AdminServer.Services
             {
                 FileId = gameId.ToString(),
                 FileName = game.Title,
-                FileData = Google.Protobuf.ByteString.CopyFrom(fileData)
+                FileData = Google.Protobuf.ByteString.CopyFrom(fileData),
+                Success = success
             });
         }
         public override Task<MessageReply> BuyGame(MessageRequest request, ServerCallContext context)

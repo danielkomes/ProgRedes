@@ -792,8 +792,15 @@ namespace Client
                 if (option == 1)
                 {
                     await ch.SendMessageAsync(ETransferType.Download, Logic.EncodeGame(GameToView));
-                    await ch.ReceiveFileAsync();
-                    Console.WriteLine("\r\n------Poster downloaded------\r\n");
+                    bool success = bool.Parse(await ch.ReceiveMessageAsync());
+                    if (success)
+                    {
+                        await ch.ReceiveFileAsync();
+                        Console.WriteLine("\r\n------Poster downloaded------\r\n");
+                    }else
+                    {
+                        Console.WriteLine("\r\n---Error: could not find poster---");
+                    }
                 }
                 else if (option == 2)
                 {
