@@ -65,6 +65,16 @@ namespace Common
             long fileSize = BitConverter.ToInt64(fileSizeDataLength);
             await ReceiveFileAsync(fileSize, pathNoName + fileName);
         }
+        public async Task<byte[]> ReceiveFileAsync()
+        {
+            byte[] fileNameLengthData = await networkStreamHandler.ReadDataAsync(ProtocolSpecification.FileNameSize);
+            int fileNameLength = BitConverter.ToInt32(fileNameLengthData);
+            byte[] fileNameData = await networkStreamHandler.ReadDataAsync(fileNameLength);
+            //string fileName = Encoding.UTF8.GetString(fileNameData);
+            byte[] fileSizeDataLength = await networkStreamHandler.ReadDataAsync(ProtocolSpecification.FileSize);
+            long fileSize = BitConverter.ToInt64(fileSizeDataLength);
+            return await ReceiveFileAsync(fileSize);
+        }
 
         private async Task SendFileAsync(long fileSize, string path)
         {
@@ -114,6 +124,36 @@ namespace Common
                 await _fileStreamHandler.WriteDataAsync(fileName, data);
                 currentPart++;
             }
+        }
+        private async Task<byte[]> ReceiveFileAsync(long fileSize)
+        {
+            long fileParts = ProtocolSpecification.CalculateParts(fileSize);
+            long offset = 0;
+            long currentPart = 1;
+            byte[] data = new byte[fileSize];
+            long previousOffset = 0;
+            while (fileSize > offset)
+            {
+                byte[] dataAux;
+                if (currentPart != fileParts)
+                {
+                    dataAux = await networkStreamHandler.ReadDataAsync(ProtocolSpecification.MaxPacketSize);
+                    offset += ProtocolSpecification.MaxPacketSize;
+                }
+                else
+                {
+                    int lastPartSize = (int)(fileSize - offset);
+                    dataAux = await networkStreamHandler.ReadDataAsync(lastPartSize);
+                    offset += lastPartSize;
+                }
+                for (int i = 0; i < dataAux.Length; i++)
+                {
+                    data[previousOffset + i] = dataAux[i];
+                }
+                currentPart++;
+                previousOffset = offset;
+            }
+            return data;
         }
         public async Task<string> ReceiveMessageAsync()
         {

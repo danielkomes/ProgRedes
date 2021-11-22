@@ -138,17 +138,14 @@ namespace Server
                 int gameId = reply.Id;
                 string gameTitle = reply.Title;
 
-                await ReceiveFileAsync(fch, gameId + ".jpg");
-                //TODO: change old file transference methods to not create files under Server (must be created under AdminServer)
+                byte[] fileData = await ReceiveFileAsync(fch);
 
-                byte[] fileData = await File.ReadAllBytesAsync(ServerPosterFolder + gameId + ".jpg");
                 MessageReply fileReply = await client.ReceiveFileAsync(
                     new FileExchange
                     {
                         FileName = gameId.ToString(),
                         FileData = Google.Protobuf.ByteString.CopyFrom(fileData)
                     });
-                File.Delete(ServerPosterFolder + gameId + ".jpg");
                 string RpcFileReply = fileReply.Message;
             }
             else if (action.Equals(ETransferType.List.ToString()))
@@ -345,9 +342,9 @@ namespace Server
             return reply;
         }
 
-        public async Task ReceiveFileAsync(FileCommunicationHandler fch, string newName)
+        public async Task<byte[]> ReceiveFileAsync(FileCommunicationHandler fch)
         {
-            await fch.ReceiveFileAsync(ServerPosterFolder, newName);
+            return await fch.ReceiveFileAsync();
         }
         public async Task SendFile(FileCommunicationHandler fch, string path, string newName)
         {
