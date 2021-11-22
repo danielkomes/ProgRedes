@@ -19,7 +19,6 @@ namespace Server
         private readonly IPEndPoint _serverIpEndPoint;
         private readonly MessageExchangerClient client;
 
-        private string ServerPosterFolder;
         private int ServerPort;
         private string RpcAddress;
         private int Backlog;
@@ -50,7 +49,6 @@ namespace Server
                 ServerPort = (int)jobj.GetValue("ServerPort");
                 RpcAddress = (string)jobj.GetValue("RpcAddress");
                 Backlog = (int)jobj.GetValue("Backlog");
-                ServerPosterFolder = (string)jobj.GetValue("ServerPosterFolder");
             }
         }
         private async Task AcceptClientsAsync()

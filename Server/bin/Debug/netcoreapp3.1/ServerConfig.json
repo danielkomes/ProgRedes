@@ -1,6 +1,5 @@
 {
 	"ServerPort" : "7000",
 	"RpcAddress": "https://localhost:4001",
-	"Backlog" : "10",
-	"ServerPosterFolder" : "Posters/"
+	"Backlog" : "10"
 }
