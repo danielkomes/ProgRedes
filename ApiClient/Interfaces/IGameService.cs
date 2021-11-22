@@ -1,13 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Domain;
+﻿using Domain;
 using Pagination;
+using System.Threading.Tasks;
 
 namespace WebApi.Interfaces
 {
     public interface IGameService
     {
-        Task<PaginatedResponse<Game>> GetGames(int page, int pageSize);
+        Task<PaginatedResponse<Game>> GetGames(string title, string genre, int rating, int page, int pageSize);
         Task<Game> GetGameByIdAsync(int id);
         Task<Game> PublishGameAsync(Game game);
         Task<Game> UpdateGameAsync(int id, Game game);

@@ -56,9 +56,12 @@ message RemoveGameFromClientRequest{
 	int32 gameId = 2;
 }
 message PagedListRequest{
-	int32 page = 1;
-	int32 pageSize = 2;
-	int32 id = 3;
+	string title = 1;
+	string genre = 2;
+	int32 rating = 3;
+	int32 page = 4;
+	int32 pageSize = 5;
+	int32 id = 6;
 }
 message PagedListReply{
 	string list = 1;
