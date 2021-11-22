@@ -22,14 +22,14 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<WebPaginatedResponse<Game>>> GetGamesAsync(int page = 1, int pageSize = 15)
+        public async Task<ActionResult<WebPaginatedResponse<Game>>> GetGamesAsync(string title = "", string genre = "", int rating = -1, int page = 1, int pageSize = 15)
         {
             if (page <= 0 || pageSize <= 0)
             {
                 return BadRequest();
             }
             PaginatedResponse<Game> gamesPaginatedResponse =
-                await gameService.GetGames(page, pageSize);
+                await gameService.GetGames(title, genre, rating, page, pageSize);
             if (gamesPaginatedResponse == null)
             {
                 return NoContent();

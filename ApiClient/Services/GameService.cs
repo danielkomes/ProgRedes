@@ -21,7 +21,7 @@ namespace WebApi.Services
             client = new MessageExchangerClient(channel);
         }
 
-        public async Task<PaginatedResponse<Game>> GetGames(int page, int pageSize)
+        public async Task<PaginatedResponse<Game>> GetGames(string title, string genre, int rating, int page, int pageSize)
         {
             if (page <= 0 || pageSize <= 0)
             {
@@ -31,6 +31,9 @@ namespace WebApi.Services
             PagedListReply reply = await client.ListPagedAsync(
                 new PagedListRequest
                 {
+                    Title = title,
+                    Genre = genre,
+                    Rating = rating,
                     Page = page,
                     PageSize = pageSize
                 });

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Domain
 {
@@ -25,7 +26,7 @@ namespace Domain
                 return Games;
             }
         }
-        public static List<Game> GetGames(int page, int pageSize)
+        public static List<Game> GetGames(string title, string genre, int rating, int page, int pageSize)
         {
             lock (gamesLocker)
             {
@@ -39,7 +40,50 @@ namespace Domain
                     {
                         for (int i = start; i < end; i++)
                         {
-                            ret.Add(Games[i]);
+                            Game game = Games[i];
+                            bool add = true;
+                            if (add && !string.IsNullOrEmpty(title))
+                            {
+                                Match match = Regex.Match(game.Title, title);
+                                if (match.Success)
+                                {
+                                    add &= true;
+                                }
+                                else
+                                {
+                                    add &= false;
+                                }
+                            }
+                            if (add && !string.IsNullOrEmpty(genre))
+                            {
+                                bool isGenre = Enum.TryParse<EGenre>(genre, out EGenre g);
+                                if (isGenre)
+                                {
+                                    if (game.Genre == g)
+                                    {
+                                        add &= true;
+                                    }
+                                    else
+                                    {
+                                        add &= false;
+                                    }
+                                }
+                            }
+                            if (add && rating >= 0)
+                            {
+                                if (game.AverageRating() == rating)
+                                {
+                                    add &= true;
+                                }
+                                else
+                                {
+                                    add &= false;
+                                }
+                            }
+                            if (add)
+                            {
+                                ret.Add(game);
+                            }
                         }
                     }
                 }

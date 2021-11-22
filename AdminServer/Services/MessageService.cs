@@ -154,7 +154,7 @@ namespace AdminServer.Services
         }
         public override Task<PagedListReply> ListPaged(PagedListRequest request, ServerCallContext context)
         {
-            List<Game> list = Sys.GetGames(request.Page, request.PageSize);
+            List<Game> list = Sys.GetGames(request.Title, request.Genre, request.Rating, request.Page, request.PageSize);
             string reply = Logic.EncodeListGames(list);
 
             return Task.FromResult(new PagedListReply
