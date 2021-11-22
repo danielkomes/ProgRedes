@@ -14,6 +14,30 @@ namespace Domain
             OwnedGames = new List<int>();
             IsOnline = false;
         }
+        public static Client DecodeClient(string s)
+        {
+            string[] arr = s.Split(Logic.GameTransferSeparator);
+            if (arr.Length == 3)
+            {
+                string username = arr[0];
+                List<int> ownedGames = Logic.DecodeOwnedGames(arr[1]);
+                bool isOnline = bool.Parse(arr[2]);
+                return new Client(username)
+                {
+                    OwnedGames = ownedGames,
+                    IsOnline = isOnline
+                };
+            }
+            return null;
+        }
+        public string EncodeClient()
+        {
+            string ret = Username;
+            ret += Logic.GameTransferSeparator + Logic.EncodeOwnedGames(OwnedGames);
+            ret += Logic.GameTransferSeparator + IsOnline;
+            return ret;
+        }
+
         public override bool Equals(object obj)
         {
             Client c = (Client)obj;

@@ -97,15 +97,19 @@ namespace Domain
                 List<Review> ret = new List<Review>();
                 if (pageSize > 0 && page > 0)
                 {
-                    List<Review> list = GetGame(id).Reviews;
-                    int count = list.Count;
-                    int start = page * pageSize - pageSize;
-                    int end = Math.Min(start + pageSize, list.Count);
-                    if (start >= 0 && start < list.Count)
+                    Game game = GetGame(id);
+                    if (game != null)
                     {
-                        for (int i = start; i < end; i++)
+                        List<Review> list = game.Reviews;
+                        int count = list.Count;
+                        int start = page * pageSize - pageSize;
+                        int end = Math.Min(start + pageSize, list.Count);
+                        if (start >= 0 && start < list.Count)
                         {
-                            ret.Add(list[i]);
+                            for (int i = start; i < end; i++)
+                            {
+                                ret.Add(list[i]);
+                            }
                         }
                     }
                 }
@@ -128,6 +132,27 @@ namespace Domain
             lock (clientsLocker)
             {
                 return Clients;
+            }
+        }
+        public static List<Client> GetClientsPaged(int page, int pageSize)
+        {
+            lock (clientsLocker)
+            {
+                List<Client> ret = new List<Client>();
+                if (pageSize > 0 && page > 0)
+                {
+                    int count = Clients.Count;
+                    int start = page * pageSize - pageSize;
+                    int end = Math.Min(start + pageSize, count);
+                    if (start >= 0 && start < count)
+                    {
+                        for (int i = start; i < end; i++)
+                        {
+                            ret.Add(Clients[i]);
+                        }
+                    }
+                }
+                return ret;
             }
         }
         public static bool AddClient(string username)

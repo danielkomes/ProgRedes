@@ -30,7 +30,7 @@ namespace WebApi.Controllers
             }
             PaginatedResponse<Game> gamesPaginatedResponse =
                 await gameService.GetGames(title, genre, rating, page, pageSize);
-            if (gamesPaginatedResponse == null)
+            if (gamesPaginatedResponse.Elements == null)
             {
                 return NoContent();
             }
@@ -95,6 +95,11 @@ namespace WebApi.Controllers
             {
                 return BadRequest();
             }
+            Game game = await gameService.GetGameByIdAsync(id);
+            if (game == null)
+            {
+                return NotFound();
+            }
             PaginatedResponse<Review> reviewsPaginatedResponse =
                 await gameService.GetReviews(id, page, pageSize);
             if (reviewsPaginatedResponse == null)
@@ -113,7 +118,14 @@ namespace WebApi.Controllers
         public async Task<ActionResult<Game>> PublishReviewAsync(int id, Review review)
         {
             Review responseReview = await gameService.ReviewGameAsync(id, review);
-            return new CreatedResult(id + "/reviews", responseReview);
+            if (responseReview != null)
+            {
+                return new CreatedResult(id + "/reviews", responseReview);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
     }
 }

@@ -133,7 +133,15 @@ namespace WebApi.Services
                 {
                     Message = id + Logic.GameTransferSeparator + Logic.EncodeReview(review)
                 });
-            return review;
+            bool success = bool.Parse(reply.Message);
+            if (success)
+            {
+                return review;
+            }
+            else
+            {
+                return null;
+            }
         }
 
     }

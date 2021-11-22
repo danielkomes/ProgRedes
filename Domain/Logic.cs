@@ -209,20 +209,20 @@ namespace Domain
             }
             return ret;
         }
-        public static string EncodeListClients(List<Client> list)
+        public static string EncodeListClientNames(List<Client> list)
         {
             string ret = "";
             foreach (Client client in list)
             {
-                ret += string.Format(",{0}", client.Username);
+                ret += string.Format("{0}{1}", GameTransferSeparator, client.Username);
             }
             ret = ret.Substring(1);
             return ret;
         }
-        public static List<string> DecodeListClients(string s)
+        public static List<string> DecodeListClientNames(string s)
         {
             List<string> ret = new List<string>();
-            string[] arr = s.Split(",");
+            string[] arr = s.Split(GameTransferSeparator);
             foreach (string client in arr)
             {
                 ret.Add(client);
@@ -248,7 +248,7 @@ namespace Domain
                 ret += list[i];
                 if (i < list.Count - 1)
                 {
-                    ret += GameSeparator;
+                    ret += ReviewTransferSeparator;
                 }
             }
             return ret;
@@ -256,7 +256,7 @@ namespace Domain
         public static List<int> DecodeOwnedGames(string s)
         {
             List<int> ret = new List<int>();
-            string[] arr = s.Split(GameSeparator);
+            string[] arr = s.Split(ReviewTransferSeparator);
             foreach (string game in arr)
             {
                 if (!string.IsNullOrEmpty(game))
@@ -315,7 +315,11 @@ namespace Domain
                 string[] arr = s.Split(GameSeparator);
                 foreach (string game in arr)
                 {
-                    ret.Add(DecodeGame(game));
+                    Game g = DecodeGame(game);
+                    if (g != null)
+                    {
+                        ret.Add(g);
+                    }
                 }
             }
             return ret;
@@ -369,6 +373,36 @@ namespace Domain
                 Description = arr[0],
                 Rating = int.Parse(arr[1])
             };
+            return ret;
+        }
+        public static List<Client> DecodeListClients(string s)
+        {
+            List<Client> ret = new List<Client>();
+            string[] arr = s.Split(GameSeparator);
+            foreach (string c in arr)
+            {
+                if (!string.IsNullOrEmpty(c))
+                {
+                    Client client = Client.DecodeClient(c);
+                    if (client != null)
+                    {
+                        ret.Add(client);
+                    }
+                }
+            }
+            return ret;
+        }
+        public static string EncodeListClients(List<Client> list)
+        {
+            string ret = "";
+            foreach (Client c in list)
+            {
+                ret += GameSeparator + c.EncodeClient();
+            }
+            if (ret.Length > 0)
+            {
+                ret = ret[1..];
+            }
             return ret;
         }
     }

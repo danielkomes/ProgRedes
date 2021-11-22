@@ -24,6 +24,7 @@ namespace WebApi
             services.AddControllers();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<IGameService, GameService>();
+            services.AddScoped<IClientService, ClientService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

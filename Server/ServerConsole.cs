@@ -21,7 +21,7 @@ namespace Server
             ServerConsole sc = new ServerConsole(sh);
             foreach (string game in Logic.TestGamesEncoded())
             {
-                await sh.PublishAsync("ADMIN",game);
+                //await sh.PublishAsync("ADMIN",game);
             }
             await sc.Menu0();
         }
@@ -83,7 +83,7 @@ namespace Server
             while (loop)
             {
                 MessageReply listReply = await sh.ListClientsAsync("");
-                List<string> userList = Logic.DecodeListClients(listReply.Message);
+                List<string> userList = Logic.DecodeListClientNames(listReply.Message);
 
                 string options = "1 Back\r\n-----------\r\n" +
                     Logic.ListClients(userList);

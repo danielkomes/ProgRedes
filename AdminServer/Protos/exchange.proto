@@ -31,6 +31,8 @@ service MessageExchanger {
 	rpc ListPaged(PagedListRequest) returns (PagedListReply);
 	rpc GetGameById(MessageRequest) returns (MessageReply);
 	rpc ReviewsPaged(PagedListRequest) returns (PagedListReply);
+	rpc ListClientsPaged(PagedListRequest) returns (PagedListReply);
+	
 }
 
 message MessageRequest{

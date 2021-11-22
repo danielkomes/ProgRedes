@@ -176,9 +176,8 @@ namespace AdminServer.Services
         }
         public override Task<MessageReply> Edit(MessageRequest request, ServerCallContext context)
         {
-            //string message = request.Message;
             Game game = Logic.DecodeGame(request.Message);
-            string reply = Sys.ReplaceGame(game).ToString();
+            bool success = Sys.ReplaceGame(game);
 
             LogEntry log = new LogEntry()
             {
@@ -188,17 +187,19 @@ namespace AdminServer.Services
                 Game = game,
                 Review = null
             };
-            Publisher.PublishMessage(log);
+            if (success)
+            {
+                Publisher.PublishMessage(log);
+            }
 
 
             return Task.FromResult(new MessageReply
             {
-                Message = reply
+                Message = success.ToString()
             });
         }
         public override Task<MessageReply> Delete(MessageRequest request, ServerCallContext context)
         {
-            //string message = request.Message;
             Game game = Logic.DecodeGame(request.Message);
             Sys.DeleteGame(game);
             string reply = "";
@@ -226,9 +227,7 @@ namespace AdminServer.Services
             int id = int.Parse(arr[0]);
             Game game = Sys.GetGame(id);
             Review r = Logic.DecodeReview(arr[1]);
-            Sys.AddReview(id, r);
-
-            string reply = "";
+            bool success = Sys.AddReview(id, r);
 
             LogEntry log = new LogEntry()
             {
@@ -238,21 +237,30 @@ namespace AdminServer.Services
                 Game = game,
                 Review = r
             };
-            Publisher.PublishMessage(log);
+            if (success)
+            {
+                Publisher.PublishMessage(log);
+            }
 
             return Task.FromResult(new MessageReply
             {
-                Message = reply
+                Message = success.ToString()
             });
         }
         public override Task<PagedListReply> ReviewsPaged(PagedListRequest request, ServerCallContext context)
         {
             List<Review> reviews = Sys.GetReviews(request.Id, request.Page, request.PageSize);
             string reply = Logic.EncodeReviews(reviews);
+            int total = 0;
+            Game game = Sys.GetGame(request.Id);
+            if (game != null)
+            {
+                total = game.Reviews.Count;
+            }
             return Task.FromResult(new PagedListReply
             {
                 List = reply,
-                TotalCount = Sys.GetGame(request.Id).Reviews.Count
+                TotalCount = total
             });
         }
         public override async Task<FileExchange> Download(MessageRequest request, ServerCallContext context)
@@ -309,7 +317,7 @@ namespace AdminServer.Services
         public override Task<MessageReply> ListClients(MessageRequest request, ServerCallContext context)
         {
             List<Client> list = Sys.GetClients();
-            string reply = Logic.EncodeListClients(list);
+            string reply = Logic.EncodeListClientNames(list);
 
             return Task.FromResult(new MessageReply
             {
@@ -358,6 +366,16 @@ namespace AdminServer.Services
             return Task.FromResult(new MessageReply
             {
                 Message = reply
+            });
+        }
+        public override Task<PagedListReply> ListClientsPaged(PagedListRequest request, ServerCallContext context)
+        {
+            List<Client> clients = Sys.GetClientsPaged(request.Page, request.PageSize);
+            string message = Logic.EncodeListClients(clients);
+            return Task.FromResult(new PagedListReply
+            {
+                List = message,
+                TotalCount = Sys.Clients.Count
             });
         }
     }
