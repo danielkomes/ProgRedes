@@ -14,10 +14,10 @@ namespace AdminServer.Services
         private const string POSTERS = "bin/Debug/netcoreapp3.1/Posters/";
         public override Task<MessageReply> Login(MessageRequest request, ServerCallContext context)
         {
-            string message = request.Message;
+            //string message = request.Message;
             string reply = "";
 
-            Client client = Sys.GetClient(message);
+            Client client = Sys.GetClient(request.Username);
             if (client != null)
             {
                 if (!client.IsOnline)
@@ -33,7 +33,7 @@ namespace AdminServer.Services
                         Game = null,
                         Review = null
                     };
-                    Logs.Add(log);
+                    Publisher.PublishMessage(log);
                 }
                 else
                 {
@@ -51,15 +51,15 @@ namespace AdminServer.Services
         }
         public override Task<MessageReply> Signup(MessageRequest request, ServerCallContext context)
         {
-            string message = request.Message;
+            //string message = request.Message;
 
-            bool msg = Sys.AddClient(message);
+            bool msg = Sys.AddClient(request.Username);
 
             string reply = msg.ToString();
 
             if (msg)
             {
-                Client client = Sys.GetClient(message);
+                Client client = Sys.GetClient(request.Username);
                 client.IsOnline = true;
 
                 LogEntry log = new LogEntry()
@@ -70,7 +70,7 @@ namespace AdminServer.Services
                     Game = null,
                     Review = null
                 };
-                Logs.Add(log);
+                Publisher.PublishMessage(log);
 
             }
             return Task.FromResult(new MessageReply
@@ -80,10 +80,10 @@ namespace AdminServer.Services
         }
         public override Task<MessageReply> Logoff(MessageRequest request, ServerCallContext context)
         {
-            string message = request.Message;
+            //string message = request.Message;
             string reply = "";
 
-            Client client = Sys.GetClient(message);
+            Client client = Sys.GetClient(request.Username);
             if (client != null)
             {
                 client.IsOnline = false;
@@ -97,7 +97,7 @@ namespace AdminServer.Services
                 Game = null,
                 Review = null
             };
-            Logs.Add(log);
+            Publisher.PublishMessage(log);
 
             return Task.FromResult(new MessageReply
             {
@@ -107,9 +107,9 @@ namespace AdminServer.Services
 
         public override Task<PublishReply> Publish(MessageRequest request, ServerCallContext context)
         {
-            string message = request.Message;
+            //string message = request.Message;
 
-            Game game = Logic.DecodeGame(message);
+            Game game = Logic.DecodeGame(request.Message);
             Sys.AddGame(game);
             LogEntry log = new LogEntry()
             {
@@ -176,8 +176,8 @@ namespace AdminServer.Services
         }
         public override Task<MessageReply> Edit(MessageRequest request, ServerCallContext context)
         {
-            string message = request.Message;
-            Game game = Logic.DecodeGame(message);
+            //string message = request.Message;
+            Game game = Logic.DecodeGame(request.Message);
             string reply = Sys.ReplaceGame(game).ToString();
 
             LogEntry log = new LogEntry()
@@ -188,7 +188,8 @@ namespace AdminServer.Services
                 Game = game,
                 Review = null
             };
-            Logs.Add(log);
+            Publisher.PublishMessage(log);
+
 
             return Task.FromResult(new MessageReply
             {
@@ -197,8 +198,8 @@ namespace AdminServer.Services
         }
         public override Task<MessageReply> Delete(MessageRequest request, ServerCallContext context)
         {
-            string message = request.Message;
-            Game game = Logic.DecodeGame(message);
+            //string message = request.Message;
+            Game game = Logic.DecodeGame(request.Message);
             Sys.DeleteGame(game);
             string reply = "";
 
@@ -210,7 +211,7 @@ namespace AdminServer.Services
                 Game = game,
                 Review = null
             };
-            Logs.Add(log);
+            Publisher.PublishMessage(log);
 
             return Task.FromResult(new MessageReply
             {
@@ -219,9 +220,9 @@ namespace AdminServer.Services
         }
         public override Task<MessageReply> Review(MessageRequest request, ServerCallContext context)
         {
-            string message = request.Message;
+            //string message = request.Message;
 
-            string[] arr = message.Split(Logic.GameTransferSeparator);
+            string[] arr = request.Message.Split(Logic.GameTransferSeparator);
             int id = int.Parse(arr[0]);
             Game game = Sys.GetGame(id);
             Review r = Logic.DecodeReview(arr[1]);
@@ -237,7 +238,7 @@ namespace AdminServer.Services
                 Game = game,
                 Review = r
             };
-            Logs.Add(log);
+            Publisher.PublishMessage(log);
 
             return Task.FromResult(new MessageReply
             {
@@ -256,9 +257,9 @@ namespace AdminServer.Services
         }
         public override async Task<FileExchange> Download(MessageRequest request, ServerCallContext context)
         {
-            string message = request.Message;
+            //string message = request.Message;
 
-            Game game = Logic.DecodeGame(message);
+            Game game = Logic.DecodeGame(request.Message);
             int gameId = game.Id;
             byte[] fileData = await File.ReadAllBytesAsync(POSTERS + gameId + ".jpg");
 
@@ -270,7 +271,7 @@ namespace AdminServer.Services
                 Game = game,
                 Review = null
             };
-            Logs.Add(log);
+            Publisher.PublishMessage(log);
 
             return await Task.FromResult(new FileExchange
             {
@@ -281,9 +282,9 @@ namespace AdminServer.Services
         }
         public override Task<MessageReply> BuyGame(MessageRequest request, ServerCallContext context)
         {
-            string message = request.Message;
+            //string message = request.Message;
 
-            string[] arr = message.Split(Logic.GameTransferSeparator);
+            string[] arr = request.Message.Split(Logic.GameTransferSeparator);
             int gameId = int.Parse(arr[0]);
             Game game = Sys.GetGame(gameId);
             string username = arr[1];
@@ -293,11 +294,11 @@ namespace AdminServer.Services
             {
                 Date = DateTime.Now,
                 Action = ETransferType.BuyGame,
-                Username = request.Username,
+                Username = username,
                 Game = game,
                 Review = null
             };
-            Logs.Add(log);
+            Publisher.PublishMessage(log);
 
             return Task.FromResult(new MessageReply
             {

@@ -205,7 +205,7 @@ namespace Server
             MessageReply reply = await client.LoginAsync(
                 new MessageRequest
                 {
-                    Message = message
+                    Username = message
                 });
             return reply;
         }
@@ -214,7 +214,7 @@ namespace Server
             MessageReply reply = await client.SignupAsync(
                 new MessageRequest
                 {
-                    Message = message
+                    Username = message
                 });
             return reply;
         }
@@ -223,7 +223,7 @@ namespace Server
             MessageReply reply = await client.LogoffAsync(
                 new MessageRequest
                 {
-                    Message = message
+                    Username = message
                 });
             return reply;
         }
