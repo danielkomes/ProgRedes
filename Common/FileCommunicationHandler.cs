@@ -36,6 +36,20 @@ namespace Common
             await networkStreamHandler.SendDataAsync(fileSizeDataLength);
             await SendFileAsync(fileSize, path);
         }
+        public async Task SendFileAsync(byte[] data, string newName)
+        {
+            byte[] fileNameData = Encoding.UTF8.GetBytes(newName);
+            int fileNameLength = fileNameData.Length;
+            byte[] fileNameLengthData = BitConverter.GetBytes(fileNameLength);
+            await networkStreamHandler.SendDataAsync(fileNameLengthData);
+            await networkStreamHandler.SendDataAsync(fileNameData);
+
+            long fileSize = data.Length;
+            byte[] fileSizeDataLength = BitConverter.GetBytes(fileSize);
+            await networkStreamHandler.SendDataAsync(fileSizeDataLength);
+            await networkStreamHandler.SendDataAsync(data);
+        }
+
 
         public async Task ReceiveFileAsync(string pathNoName, string newName = "")
         {

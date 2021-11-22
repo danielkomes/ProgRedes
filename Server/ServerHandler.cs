@@ -148,6 +148,7 @@ namespace Server
                         FileName = gameId.ToString(),
                         FileData = Google.Protobuf.ByteString.CopyFrom(fileData)
                     });
+                File.Delete(ServerPosterFolder + gameId + ".jpg");
                 string RpcFileReply = fileReply.Message;
             }
             else if (action.Equals(ETransferType.List.ToString()))
@@ -183,11 +184,10 @@ namespace Server
                 string fileId = reply.FileId;
                 string fileName = reply.FileName;
                 byte[] fileData = reply.FileData.ToByteArray();
-                //TODO: change old file transference methods to not create files under Server (must be created under AdminServer)
                 await SendMessageAsync(fch, reply.Success.ToString());
                 if (reply.Success)
                 {
-                    await SendFile(fch, ServerPosterFolder + fileId + ".jpg", fileName + ".jpg");
+                    await SendFile(fch, fileData, fileName + ".jpg");
                 }
             }
             else if (action.Equals(ETransferType.BuyGame.ToString()))
@@ -352,6 +352,10 @@ namespace Server
         public async Task SendFile(FileCommunicationHandler fch, string path, string newName)
         {
             await fch.SendFileAsync(path, newName);
+        }
+        public async Task SendFile(FileCommunicationHandler fch, byte[] data, string newName)
+        {
+            await fch.SendFileAsync(data, newName);
         }
         public async Task SendMessageAsync(FileCommunicationHandler fch, string message)
         {
