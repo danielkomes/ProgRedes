@@ -1,9 +1,11 @@
 ﻿using Domain;
 using Grpc.Net.Client;
 using LogHandler;
+using Newtonsoft.Json.Linq;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
+using System.IO;
 using System.Text;
 using static LogHandler.LogExchange;
 
@@ -15,10 +17,20 @@ namespace Subscriber
         private const string RoutingKey = "LogServer";
 
         private static readonly LogExchangeClient loggerClient;
+        private static string RpcAddress;
         static SubscriberProgram()
         {
-            GrpcChannel channel = GrpcChannel.ForAddress("https://localhost:8001");
+            ReadJson();
+            GrpcChannel channel = GrpcChannel.ForAddress(RpcAddress);
             loggerClient = new LogExchangeClient(channel);
+        }
+        private static void ReadJson()
+        {
+            string filepath = "SubscriberConfig.json";
+            using StreamReader r = new StreamReader(filepath);
+            var json = r.ReadToEnd();
+            var jobj = JObject.Parse(json);
+            RpcAddress = (string)jobj.GetValue("RpcAddress");
         }
 
         static void Main(string[] args)

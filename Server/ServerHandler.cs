@@ -21,6 +21,7 @@ namespace Server
 
         private string ServerPosterFolder;
         private int ServerPort;
+        private string RpcAddress; 
         private int Backlog;
         private bool serverRunning;
         public Dictionary<TcpClient, string> clients;
@@ -34,7 +35,7 @@ namespace Server
             serverRunning = true;
             clients = new Dictionary<TcpClient, string>();
 
-            GrpcChannel channel = GrpcChannel.ForAddress("https://localhost:4001"); //TODO: move to ServerConfig.json
+            GrpcChannel channel = GrpcChannel.ForAddress(RpcAddress);
             client = new MessageExchangerClient(channel);
 
             Task.Run(async () => await AcceptClientsAsync());
@@ -47,6 +48,7 @@ namespace Server
                 var json = r.ReadToEnd();
                 var jobj = JObject.Parse(json);
                 ServerPort = (int)jobj.GetValue("ServerPort");
+                RpcAddress = (string)jobj.GetValue("RpcAddress");
                 Backlog = (int)jobj.GetValue("Backlog");
                 ServerPosterFolder = (string)jobj.GetValue("ServerPosterFolder");
             }

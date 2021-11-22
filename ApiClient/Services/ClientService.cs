@@ -1,9 +1,11 @@
 ﻿using AdminServer;
 using Domain;
 using Grpc.Net.Client;
+using Newtonsoft.Json.Linq;
 using Pagination;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using WebApi.Interfaces;
@@ -13,12 +15,22 @@ namespace WebApi.Services
 {
     public class ClientService : IClientService
     {
-        private readonly MessageExchangerClient client;
+        private readonly MessageExchangerClient rpcClient;
+        private string RpcAddress;
 
         public ClientService()
         {
-            GrpcChannel channel = GrpcChannel.ForAddress("https://localhost:4001"); //TODO: move to ServerConfig.json
-            client = new MessageExchangerClient(channel);
+            ReadJson();
+            GrpcChannel channel = GrpcChannel.ForAddress(RpcAddress);
+            rpcClient = new MessageExchangerClient(channel);
+        }
+        private void ReadJson()
+        {
+            string filepath = "ClientServiceConfig.json";
+            using StreamReader r = new StreamReader(filepath);
+            var json = r.ReadToEnd();
+            var jobj = JObject.Parse(json);
+            RpcAddress = (string)jobj.GetValue("RpcAddress");
         }
 
         public async Task<PaginatedResponse<Client>> GetClients(int page, int pageSize)
@@ -28,7 +40,7 @@ namespace WebApi.Services
                 return null;
             }
 
-            PagedListReply reply = await client.ListClientsPagedAsync(
+            PagedListReply reply = await rpcClient.ListClientsPagedAsync(
                 new PagedListRequest
                 {
                     Page = page,

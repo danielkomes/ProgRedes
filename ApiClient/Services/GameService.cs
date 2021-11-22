@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AdminServer;
 using Domain;
 using Grpc.Net.Client;
+using Newtonsoft.Json.Linq;
 using Pagination;
 using WebApi.Interfaces;
 using static AdminServer.MessageExchanger;
@@ -13,12 +15,22 @@ namespace WebApi.Services
 {
     public class GameService : IGameService
     {
-        private readonly MessageExchangerClient client;
+        private readonly MessageExchangerClient rpcClient;
+        private string RpcAddress;
 
         public GameService()
         {
-            GrpcChannel channel = GrpcChannel.ForAddress("https://localhost:4001"); //TODO: move to ServerConfig.json
-            client = new MessageExchangerClient(channel);
+            ReadJson();
+            GrpcChannel channel = GrpcChannel.ForAddress(RpcAddress);
+            rpcClient = new MessageExchangerClient(channel);
+        }
+        private void ReadJson()
+        {
+            string filepath = "GameServiceConfig.json";
+            using StreamReader r = new StreamReader(filepath);
+            var json = r.ReadToEnd();
+            var jobj = JObject.Parse(json);
+            RpcAddress = (string)jobj.GetValue("RpcAddress");
         }
 
         public async Task<PaginatedResponse<Game>> GetGames(string title, string genre, int rating, int page, int pageSize)
@@ -28,7 +40,7 @@ namespace WebApi.Services
                 return null;
             }
 
-            PagedListReply reply = await client.ListPagedAsync(
+            PagedListReply reply = await rpcClient.ListPagedAsync(
                 new PagedListRequest
                 {
                     Title = title,
@@ -44,7 +56,7 @@ namespace WebApi.Services
 
         public async Task<Game> GetGameByIdAsync(int id)
         {
-            MessageReply reply = await client.GetGameByIdAsync(
+            MessageReply reply = await rpcClient.GetGameByIdAsync(
                 new MessageRequest
                 {
                     Message = id.ToString()
@@ -58,7 +70,7 @@ namespace WebApi.Services
         }
         public async Task<Game> PublishGameAsync(Game game)
         {
-            PublishReply reply = await client.PublishAsync(
+            PublishReply reply = await rpcClient.PublishAsync(
                 new MessageRequest
                 {
                     Message = Logic.EncodeGame(game)
@@ -70,7 +82,7 @@ namespace WebApi.Services
         public async Task<Game> UpdateGameAsync(int id, Game game)
         {
             game.Id = id;
-            MessageReply reply = await client.EditAsync(
+            MessageReply reply = await rpcClient.EditAsync(
                 new MessageRequest
                 {
                     Message = Logic.EncodeGame(game)
@@ -91,7 +103,7 @@ namespace WebApi.Services
             Game game = await GetGameByIdAsync(id);
             if (game != null)
             {
-                MessageReply reply = await client.DeleteAsync(
+                MessageReply reply = await rpcClient.DeleteAsync(
                     new MessageRequest
                     {
                         Message = Logic.EncodeGame(game)
@@ -111,7 +123,7 @@ namespace WebApi.Services
                 return null;
             }
 
-            PagedListReply reply = await client.ReviewsPagedAsync(
+            PagedListReply reply = await rpcClient.ReviewsPagedAsync(
                 new PagedListRequest
                 {
                     Page = page,
@@ -128,7 +140,7 @@ namespace WebApi.Services
         }
         public async Task<Review> ReviewGameAsync(int id, Review review)
         {
-            MessageReply reply = await client.ReviewAsync(
+            MessageReply reply = await rpcClient.ReviewAsync(
                 new MessageRequest
                 {
                     Message = id + Logic.GameTransferSeparator + Logic.EncodeReview(review)
